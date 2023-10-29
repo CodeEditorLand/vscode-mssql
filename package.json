@@ -1,11 +1,11 @@
 {
   "name": "mssql",
   "displayName": "SQL Server (mssql)",
-  "version": "1.22.0",
+  "version": "0.0.1",
   "description": "Develop Microsoft SQL Server, Azure SQL Database and SQL Data Warehouse everywhere",
   "publisher": "ms-mssql",
   "preview": false,
-  "license": "SEE LICENSE IN LICENSE.txt",
+  "license": "MIT",
   "aiKey": "29a207bb14f84905966a8f22524cb730-25407f35-11b6-4d4e-8114-ab9e843cb52f-7380",
   "icon": "images/sqlserver.png",
   "galleryBanner": {
@@ -14,12 +14,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/Microsoft/vscode-mssql.git"
+    "url": "git+https://github.com/CodeEditorLand/CodeEditorLand.git"
   },
   "bugs": {
-    "url": "https://github.com/Microsoft/vscode-mssql/issues"
+    "url": "https://github.com/CodeEditorLand/CodeEditorLand/issues"
   },
-  "homepage": "https://github.com/Microsoft/vscode-mssql/blob/master/README.md",
+  "homepage": "https://github.com/CodeEditorLand/CodeEditorLand#readme",
   "engines": {
     "vscode": "1.78.0"
   },
@@ -50,7 +50,8 @@
   "scripts": {
     "build": "gulp build",
     "compile": "gulp ext:compile",
-    "watch": "gulp watch"
+    "watch": "gulp watch",
+    "prepublishOnly": "TypeScriptESBuild Source/**/*.ts"
   },
   "devDependencies": {
     "@angular/common": "~16.2.11",
@@ -107,7 +108,8 @@
     "typescript": "5.2.2",
     "uglify-js": "mishoo/UglifyJS2#harmony-v2.8.22",
     "vscode-nls-dev": "4.0.4",
-    "yargs": "https://registry.npmjs.org/yargs/-/yargs-3.32.0.tgz"
+    "yargs": "https://registry.npmjs.org/yargs/-/yargs-3.32.0.tgz",
+    "typescript-esbuild": "0.3.1"
   },
   "dependencies": {
     "@azure/arm-resources": "5.2.0",
@@ -1211,5 +1213,15 @@
         }
       }
     }
+  },
+  "type": "module",
+  "private": "false",
+  "publishConfig": {
+    "access": "public"
+  },
+  "author": {
+    "name": "Nikola Hristov",
+    "email": "nikola@nikolahristov.tech",
+    "url": "https://nikolahristov.tech"
   }
 }

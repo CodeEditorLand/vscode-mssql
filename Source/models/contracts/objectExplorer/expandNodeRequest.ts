@@ -3,8 +3,8 @@
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * ------------------------------------------------------------------------------------------ */
 
-import { NodeInfo } from './nodeInfo';
-import { RequestType, NotificationType } from 'vscode-languageclient';
+import { NodeInfo } from "./nodeInfo";
+import { RequestType, NotificationType } from "vscode-languageclient";
 
 // ------------------------------- < Expand Node Response > ----------------------------------------------
 
@@ -59,12 +59,16 @@ export namespace ExpandRequest {
 	/**
 	 * Returns children of a given node as a NodeInfo array
 	 */
-	export const type = new RequestType<ExpandParams, boolean, void, void>('objectexplorer/expand');
+	export const type = new RequestType<ExpandParams, boolean, void, void>(
+		"objectexplorer/expand"
+	);
 }
 
 /**
  * Expand notification mapping entry
  */
 export namespace ExpandCompleteNotification {
-	export const type = new NotificationType<ExpandResponse, void>('objectexplorer/expandCompleted');
+	export const type = new NotificationType<ExpandResponse, void>(
+		"objectexplorer/expandCompleted"
+	);
 }

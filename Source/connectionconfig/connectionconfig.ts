@@ -1,25 +1,23 @@
 /*---------------------------------------------------------------------------------------------
-*  Copyright (c) Microsoft Corporation. All rights reserved.
-*  Licensed under the MIT License. See License.txt in the project root for license information.
-*--------------------------------------------------------------------------------------------*/
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
 
-import * as Constants from '../constants/constants';
-import * as LocalizedConstants from '../constants/localizedConstants';
-import * as Utils from '../models/utils';
-import { IConnectionProfile } from '../models/interfaces';
-import { IConnectionConfig } from './iconnectionconfig';
-import VscodeWrapper from '../controllers/vscodeWrapper';
+import * as Constants from "../constants/constants";
+import * as LocalizedConstants from "../constants/localizedConstants";
+import * as Utils from "../models/utils";
+import { IConnectionProfile } from "../models/interfaces";
+import { IConnectionConfig } from "./iconnectionconfig";
+import VscodeWrapper from "../controllers/vscodeWrapper";
 
 /**
  * Implements connection profile file storage.
  */
 export class ConnectionConfig implements IConnectionConfig {
-
 	/**
 	 * Constructor.
 	 */
 	public constructor(private _vscodeWrapper?: VscodeWrapper) {
-
 		if (!this.vscodeWrapper) {
 			this.vscodeWrapper = new VscodeWrapper();
 		}
@@ -37,11 +35,12 @@ export class ConnectionConfig implements IConnectionConfig {
 	 * Add a new connection to the connection config.
 	 */
 	public async addConnection(profile: IConnectionProfile): Promise<void> {
-
 		let profiles = this.getProfilesFromSettings();
 
 		// Remove the profile if already set
-		profiles = profiles.filter(value => !Utils.isSameProfile(value, profile));
+		profiles = profiles.filter(
+			(value) => !Utils.isSameProfile(value, profile)
+		);
 		profiles.push(profile);
 
 		return await this.writeProfilesToSettings(profiles);
@@ -52,12 +51,22 @@ export class ConnectionConfig implements IConnectionConfig {
 	 * are sorted first by whether they were found in the user/workspace settings,
 	 * and next alphabetically by profile/server name.
 	 */
-	public getConnections(getWorkspaceConnections: boolean): IConnectionProfile[] {
+	public getConnections(
+		getWorkspaceConnections: boolean
+	): IConnectionProfile[] {
 		let profiles: IConnectionProfile[] = [];
 		let compareProfileFunc = (a, b) => {
 			// Sort by profile name if available, otherwise fall back to server name or connection string
-			let nameA = a.profileName ? a.profileName : (a.server ? a.server : a.connectionString);
-			let nameB = b.profileName ? b.profileName : (b.server ? b.server : b.connectionString);
+			let nameA = a.profileName
+				? a.profileName
+				: a.server
+				? a.server
+				: a.connectionString;
+			let nameB = b.profileName
+				? b.profileName
+				: b.server
+				? b.server
+				: b.connectionString;
 			return nameA.localeCompare(nameB);
 		};
 
@@ -75,9 +84,13 @@ export class ConnectionConfig implements IConnectionConfig {
 		}
 
 		if (profiles.length > 0) {
-			profiles = profiles.filter(conn => {
+			profiles = profiles.filter((conn) => {
 				// filter any connection missing a connection string and server name or the sample that's shown by default
-				return conn.connectionString || !!(conn.server) && conn.server !== LocalizedConstants.SampleServerName;
+				return (
+					conn.connectionString ||
+					(!!conn.server &&
+						conn.server !== LocalizedConstants.SampleServerName)
+				);
 			});
 		}
 
@@ -87,13 +100,14 @@ export class ConnectionConfig implements IConnectionConfig {
 	/**
 	 * Remove an existing connection from the connection config.
 	 */
-	public async removeConnection(profile: IConnectionProfile): Promise<boolean> {
-
+	public async removeConnection(
+		profile: IConnectionProfile
+	): Promise<boolean> {
 		let profiles = this.getProfilesFromSettings();
 
 		// Remove the profile if already set
 		let found: boolean = false;
-		profiles = profiles.filter(value => {
+		profiles = profiles.filter((value) => {
 			if (Utils.isSameProfile(value, profile)) {
 				// remove just this profile
 				found = true;
@@ -113,17 +127,26 @@ export class ConnectionConfig implements IConnectionConfig {
 	 * @param global When `true` profiles come from user settings, otherwise from workspace settings
 	 * @returns the set of connection profiles found in the settings.
 	 */
-	public getProfilesFromSettings(global: boolean = true): IConnectionProfile[] {
-		let configuration = this._vscodeWrapper.getConfiguration(Constants.extensionName, this._vscodeWrapper.activeTextEditorUri);
+	public getProfilesFromSettings(
+		global: boolean = true
+	): IConnectionProfile[] {
+		let configuration = this._vscodeWrapper.getConfiguration(
+			Constants.extensionName,
+			this._vscodeWrapper.activeTextEditorUri
+		);
 		let profiles: IConnectionProfile[] = [];
 
-		let configValue = configuration.inspect<IConnectionProfile[]>(Constants.connectionsArrayName);
+		let configValue = configuration.inspect<IConnectionProfile[]>(
+			Constants.connectionsArrayName
+		);
 		if (global) {
 			profiles = configValue.globalValue;
 		} else {
 			profiles = configValue.workspaceValue;
 			if (profiles !== undefined) {
-				profiles = profiles.concat(configValue.workspaceFolderValue || []);
+				profiles = profiles.concat(
+					configValue.workspaceFolderValue || []
+				);
 			} else {
 				profiles = configValue.workspaceFolderValue;
 			}
@@ -140,8 +163,14 @@ export class ConnectionConfig implements IConnectionConfig {
 	 * Replace existing profiles in the user settings with a new set of profiles.
 	 * @param profiles the set of profiles to insert into the settings file.
 	 */
-	private async writeProfilesToSettings(profiles: IConnectionProfile[]): Promise<void> {
+	private async writeProfilesToSettings(
+		profiles: IConnectionProfile[]
+	): Promise<void> {
 		// Save the file
-		await this._vscodeWrapper.setConfiguration(Constants.extensionName, Constants.connectionsArrayName, profiles);
+		await this._vscodeWrapper.setConfiguration(
+			Constants.extensionName,
+			Constants.connectionsArrayName,
+			profiles
+		);
 	}
 }

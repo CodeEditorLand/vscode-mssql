@@ -3,19 +3,21 @@
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * ------------------------------------------------------------------------------------------ */
 
-import * as vscode from 'vscode';
-import * as path from 'path';
-import * as LocalizedConstants from '../constants/localizedConstants';
+import * as vscode from "vscode";
+import * as path from "path";
+import * as LocalizedConstants from "../constants/localizedConstants";
 
 /**
  * Empty Node shown when no queries are available
  */
 export class EmptyHistoryNode extends vscode.TreeItem {
-
-	private static readonly contextValue = 'emptyHistoryNode';
+	private static readonly contextValue = "emptyHistoryNode";
 
 	constructor() {
-		super(LocalizedConstants.msgNoQueriesAvailable, vscode.TreeItemCollapsibleState.None);
+		super(
+			LocalizedConstants.msgNoQueriesAvailable,
+			vscode.TreeItemCollapsibleState.None
+		);
 		this.contextValue = EmptyHistoryNode.contextValue;
 	}
 }
@@ -24,11 +26,16 @@ export class EmptyHistoryNode extends vscode.TreeItem {
  * Query history node
  */
 export class QueryHistoryNode extends vscode.TreeItem {
-
-	private static readonly contextValue = 'queryHistoryNode';
-	private readonly iconsPath: string = path.join(__dirname, 'icons');
-	private readonly successIcon: string = path.join(this.iconsPath, 'status_success.svg');
-	private readonly failureIcon: string = path.join(this.iconsPath, 'status_error.svg');
+	private static readonly contextValue = "queryHistoryNode";
+	private readonly iconsPath: string = path.join(__dirname, "icons");
+	private readonly successIcon: string = path.join(
+		this.iconsPath,
+		"status_success.svg"
+	);
+	private readonly failureIcon: string = path.join(
+		this.iconsPath,
+		"status_error.svg"
+	);
 	private _ownerUri: string;
 	private _timeStamp: Date;
 	private _isSuccess: boolean;
@@ -57,7 +64,8 @@ export class QueryHistoryNode extends vscode.TreeItem {
 
 	/** Getters */
 	public get historyNodeLabel(): string {
-		const label = typeof this.label === 'string' ? this.label : this.label.label;
+		const label =
+			typeof this.label === "string" ? this.label : this.label.label;
 		return label;
 	}
 

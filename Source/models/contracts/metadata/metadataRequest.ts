@@ -3,8 +3,8 @@
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * ------------------------------------------------------------------------------------------ */
 
-import { RequestType } from 'vscode-languageclient';
-import * as vscodeMssql from 'vscode-mssql';
+import { RequestType } from "vscode-languageclient";
+import * as vscodeMssql from "vscode-mssql";
 
 export class MetadataQueryParams {
 	/**
@@ -17,9 +17,13 @@ export class MetadataQueryResult {
 	public metadata: vscodeMssql.ObjectMetadata[];
 }
 
-
 // ------------------------------- < Metadata Events > ------------------------------------
 
 export namespace MetadataQueryRequest {
-	export const type = new RequestType<MetadataQueryParams, MetadataQueryResult, void, void>('metadata/list');
+	export const type = new RequestType<
+		MetadataQueryParams,
+		MetadataQueryResult,
+		void,
+		void
+	>("metadata/list");
 }

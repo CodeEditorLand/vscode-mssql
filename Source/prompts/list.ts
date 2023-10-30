@@ -1,16 +1,16 @@
 // This code is originally from https://github.com/DonJayamanne/bowerVSCode
 // License: https://github.com/DonJayamanne/bowerVSCode/blob/master/LICENSE
 
-import Prompt from './prompt';
-import EscapeException from '../utils/escapeException';
-import VscodeWrapper from '../controllers/vscodeWrapper';
+import Prompt from "./prompt";
+import EscapeException from "../utils/escapeException";
+import VscodeWrapper from "../controllers/vscodeWrapper";
 
 export default class ListPrompt extends Prompt {
-
 	constructor(
 		question: any,
 		vscodeWrapper: VscodeWrapper,
-		ignoreFocusOut?: boolean) {
+		ignoreFocusOut?: boolean
+	) {
 		super(question, vscodeWrapper, ignoreFocusOut);
 	}
 
@@ -23,8 +23,9 @@ export default class ListPrompt extends Prompt {
 		let options = this.defaultQuickPickOptions;
 		options.placeHolder = this._question.message;
 
-		return this._vscodeWrapper.showQuickPickStrings(Object.keys(choices), options)
-			.then(result => {
+		return this._vscodeWrapper
+			.showQuickPickStrings(Object.keys(choices), options)
+			.then((result) => {
 				if (result === undefined) {
 					throw new EscapeException();
 				}

@@ -3,15 +3,20 @@
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * ------------------------------------------------------------------------------------------ */
 
-import { NotificationType, RequestType } from 'vscode-languageclient';
-import { ConnectionDetails } from 'vscode-mssql';
-import { NodeInfo } from './nodeInfo';
+import { NotificationType, RequestType } from "vscode-languageclient";
+import { ConnectionDetails } from "vscode-mssql";
+import { NodeInfo } from "./nodeInfo";
 
 // ------------------------------- < Create Session Request > ----------------------------------------------
 
 // Create session request message callback declaration
 export namespace CreateSessionRequest {
-	export const type = new RequestType<ConnectionDetails, CreateSessionResponse, void, void>('objectexplorer/createsession');
+	export const type = new RequestType<
+		ConnectionDetails,
+		CreateSessionResponse,
+		void,
+		void
+	>("objectexplorer/createsession");
 }
 
 /**
@@ -67,5 +72,7 @@ export class SessionCreatedParameters {
  * Connection complete event callback declaration.
  */
 export namespace CreateSessionCompleteNotification {
-	export const type = new NotificationType<SessionCreatedParameters, void>('objectexplorer/sessioncreated');
+	export const type = new NotificationType<SessionCreatedParameters, void>(
+		"objectexplorer/sessioncreated"
+	);
 }

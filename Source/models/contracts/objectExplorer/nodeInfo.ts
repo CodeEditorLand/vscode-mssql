@@ -3,7 +3,7 @@
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * ------------------------------------------------------------------------------------------ */
 
-import { ObjectMetadata } from 'vscode-mssql';
+import { ObjectMetadata } from "vscode-mssql";
 
 /**
  * Information describing a Node in the Object Explorer tree.
@@ -12,7 +12,6 @@ import { ObjectMetadata } from 'vscode-mssql';
  * the node
  */
 export class NodeInfo {
-
 	/**
 	 * Path identifying this node: for example a table will be at ["server", "database", "tables", "tableName"].
 	 * This enables rapid navigation of the tree without the need for a global registry of elements.

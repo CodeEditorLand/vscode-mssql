@@ -3,14 +3,13 @@
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * ------------------------------------------------------------------------------------------ */
 
-import * as vscode from 'vscode';
-import { NodeInfo } from '../models/contracts/objectExplorer/nodeInfo';
-import { ObjectExplorerUtils } from './objectExplorerUtils';
-import * as Constants from '../constants/constants';
-import { IConnectionInfo, ITreeNodeInfo, ObjectMetadata } from 'vscode-mssql';
+import * as vscode from "vscode";
+import { NodeInfo } from "../models/contracts/objectExplorer/nodeInfo";
+import { ObjectExplorerUtils } from "./objectExplorerUtils";
+import * as Constants from "../constants/constants";
+import { IConnectionInfo, ITreeNodeInfo, ObjectMetadata } from "vscode-mssql";
 
 export class TreeNodeInfo extends vscode.TreeItem implements ITreeNodeInfo {
-
 	private _nodePath: string;
 	private _nodeStatus: string;
 	private _nodeType: string;
@@ -52,14 +51,25 @@ export class TreeNodeInfo extends vscode.TreeItem implements ITreeNodeInfo {
 		parentNode: TreeNodeInfo,
 		connectionInfo: IConnectionInfo,
 		label?: string,
-		nodeType?: string): TreeNodeInfo {
+		nodeType?: string
+	): TreeNodeInfo {
 		let type = nodeType ? nodeType : nodeInfo.nodeType;
-		const treeNodeInfo = new TreeNodeInfo(label ? label : nodeInfo.label, type,
-			nodeInfo.isLeaf ? vscode.TreeItemCollapsibleState.None :
-				(type === Constants.serverLabel ? vscode.TreeItemCollapsibleState.Expanded :
-					vscode.TreeItemCollapsibleState.Collapsed),
-			nodeInfo.nodePath, nodeInfo.nodeStatus,
-			type, sessionId, connectionInfo, parentNode, nodeInfo.metadata);
+		const treeNodeInfo = new TreeNodeInfo(
+			label ? label : nodeInfo.label,
+			type,
+			nodeInfo.isLeaf
+				? vscode.TreeItemCollapsibleState.None
+				: type === Constants.serverLabel
+				? vscode.TreeItemCollapsibleState.Expanded
+				: vscode.TreeItemCollapsibleState.Collapsed,
+			nodeInfo.nodePath,
+			nodeInfo.nodeStatus,
+			type,
+			sessionId,
+			connectionInfo,
+			parentNode,
+			nodeInfo.metadata
+		);
 		return treeNodeInfo;
 	}
 

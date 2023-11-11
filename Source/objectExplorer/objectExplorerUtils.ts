@@ -2,19 +2,17 @@
  * Copyright (c) Microsoft Corporation. All rights reserved.
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * ------------------------------------------------------------------------------------------ */
-import * as path from "path";
-import { TreeNodeInfo } from "./treeNodeInfo";
-import { IConnectionProfile } from "../models/interfaces";
-import * as Constants from "../constants/constants";
-import * as LocalizedConstants from "../constants/localizedConstants";
-import * as vscodeMssql from "vscode-mssql";
-import { TreeNodeType } from "./connectTreeNode";
+import * as path from 'path';
+import { TreeNodeInfo } from './treeNodeInfo';
+import { IConnectionProfile } from '../models/interfaces';
+import * as Constants from '../constants/constants';
+import * as LocalizedConstants from '../constants/localizedConstants';
+import * as vscodeMssql from 'vscode-mssql';
+import { TreeNodeType } from './connectTreeNode';
 
 export class ObjectExplorerUtils {
-	public static readonly rootPath: string = path.join(
-		__dirname,
-		"objectTypes"
-	);
+
+	public static readonly rootPath: string = path.join(__dirname, 'objectTypes');
 
 	public static iconPath(label: string): string {
 		if (label) {
@@ -23,7 +21,7 @@ export class ObjectExplorerUtils {
 				label = `${Constants.serverLabel}_red`;
 			} else if (label === Constants.serverLabel) {
 				// if connected
-				label += "_green";
+				label += '_green';
 			}
 			return path.join(ObjectExplorerUtils.rootPath, `${label}.svg`);
 		}
@@ -42,10 +40,8 @@ export class ObjectExplorerUtils {
 	public static getNodeUriFromProfile(profile: IConnectionProfile): string {
 		let uri: string;
 		if (profile.connectionString) {
-			let fields = profile.connectionString
-				.split(";")
-				.filter((s) => !s.toLowerCase().includes("password"));
-			uri = fields.join(";");
+			let fields = profile.connectionString.split(';').filter(s => !s.toLowerCase().includes('password'));
+			uri = fields.join(';');
 			return uri;
 		}
 		if (profile.authenticationType === Constants.sqlAuthentication) {
@@ -64,10 +60,8 @@ export class ObjectExplorerUtils {
 	 */
 	public static getDatabaseName(node: vscodeMssql.ITreeNodeInfo): string {
 		// We're on a server node so just use the database directly from the connection string
-		if (
-			node.nodeType === Constants.serverLabel ||
-			node.nodeType === Constants.disconnectedServerLabel
-		) {
+		if (node.nodeType === Constants.serverLabel ||
+			node.nodeType === Constants.disconnectedServerLabel) {
 			return node.connectionInfo.database;
 		}
 		// Otherwise find the name from the node metadata - going up through the parents of the node
@@ -75,9 +69,7 @@ export class ObjectExplorerUtils {
 		// the database it's nested in)
 		while (node) {
 			if (node.metadata) {
-				if (
-					node.metadata.metadataTypeName === Constants.databaseString
-				) {
+				if (node.metadata.metadataTypeName === Constants.databaseString) {
 					return node.metadata.name;
 				}
 			}

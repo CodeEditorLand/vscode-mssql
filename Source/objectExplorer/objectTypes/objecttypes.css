@@ -30,22 +30,19 @@
 .vs .icon.aggregatefunctionparameter_input,
 .vs-dark .icon.aggregatefunctionparameter_input,
 .hc-black .icon.aggregatefunctionparameter_input {
-	background: url("AggregateFunctionParameter_Input.svg") center center
-		no-repeat;
+	background: url("AggregateFunctionParameter_Input.svg") center center no-repeat;
 }
 
 .vs .icon.aggregatefunctionparameter_output,
 .vs-dark .icon.aggregatefunctionparameter_output,
 .hc-black .icon.aggregatefunctionparameter_output {
-	background: url("AggregateFunctionParameter_Output.svg") center center
-		no-repeat;
+	background: url("AggregateFunctionParameter_Output.svg") center center no-repeat;
 }
 
 .vs .icon.aggregatefunctionparameter_return,
 .vs-dark .icon.aggregatefunctionparameter_return,
 .hc-black .icon.aggregatefunctionparameter_return {
-	background: url("AggregateFunctionParameter_Return.svg") center center
-		no-repeat;
+	background: url("AggregateFunctionParameter_Return.svg") center center no-repeat;
 }
 
 .vs .icon.applicationrole,
@@ -93,7 +90,7 @@
 .vs .icon.columnmasterkey,
 .vs-dark .icon.columnmasterkey,
 .hc-black .icon.columnmasterkey {
-	background: url("ColumnMasterKey.svg") center center no-repeat;
+		background: url("ColumnMasterKey.svg") center center no-repeat;
 }
 
 .vs .icon.constraint,
@@ -123,8 +120,7 @@
 .vs .icon.databaseandqueueeventnotification,
 .vs-dark .icon.databaseandqueueeventnotification,
 .hc-black .icon.databaseandqueueeventnotification {
-	background: url("DatabaseAndQueueEventNotification.svg") center center
-		no-repeat;
+	background: url("DatabaseAndQueueEventNotification.svg") center center no-repeat;
 }
 
 .vs .icon.databaseauditspecification,
@@ -237,13 +233,13 @@
 .vs .icon.index_uniquekey,
 .vs-dark .icon.index_uniquekey,
 .hc-black .icon.index_uniquekey {
-	background: url("Key_UniqueKey.svg") center center no-repeat;
+		background: url("Key_UniqueKey.svg") center center no-repeat;
 }
 
 .vs .icon.masterkey,
 .vs-dark .icon.masterkey,
 .hc-black .icon.masterkey {
-	background: url("MasterKey.svg") center center no-repeat;
+		background: url("MasterKey.svg") center center no-repeat;
 }
 
 .vs .icon.messagetype,
@@ -297,22 +293,19 @@
 .vs .icon.scalarvaluedfunctionparameter_input,
 .vs-dark .icon.scalarvaluedfunctionparameter_input,
 .hc-black .icon.scalarvaluedfunctionparameter_input {
-	background: url("ScalarValuedFunctionParameter_Input.svg") center center
-		no-repeat;
+	background: url("ScalarValuedFunctionParameter_Input.svg") center center no-repeat;
 }
 
 .vs .icon.scalarvaluedfunctionparameter_output,
 .vs-dark .icon.scalarvaluedfunctionparameter_output,
 .hc-black .icon.scalarvaluedfunctionparameter_output {
-	background: url("ScalarValuedFunctionParameter_Output.svg") center center
-		no-repeat;
+	background: url("ScalarValuedFunctionParameter_Output.svg") center center no-repeat;
 }
 
 .vs .icon.scalarvaluedfunctionparameter_return,
 .vs-dark .icon.scalarvaluedfunctionparameter_return,
 .hc-black .icon.scalarvaluedfunctionparameter_return {
-	background: url("ScalarValuedFunctionParameter_Return.svg") center center
-		no-repeat;
+	background: url("ScalarValuedFunctionParameter_Return.svg") center center no-repeat;
 }
 
 .vs .icon.schema,
@@ -354,8 +347,7 @@
 .vs .icon.serverlevelcryptographicprovider,
 .vs-dark .icon.serverlevelcryptographicprovider,
 .hc-black .icon.serverlevelcryptographicprovider {
-	background: url("ServerLevelCryptographicProvider.svg") center center
-		no-repeat;
+	background: url("ServerLevelCryptographicProvider.svg") center center no-repeat;
 }
 
 .vs .icon.serverlevelendpoint,
@@ -379,8 +371,7 @@
 .vs .icon.serverlevellinkedserverlogin_disabled,
 .vs-dark .icon.serverlevellinkedserverlogin_disabled,
 .hc-black .icon.serverlevellinkedserverlogin_disabled {
-	background: url("ServerLevelLinkedServerLogin_Disabled.svg") center center
-		no-repeat;
+	background: url("ServerLevelLinkedServerLogin_Disabled.svg") center center no-repeat;
 }
 
 .vs .icon.serverlevellogin,
@@ -404,8 +395,7 @@
 .vs .icon.serverlevelserverauditspecification,
 .vs-dark .icon.serverlevelserverauditspecification,
 .hc-black .icon.serverlevelserverauditspecification {
-	background: url("ServerLevelServerAuditSpecification.svg") center center
-		no-repeat;
+	background: url("ServerLevelServerAuditSpecification.svg") center center no-repeat;
 }
 
 .vs .icon.serverlevelserverrole,
@@ -447,22 +437,19 @@
 .vs .icon.storedprocedureparameter_input,
 .vs-dark .icon.storedprocedureparameter_input,
 .hc-black .icon.storedprocedureparameter_input {
-	background: url("StoredProcedureParameter_Input.svg") center center
-		no-repeat;
+	background: url("StoredProcedureParameter_Input.svg") center center no-repeat;
 }
 
 .vs .icon.storedprocedureparameter_output,
 .vs-dark .icon.storedprocedureparameter_output,
 .hc-black .icon.storedprocedureparameter_output {
-	background: url("StoredProcedureParameter_Output.svg") center center
-		no-repeat;
+	background: url("StoredProcedureParameter_Output.svg") center center no-repeat;
 }
 
 .vs .icon.storedprocedureparameter_return,
 .vs-dark .icon.storedprocedureparameter_return,
 .hc-black .icon.storedprocedureparameter_return {
-	background: url("StoredProcedureParameter_Return.svg") center center
-		no-repeat;
+	background: url("StoredProcedureParameter_Return.svg") center center no-repeat;
 }
 
 .vs .icon.symmetrickey,
@@ -564,22 +551,19 @@
 .vs .icon.tablevaluedfunctionparameter_input,
 .vs-dark .icon.tablevaluedfunctionparameter_input,
 .hc-black .icon.tablevaluedfunctionparameter_input {
-	background: url("TableValuedFunctionParameter_Input.svg") center center
-		no-repeat;
+	background: url("TableValuedFunctionParameter_Input.svg") center center no-repeat;
 }
 
 .vs .icon.tablevaluedfunctionparameter_output,
 .vs-dark .icon.tablevaluedfunctionparameter_output,
 .hc-black .icon.tablevaluedfunctionparameter_output {
-	background: url("TableValuedFunctionParameter_Output.svg") center center
-		no-repeat;
+	background: url("TableValuedFunctionParameter_Output.svg") center center no-repeat;
 }
 
 .vs .icon.tablevaluedfunctionparameter_return,
 .vs-dark .icon.tablevaluedfunctionparameter_return,
 .hc-black .icon.tablevaluedfunctionparameter_return {
-	background: url("TableValuedFunctionParameter_Return.svg") center center
-		no-repeat;
+	background: url("TableValuedFunctionParameter_Return.svg") center center no-repeat;
 }
 
 .vs .icon.table_temporal,
@@ -633,8 +617,7 @@
 .vs .icon.userdefinedtabletypeconstraint,
 .vs-dark .icon.userdefinedtabletypeconstraint,
 .hc-black .icon.userdefinedtabletypeconstraint {
-	background: url("UserDefinedTableTypeConstraint.svg") center center
-		no-repeat;
+	background: url("UserDefinedTableTypeConstraint.svg") center center no-repeat;
 }
 
 .vs .icon.userdefinedtype,

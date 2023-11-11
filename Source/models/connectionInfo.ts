@@ -3,12 +3,12 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { IConnectionInfo, IServerInfo } from "vscode-mssql";
-import * as Constants from "../constants/constants";
-import * as LocalizedConstants from "../constants/localizedConstants";
-import { EncryptOptions } from "../models/interfaces";
-import * as Interfaces from "./interfaces";
-import * as Utils from "./utils";
+import { IConnectionInfo, IServerInfo } from 'vscode-mssql';
+import * as Constants from '../constants/constants';
+import * as LocalizedConstants from '../constants/localizedConstants';
+import { EncryptOptions } from '../models/interfaces';
+import * as Interfaces from './interfaces';
+import * as Utils from './utils';
 
 /**
  * Sets sensible defaults for key connection properties, especially
@@ -18,23 +18,21 @@ import * as Utils from "./utils";
  * @param {Interfaces.IConnectionCredentials} connCreds connection to be fixed up
  * @returns {Interfaces.IConnectionCredentials} the updated connection
  */
-export function fixupConnectionCredentials(
-	connCreds: IConnectionInfo
-): IConnectionInfo {
+export function fixupConnectionCredentials(connCreds: IConnectionInfo): IConnectionInfo {
 	if (!connCreds.server) {
-		connCreds.server = "";
+		connCreds.server = '';
 	}
 
 	if (!connCreds.database) {
-		connCreds.database = "";
+		connCreds.database = '';
 	}
 
 	if (!connCreds.user) {
-		connCreds.user = "";
+		connCreds.user = '';
 	}
 
 	if (!connCreds.password) {
-		connCreds.password = "";
+		connCreds.password = '';
 	}
 
 	if (!connCreds.connectTimeout) {
@@ -46,7 +44,7 @@ export function fixupConnectionCredentials(
 	}
 
 	// default value for encrypt
-	if (connCreds.encrypt === "" || connCreds.encrypt === true) {
+	if (connCreds.encrypt === '' || connCreds.encrypt === true) {
 		connCreds.encrypt = EncryptOptions.Mandatory;
 	} else if (connCreds.encrypt === false) {
 		connCreds.encrypt = EncryptOptions.Optional;
@@ -69,10 +67,7 @@ export function fixupConnectionCredentials(
 	return connCreds;
 }
 
-export function updateEncrypt(connection: IConnectionInfo): {
-	connection: IConnectionInfo;
-	updateStatus: boolean;
-} {
+export function updateEncrypt(connection: IConnectionInfo): { connection: IConnectionInfo, updateStatus: boolean } {
 	let updatePerformed = true;
 	let resultConnection = Object.assign({}, connection);
 	if (connection.encrypt === true) {
@@ -87,7 +82,7 @@ export function updateEncrypt(connection: IConnectionInfo): {
 
 // return true if server name ends with '.database.windows.net'
 function isAzureDatabase(server: string): boolean {
-	return server ? server.endsWith(Constants.sqlDbPrefix) : false;
+	return (server ? server.endsWith(Constants.sqlDbPrefix) : false);
 }
 
 /**
@@ -98,13 +93,8 @@ function isAzureDatabase(server: string): boolean {
  * @param {Interfaces.CredentialsQuickPickItemType} itemType type of quickpick item to display - this influences the icon shown to the user
  * @returns {string} user readable label
  */
-export function getPicklistLabel(
-	connCreds: IConnectionInfo,
-	itemType: Interfaces.CredentialsQuickPickItemType
-): string {
-	let profile: Interfaces.IConnectionProfile = <
-		Interfaces.IConnectionProfile
-	>connCreds;
+export function getPicklistLabel(connCreds: IConnectionInfo, itemType: Interfaces.CredentialsQuickPickItemType): string {
+	let profile: Interfaces.IConnectionProfile = <Interfaces.IConnectionProfile>connCreds;
 
 	if (profile.profileName) {
 		return profile.profileName;
@@ -148,7 +138,7 @@ export function getPicklistDetails(connCreds: IConnectionInfo): string {
 export function getConnectionDisplayString(creds: IConnectionInfo): string {
 	// Update the connection text
 	let text: string = creds.server;
-	if (creds.database !== "") {
+	if (creds.database !== '') {
 		text = appendIfNotEmpty(text, creds.database);
 	} else {
 		text = appendIfNotEmpty(text, LocalizedConstants.defaultDatabaseLabel);
@@ -159,7 +149,7 @@ export function getConnectionDisplayString(creds: IConnectionInfo): string {
 	// Limit the maximum length of displayed text
 	if (text && text.length > Constants.maxDisplayedStatusTextLength) {
 		text = text.substr(0, Constants.maxDisplayedStatusTextLength);
-		text += " \u2026"; // Ellipsis character (...)
+		text += ' \u2026'; // Ellipsis character (...)
 	}
 
 	return text;
@@ -180,23 +170,13 @@ function appendIfNotEmpty(connectionText: string, value: string): string {
  * @param {string} [defaultValue] optional default value to use if username is empty and this is not an Integrated auth profile
  * @returns {string}
  */
-export function getUserNameOrDomainLogin(
-	creds: IConnectionInfo,
-	defaultValue?: string
-): string {
+export function getUserNameOrDomainLogin(creds: IConnectionInfo, defaultValue?: string): string {
 	if (!defaultValue) {
-		defaultValue = "";
+		defaultValue = '';
 	}
 
-	if (
-		creds.authenticationType ===
-		Interfaces.AuthenticationTypes[
-			Interfaces.AuthenticationTypes.Integrated
-		]
-	) {
-		return process.platform === "win32"
-			? process.env.USERDOMAIN + "\\" + process.env.USERNAME
-			: "";
+	if (creds.authenticationType === Interfaces.AuthenticationTypes[Interfaces.AuthenticationTypes.Integrated]) {
+		return (process.platform === 'win32') ? process.env.USERDOMAIN + '\\' + process.env.USERNAME : '';
 	} else {
 		return creds.user ? creds.user : defaultValue;
 	}
@@ -209,44 +189,32 @@ export function getUserNameOrDomainLogin(
  * @param {Interfaces.IConnectionCredentials} connCreds connection
  * @returns {string} tooltip
  */
-export function getTooltip(
-	connCreds: IConnectionInfo,
-	serverInfo?: IServerInfo
-): string {
-	let tooltip: string = connCreds.connectionString
-		? "Connection string: " + connCreds.connectionString + "\r\n"
-		: "Server: " +
-		  connCreds.server +
-		  "\r\n" +
-		  "Database: " +
-		  (connCreds.database ? connCreds.database : "<connection default>") +
-		  "\r\n" +
-		  (connCreds.authenticationType !== Constants.integratedauth
-				? "User: " + connCreds.user + "\r\n"
-				: "") +
-		  "Encryption Mode: " +
-		  getEncryptionMode(connCreds.encrypt) +
-		  "\r\n";
+export function getTooltip(connCreds: IConnectionInfo, serverInfo?: IServerInfo): string {
+
+	let tooltip: string =
+		connCreds.connectionString ? 'Connection string: ' + connCreds.connectionString + '\r\n' :
+			('Server: ' + connCreds.server + '\r\n' +
+				'Database: ' + (connCreds.database ? connCreds.database : '<connection default>') + '\r\n' +
+				(connCreds.authenticationType !== Constants.integratedauth ? ('User: ' + connCreds.user + '\r\n') : '') +
+				'Encryption Mode: ' + getEncryptionMode(connCreds.encrypt) + '\r\n');
 
 	if (serverInfo && serverInfo.serverVersion) {
-		tooltip += "Server version: " + serverInfo.serverVersion + "\r\n";
+		tooltip += 'Server version: ' + serverInfo.serverVersion + '\r\n';
 	}
 
 	return tooltip;
 }
 
-export function getEncryptionMode(
-	encryption: string | boolean | undefined
-): EncryptOptions {
+export function getEncryptionMode(encryption: string | boolean | undefined): EncryptOptions {
 	let encryptionMode = EncryptOptions.Mandatory;
 	if (encryption !== undefined) {
 		let encrypt = encryption.toString().toLowerCase();
 		switch (encrypt) {
-			case "true":
+			case 'true':
 			case EncryptOptions.Mandatory.toLowerCase():
 				encryptionMode = EncryptOptions.Mandatory;
 				break;
-			case "false":
+			case 'false':
 			case EncryptOptions.Optional.toLowerCase():
 				encryptionMode = EncryptOptions.Optional;
 				break;

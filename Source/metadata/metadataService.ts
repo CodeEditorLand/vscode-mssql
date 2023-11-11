@@ -3,13 +3,10 @@
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * ------------------------------------------------------------------------------------------ */
 
-import SqlToolsServiceClient from "../languageservice/serviceclient";
-import ConnectionManager from "../controllers/connectionManager";
-import {
-	MetadataQueryParams,
-	MetadataQueryRequest,
-} from "../models/contracts/metadata/metadataRequest";
-import { ObjectMetadata } from "vscode-mssql";
+import SqlToolsServiceClient from '../languageservice/serviceclient';
+import ConnectionManager from '../controllers/connectionManager';
+import { MetadataQueryParams, MetadataQueryRequest } from '../models/contracts/metadata/metadataRequest';
+import { ObjectMetadata } from 'vscode-mssql';
 
 export class MetadataService {
 	private _client: SqlToolsServiceClient;
@@ -20,10 +17,7 @@ export class MetadataService {
 
 	public async getMetadata(uri: string): Promise<ObjectMetadata[]> {
 		const metadataParams: MetadataQueryParams = { ownerUri: uri };
-		const { metadata } = await this._client.sendRequest(
-			MetadataQueryRequest.type,
-			metadataParams
-		);
+		const { metadata } = await this._client.sendRequest(MetadataQueryRequest.type, metadataParams);
 		return metadata;
 	}
 }

@@ -3,32 +3,28 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import * as getmac from "getmac";
-import * as crypto from "crypto";
-import * as os from "os";
-import * as path from "path";
-import * as findRemoveSync from "find-remove";
-import * as vscode from "vscode";
-import * as Constants from "../constants/constants";
-import {
-	IAzureSignInQuickPickItem,
-	IConnectionProfile,
-	AuthenticationTypes,
-} from "./interfaces";
-import * as LocalizedConstants from "../constants/localizedConstants";
-import * as fs from "fs";
-import { AzureAuthType } from "./contracts/azure";
-import { IConnectionInfo } from "vscode-mssql";
+import * as getmac from 'getmac';
+import * as crypto from 'crypto';
+import * as os from 'os';
+import * as path from 'path';
+import * as findRemoveSync from 'find-remove';
+import * as vscode from 'vscode';
+import * as Constants from '../constants/constants';
+import { IAzureSignInQuickPickItem, IConnectionProfile, AuthenticationTypes } from './interfaces';
+import * as LocalizedConstants from '../constants/localizedConstants';
+import * as fs from 'fs';
+import { AzureAuthType } from './contracts/azure';
+import { IConnectionInfo } from 'vscode-mssql';
 
 // CONSTANTS //////////////////////////////////////////////////////////////////////////////////////
 const msInH = 3.6e6;
 const msInM = 60000;
 const msInS = 1000;
 
-const configTracingLevel = "tracingLevel";
-const configPiiLogging = "piiLogging";
-const configLogRetentionMinutes = "logRetentionMinutes";
-const configLogFilesRemovalLimit = "logFilesRemovalLimit";
+const configTracingLevel = 'tracingLevel';
+const configPiiLogging = 'piiLogging';
+const configLogRetentionMinutes = 'logRetentionMinutes';
+const configLogFilesRemovalLimit = 'logFilesRemovalLimit';
 
 // INTERFACES /////////////////////////////////////////////////////////////////////////////////////
 
@@ -43,70 +39,36 @@ export interface IPackageInfo {
 
 // Generate a new GUID
 export function generateGuid(): string {
-	let hexValues: string[] = [
-		"0",
-		"1",
-		"2",
-		"3",
-		"4",
-		"5",
-		"6",
-		"7",
-		"8",
-		"9",
-		"A",
-		"B",
-		"C",
-		"D",
-		"E",
-		"F",
-	];
+	let hexValues: string[] = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'];
 	// c.f. rfc4122 (UUID version 4 = xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx)
-	let oct: string = "";
+	let oct: string = '';
 	let tmp: number;
 	/* tslint:disable:no-bitwise */
 	for (let a: number = 0; a < 4; a++) {
 		tmp = (4294967296 * Math.random()) | 0;
-		oct +=
-			hexValues[tmp & 0xf] +
-			hexValues[(tmp >> 4) & 0xf] +
-			hexValues[(tmp >> 8) & 0xf] +
-			hexValues[(tmp >> 12) & 0xf] +
-			hexValues[(tmp >> 16) & 0xf] +
-			hexValues[(tmp >> 20) & 0xf] +
-			hexValues[(tmp >> 24) & 0xf] +
-			hexValues[(tmp >> 28) & 0xf];
+		oct += hexValues[tmp & 0xF] +
+			hexValues[tmp >> 4 & 0xF] +
+			hexValues[tmp >> 8 & 0xF] +
+			hexValues[tmp >> 12 & 0xF] +
+			hexValues[tmp >> 16 & 0xF] +
+			hexValues[tmp >> 20 & 0xF] +
+			hexValues[tmp >> 24 & 0xF] +
+			hexValues[tmp >> 28 & 0xF];
 	}
 
 	// 'Set the two most significant bits (bits 6 and 7) of the clock_seq_hi_and_reserved to zero and one, respectively'
-	let clockSequenceHi: string = hexValues[(8 + Math.random() * 4) | 0];
-	return (
-		oct.substr(0, 8) +
-		"-" +
-		oct.substr(9, 4) +
-		"-4" +
-		oct.substr(13, 3) +
-		"-" +
-		clockSequenceHi +
-		oct.substr(16, 3) +
-		"-" +
-		oct.substr(19, 12)
-	);
+	let clockSequenceHi: string = hexValues[8 + (Math.random() * 4) | 0];
+	return oct.substr(0, 8) + '-' + oct.substr(9, 4) + '-4' + oct.substr(13, 3) + '-' + clockSequenceHi + oct.substr(16, 3) + '-' + oct.substr(19, 12);
 	/* tslint:enable:no-bitwise */
 }
 
 // Generate a unique, deterministic ID for the current user of the extension
 export function generateUserId(): Promise<string> {
-	return new Promise<string>((resolve) => {
+	return new Promise<string>(resolve => {
 		try {
 			getmac.getMac((error, macAddress) => {
 				if (!error) {
-					resolve(
-						crypto
-							.createHash("sha256")
-							.update(macAddress + os.homedir(), "utf8")
-							.digest("hex")
-					);
+					resolve(crypto.createHash('sha256').update(macAddress + os.homedir(), 'utf8').digest('hex'));
 				} else {
 					resolve(generateGuid()); // fallback
 				}
@@ -140,49 +102,45 @@ export function getActiveTextEditor(): vscode.TextEditor {
 
 // Retrieve the URI for the currently open file if there is one; otherwise return the empty string
 export function getActiveTextEditorUri(): string {
-	if (
-		typeof vscode.window.activeTextEditor !== "undefined" &&
-		typeof vscode.window.activeTextEditor.document !== "undefined"
-	) {
+	if (typeof vscode.window.activeTextEditor !== 'undefined' &&
+		typeof vscode.window.activeTextEditor.document !== 'undefined') {
 		return vscode.window.activeTextEditor.document.uri.toString(true);
 	}
-	return "";
+	return '';
 }
 
 // Helper to log debug messages
 export function logDebug(msg: any): void {
-	let config = vscode.workspace.getConfiguration(
-		Constants.extensionConfigSectionName
-	);
+	let config = vscode.workspace.getConfiguration(Constants.extensionConfigSectionName);
 	let logDebugInfo = config.get(Constants.configLogDebugInfo);
 	if (logDebugInfo === true) {
 		let currentTime = new Date().toLocaleTimeString();
-		let outputMsg = "[" + currentTime + "]: " + msg ? msg.toString() : "";
+		let outputMsg = '[' + currentTime + ']: ' + msg ? msg.toString() : '';
 		console.log(outputMsg);
 	}
 }
 
 // Helper to show an info message
 export function showInfoMsg(msg: string): void {
-	vscode.window.showInformationMessage(Constants.extensionName + ": " + msg);
+	vscode.window.showInformationMessage(Constants.extensionName + ': ' + msg);
 }
 
 // Helper to show an warn message
 export function showWarnMsg(msg: string): void {
-	vscode.window.showWarningMessage(Constants.extensionName + ": " + msg);
+	vscode.window.showWarningMessage(Constants.extensionName + ': ' + msg);
 }
 
 // Helper to show an error message
 export function showErrorMsg(msg: string): void {
-	vscode.window.showErrorMessage(Constants.extensionName + ": " + msg);
+	vscode.window.showErrorMessage(Constants.extensionName + ': ' + msg);
 }
 
 export function isEmpty(str: any): boolean {
-	return !str || "" === str;
+	return (!str || '' === str);
 }
 
 export function isNotEmpty(str: any): boolean {
-	return <boolean>(str && "" !== str);
+	return <boolean>(str && '' !== str);
 }
 
 export function authTypeToString(value: AuthenticationTypes): string {
@@ -194,7 +152,7 @@ export function azureAuthTypeToString(value: AzureAuthType): string {
 }
 
 export function escapeClosingBrackets(str: string): string {
-	return str.replace("]", "]]");
+	return str.replace(']', ']]');
 }
 
 /**
@@ -209,7 +167,7 @@ export function formatString(str: string, ...args: any[]): string {
 	} else {
 		result = str.replace(/\{(\d+)\}/g, (match, rest) => {
 			let index = rest[0];
-			return typeof args[index] !== "undefined" ? args[index] : match;
+			return typeof args[index] !== 'undefined' ? args[index] : match;
 		});
 	}
 	return result;
@@ -218,10 +176,7 @@ export function formatString(str: string, ...args: any[]): string {
 /**
  * Compares 2 accounts to see if they are the same.
  */
-export function isSameAccountKey(
-	currentAccountKey: string,
-	newAccountKey: string
-): boolean {
+export function isSameAccountKey(currentAccountKey: string, newAccountKey: string): boolean {
 	return currentAccountKey === newAccountKey;
 }
 
@@ -229,10 +184,7 @@ export function isSameAccountKey(
  * Compares 2 database names to see if they are the same.
  * If either is undefined or empty, it is assumed to be 'master'
  */
-function isSameDatabase(
-	currentDatabase: string,
-	expectedDatabase: string
-): boolean {
+function isSameDatabase(currentDatabase: string, expectedDatabase: string): boolean {
 	if (isEmpty(currentDatabase)) {
 		currentDatabase = Constants.defaultDatabase;
 	}
@@ -246,10 +198,7 @@ function isSameDatabase(
  * Compares 2 authentication type strings to see if they are the same.
  * If either is undefined or empty, then it is assumed to be SQL authentication by default.
  */
-function isSameAuthenticationType(
-	currentAuthenticationType: string,
-	expectedAuthenticationType: string
-): boolean {
+function isSameAuthenticationType(currentAuthenticationType: string, expectedAuthenticationType: string): boolean {
 	if (isEmpty(currentAuthenticationType)) {
 		currentAuthenticationType = Constants.sqlAuthentication;
 	}
@@ -269,10 +218,7 @@ function isSameAuthenticationType(
  * @param {IConnectionProfile} expectedProfile the profile to try
  * @returns boolean that is true if the profiles match
  */
-export function isSameProfile(
-	currentProfile: IConnectionProfile,
-	expectedProfile: IConnectionProfile
-): boolean {
+export function isSameProfile(currentProfile: IConnectionProfile, expectedProfile: IConnectionProfile): boolean {
 	if (currentProfile === undefined) {
 		return false;
 	}
@@ -282,37 +228,18 @@ export function isSameProfile(
 	} else if (currentProfile.profileName) {
 		// This has a profile name but expected does not - can break early
 		return false;
-	} else if (
-		currentProfile.connectionString ||
-		expectedProfile.connectionString
-	) {
+	} else if (currentProfile.connectionString || expectedProfile.connectionString) {
 		// If either profile uses connection strings, compare them directly
-		return (
-			currentProfile.connectionString === expectedProfile.connectionString
-		);
-	} else if (
-		currentProfile.authenticationType === Constants.azureMfa &&
-		expectedProfile.authenticationType === Constants.azureMfa
-	) {
-		return (
-			expectedProfile.server === currentProfile.server &&
-			isSameDatabase(expectedProfile.database, currentProfile.database) &&
-			isSameAccountKey(
-				expectedProfile.accountId,
-				currentProfile.accountId
-			)
-		);
+		return currentProfile.connectionString === expectedProfile.connectionString;
+	} else if (currentProfile.authenticationType === Constants.azureMfa && expectedProfile.authenticationType === Constants.azureMfa) {
+		return expectedProfile.server === currentProfile.server
+			&& isSameDatabase(expectedProfile.database, currentProfile.database)
+			&& isSameAccountKey(expectedProfile.accountId, currentProfile.accountId);
 	}
-	return (
-		expectedProfile.server === currentProfile.server &&
-		isSameDatabase(expectedProfile.database, currentProfile.database) &&
-		isSameAuthenticationType(
-			expectedProfile.authenticationType,
-			currentProfile.authenticationType
-		) &&
-		((isEmpty(expectedProfile.user) && isEmpty(currentProfile.user)) ||
-			expectedProfile.user === currentProfile.user)
-	);
+	return expectedProfile.server === currentProfile.server
+		&& isSameDatabase(expectedProfile.database, currentProfile.database)
+		&& isSameAuthenticationType(expectedProfile.authenticationType, currentProfile.authenticationType)
+		&& ((isEmpty(expectedProfile.user) && isEmpty(currentProfile.user)) || expectedProfile.user === currentProfile.user);
 }
 
 /**
@@ -324,30 +251,22 @@ export function isSameProfile(
  * @param {IConnectionInfo} expectedConn the connection to try to match
  * @returns boolean that is true if the connections match
  */
-export function isSameConnection(
-	conn: IConnectionInfo,
-	expectedConn: IConnectionInfo
-): boolean {
-	return conn.connectionString || expectedConn.connectionString
-		? conn.connectionString === expectedConn.connectionString
-		: // Azure MFA connections
-		expectedConn.authenticationType === Constants.azureMfa &&
-		  conn.authenticationType === Constants.azureMfa
-		? expectedConn.server === conn.server &&
-		  isSameDatabase(expectedConn.database, conn.database) &&
-		  isSameAccountKey(expectedConn.accountId, conn.accountId)
-		: // Not Azure MFA connections
-		  expectedConn.server === conn.server &&
-		  isSameDatabase(expectedConn.database, conn.database) &&
-		  isSameAuthenticationType(
-				expectedConn.authenticationType,
-				conn.authenticationType
-		  ) &&
-		  (conn.authenticationType === Constants.sqlAuthentication
-				? conn.user === expectedConn.user
-				: isEmpty(conn.user) === isEmpty(expectedConn.user)) &&
-		  (<IConnectionProfile>conn).savePassword ===
-				(<IConnectionProfile>expectedConn).savePassword;
+export function isSameConnection(conn: IConnectionInfo, expectedConn: IConnectionInfo): boolean {
+	return (conn.connectionString || expectedConn.connectionString) ? conn.connectionString === expectedConn.connectionString :
+		// Azure MFA connections
+		((expectedConn.authenticationType === Constants.azureMfa && conn.authenticationType === Constants.azureMfa)
+			? expectedConn.server === conn.server
+			&& isSameDatabase(expectedConn.database, conn.database)
+			&& isSameAccountKey(expectedConn.accountId, conn.accountId)
+			// Not Azure MFA connections
+			: expectedConn.server === conn.server
+			&& isSameDatabase(expectedConn.database, conn.database)
+			&& isSameAuthenticationType(expectedConn.authenticationType, conn.authenticationType)
+			&& (conn.authenticationType === Constants.sqlAuthentication ?
+				conn.user === expectedConn.user :
+				isEmpty(conn.user) === isEmpty(expectedConn.user))
+			&& (<IConnectionProfile>conn).savePassword ===
+			(<IConnectionProfile>expectedConn).savePassword);
 }
 
 /**
@@ -361,6 +280,7 @@ export function isFileExisting(filePath: string): boolean {
 		return false;
 	}
 }
+
 
 // One-time use timer for performance testing
 export class Timer {
@@ -405,11 +325,11 @@ export function parseTimeString(value: string): number | boolean {
 	if (!value) {
 		return false;
 	}
-	let tempVal = value.split(".");
+	let tempVal = value.split('.');
 
 	if (tempVal.length === 1) {
 		// Ideally would handle more cleanly than this but for now handle case where ms not set
-		tempVal = [tempVal[0], "0"];
+		tempVal = [tempVal[0], '0'];
 	} else if (tempVal.length !== 2) {
 		return false;
 	}
@@ -418,7 +338,7 @@ export function parseTimeString(value: string): number | boolean {
 	let msStringEnd = msString.length < 3 ? msString.length : 3;
 	let ms = parseInt(tempVal[1].substring(0, msStringEnd), 10);
 
-	tempVal = tempVal[0].split(":");
+	tempVal = tempVal[0].split(':');
 
 	if (tempVal.length !== 3) {
 		return false;
@@ -428,7 +348,7 @@ export function parseTimeString(value: string): number | boolean {
 	let m = parseInt(tempVal[1], 10);
 	let s = parseInt(tempVal[2], 10);
 
-	return ms + h * msInH + m * msInM + s * msInS;
+	return ms + (h * msInH) + (m * msInM) + (s * msInS);
 }
 
 export function isBoolean(obj: any): obj is boolean {
@@ -449,25 +369,18 @@ export function parseNumAsTimeString(value: number): string {
 	let s = Math.floor(tempVal / msInS);
 	tempVal %= msInS;
 
-	let hs = h < 10 ? "0" + h : "" + h;
-	let ms = m < 10 ? "0" + m : "" + m;
-	let ss = s < 10 ? "0" + s : "" + s;
-	let mss =
-		tempVal < 10
-			? "00" + tempVal
-			: tempVal < 100
-			? "0" + tempVal
-			: "" + tempVal;
+	let hs = h < 10 ? '0' + h : '' + h;
+	let ms = m < 10 ? '0' + m : '' + m;
+	let ss = s < 10 ? '0' + s : '' + s;
+	let mss = tempVal < 10 ? '00' + tempVal : tempVal < 100 ? '0' + tempVal : '' + tempVal;
 
-	let rs = hs + ":" + ms + ":" + ss;
+	let rs = hs + ':' + ms + ':' + ss;
 
-	return tempVal > 0 ? rs + "." + mss : rs;
+	return tempVal > 0 ? rs + '.' + mss : rs;
 }
 
 function getConfiguration(): vscode.WorkspaceConfiguration {
-	return vscode.workspace.getConfiguration(
-		Constants.extensionConfigSectionName
-	);
+	return vscode.workspace.getConfiguration(Constants.extensionConfigSectionName);
 }
 
 export function getConfigTracingLevel(): string {
@@ -491,7 +404,7 @@ export function getConfigPiiLogging(): boolean {
 export function getConfigLogFilesRemovalLimit(): number {
 	let config = getConfiguration();
 	if (config) {
-		return Number(config.get(configLogFilesRemovalLimit, 0).toFixed(0));
+		return Number((config.get(configLogFilesRemovalLimit, 0).toFixed(0)));
 	} else {
 		return undefined;
 	}
@@ -500,46 +413,31 @@ export function getConfigLogFilesRemovalLimit(): number {
 export function getConfigLogRetentionSeconds(): number {
 	let config = getConfiguration();
 	if (config) {
-		return Number(
-			(config.get(configLogRetentionMinutes, 0) * 60).toFixed(0)
-		);
+		return Number((config.get(configLogRetentionMinutes, 0) * 60).toFixed(0));
 	} else {
 		return undefined;
 	}
 }
 
 export function removeOldLogFiles(logPath: string, prefix: string): JSON {
-	return findRemoveSync(logPath, {
-		age: { seconds: getConfigLogRetentionSeconds() },
-		limit: getConfigLogFilesRemovalLimit(),
-	});
+	return findRemoveSync(logPath, { age: { seconds: getConfigLogRetentionSeconds() }, limit: getConfigLogFilesRemovalLimit() });
 }
 
-export function getCommonLaunchArgsAndCleanupOldLogFiles(
-	executablePath: string,
-	logPath: string,
-	fileName: string
-): string[] {
+export function getCommonLaunchArgsAndCleanupOldLogFiles(executablePath: string, logPath: string, fileName: string): string[] {
 	let launchArgs = [];
-	launchArgs.push("--log-file");
+	launchArgs.push('--log-file');
 	let logFile = path.join(logPath, fileName);
 	launchArgs.push(logFile);
 
 	console.log(`logFile for ${path.basename(executablePath)} is ${logFile}`);
 	// Delete old log files
 	let deletedLogFiles = removeOldLogFiles(logPath, fileName);
-	console.log(
-		`Old log files deletion report: ${JSON.stringify(deletedLogFiles)}`
-	);
-	console.log(
-		`This process (ui Extenstion Host) for ${path.basename(
-			executablePath
-		)} is pid: ${process.pid}`
-	);
-	launchArgs.push("--tracing-level");
+	console.log(`Old log files deletion report: ${JSON.stringify(deletedLogFiles)}`);
+	console.log(`This process (ui Extenstion Host) for ${path.basename(executablePath)} is pid: ${process.pid}`);
+	launchArgs.push('--tracing-level');
 	launchArgs.push(getConfigTracingLevel());
 	if (getConfigPiiLogging()) {
-		launchArgs.push("--pii-logging");
+		launchArgs.push('--pii-logging');
 	}
 	return launchArgs;
 }
@@ -551,17 +449,17 @@ export function getSignInQuickPickItems(): IAzureSignInQuickPickItem[] {
 	let signInItem: IAzureSignInQuickPickItem = {
 		label: LocalizedConstants.azureSignIn,
 		description: LocalizedConstants.azureSignInDescription,
-		command: Constants.cmdAzureSignIn,
+		command: Constants.cmdAzureSignIn
 	};
 	let signInWithDeviceCode: IAzureSignInQuickPickItem = {
 		label: LocalizedConstants.azureSignInWithDeviceCode,
 		description: LocalizedConstants.azureSignInWithDeviceCodeDescription,
-		command: Constants.cmdAzureSignInWithDeviceCode,
+		command: Constants.cmdAzureSignInWithDeviceCode
 	};
 	let signInAzureCloud: IAzureSignInQuickPickItem = {
 		label: LocalizedConstants.azureSignInToAzureCloud,
 		description: LocalizedConstants.azureSignInToAzureCloudDescription,
-		command: Constants.cmdAzureSignInToCloud,
+		command: Constants.cmdAzureSignInToCloud
 	};
 	return [signInItem, signInWithDeviceCode, signInAzureCloud];
 }
@@ -569,23 +467,14 @@ export function getSignInQuickPickItems(): IAzureSignInQuickPickItem[] {
 /**
  * Limits the size of a string with ellipses in the middle
  */
-export function limitStringSize(
-	input: string,
-	forCommandPalette: boolean = false
-): string {
+export function limitStringSize(input: string, forCommandPalette: boolean = false): string {
 	if (!forCommandPalette) {
 		if (input.length > 45) {
-			return `${input.substr(0, 20)}...${input.substr(
-				input.length - 20,
-				input.length
-			)}`;
+			return `${input.substr(0, 20)}...${input.substr(input.length - 20, input.length)}`;
 		}
 	} else {
 		if (input.length > 100) {
-			return `${input.substr(0, 45)}...${input.substr(
-				input.length - 45,
-				input.length
-			)}`;
+			return `${input.substr(0, 45)}...${input.substr(input.length - 45, input.length)}`;
 		}
 	}
 	return input;
@@ -596,10 +485,10 @@ let uriIndex = 0;
  * Generates a URI intended for use when running queries if a file connection isn't present (such
  * as when running ad-hoc queries).
  */
-export function generateQueryUri(scheme = "vscode-mssql-adhoc"): vscode.Uri {
+export function generateQueryUri(scheme = 'vscode-mssql-adhoc'): vscode.Uri {
 	return vscode.Uri.from({
 		scheme: scheme,
-		authority: `Query${uriIndex++}`,
+		authority: `Query${uriIndex++}`
 	});
 }
 
@@ -607,7 +496,7 @@ export function generateQueryUri(scheme = "vscode-mssql-adhoc"): vscode.Uri {
  * deep clone the object. Copied from vscode: https://github.com/microsoft/vscode/blob/main/src/vs/base/common/objects.ts#L8
  */
 export function deepClone<T>(obj: T): T {
-	if (!obj || typeof obj !== "object") {
+	if (!obj || typeof obj !== 'object') {
 		return obj;
 	}
 	if (obj instanceof RegExp) {
@@ -616,7 +505,7 @@ export function deepClone<T>(obj: T): T {
 	}
 	const result: any = Array.isArray(obj) ? [] : {};
 	Object.keys(<any>obj).forEach((key: string) => {
-		if ((<any>obj)[key] && typeof (<any>obj)[key] === "object") {
+		if ((<any>obj)[key] && typeof (<any>obj)[key] === 'object') {
 			result[key] = deepClone((<any>obj)[key]);
 		} else {
 			result[key] = (<any>obj)[key];
@@ -625,4 +514,4 @@ export function deepClone<T>(obj: T): T {
 	return result;
 }
 
-export const isLinux = os.platform() === "linux";
+export const isLinux = os.platform() === 'linux';

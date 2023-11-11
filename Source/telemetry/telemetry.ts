@@ -2,29 +2,21 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-import AdsTelemetryReporter, {
-	TelemetryEventMeasures,
-	TelemetryEventProperties,
-} from "@microsoft/ads-extension-telemetry";
-import * as vscodeMssql from "vscode-mssql";
-import { IConnectionProfile } from "../models/interfaces";
-import * as vscode from "vscode";
-import { TelemetryActions, TelemetryViews } from "./telemetryInterfaces";
+import AdsTelemetryReporter, { TelemetryEventMeasures, TelemetryEventProperties } from '@microsoft/ads-extension-telemetry';
+import * as vscodeMssql from 'vscode-mssql';
+import { IConnectionProfile } from '../models/interfaces';
+import * as vscode from 'vscode';
+import { TelemetryActions, TelemetryViews } from './telemetryInterfaces';
 
-const packageJson = vscode.extensions.getExtension(
-	vscodeMssql.extension.name
-).packageJSON;
+const packageJson = vscode.extensions.getExtension(vscodeMssql.extension.name).packageJSON;
 
 let packageInfo = {
-	name: "vscode-mssql", // Differentiate this from the mssql extension in ADS
+	name: 'vscode-mssql', // Differentiate this from the mssql extension in ADS
 	version: packageJson.version,
-	aiKey: packageJson.aiKey,
+	aiKey: packageJson.aiKey
 };
 
-const telemetryReporter = new AdsTelemetryReporter<
-	TelemetryViews | string,
-	TelemetryActions | string
->(packageInfo.name, packageInfo.version, packageInfo.aiKey);
+const telemetryReporter = new AdsTelemetryReporter<TelemetryViews | string, TelemetryActions | string>(packageInfo.name, packageInfo.version, packageInfo.aiKey);
 
 /**
  * Sends a telemetry event to the telemetry reporter
@@ -39,14 +31,11 @@ export function sendActionEvent(
 	telemetryView: TelemetryViews,
 	telemetryAction: TelemetryActions,
 	additionalProps: TelemetryEventProperties | { [key: string]: string } = {},
-	additionalMeasurements:
-		| TelemetryEventMeasures
-		| { [key: string]: number } = {},
+	additionalMeasurements: TelemetryEventMeasures | { [key: string]: number } = {},
 	connectionInfo?: IConnectionProfile,
-	serverInfo?: vscodeMssql.IServerInfo
-): void {
-	let actionEvent = telemetryReporter
-		.createActionEvent(telemetryView, telemetryAction)
+	serverInfo?: vscodeMssql.IServerInfo): void {
+
+	let actionEvent = telemetryReporter.createActionEvent(telemetryView, telemetryAction)
 		.withAdditionalProperties(additionalProps)
 		.withAdditionalMeasurements(additionalMeasurements);
 
@@ -58,6 +47,7 @@ export function sendActionEvent(
 	}
 	actionEvent.send();
 }
+
 
 /**
  * Sends an error event to the telemetry reporter
@@ -80,23 +70,16 @@ export function sendErrorEvent(
 	errorCode?: string,
 	errorType?: string,
 	additionalProps: TelemetryEventProperties | { [key: string]: string } = {},
-	additionalMeasurements:
-		| TelemetryEventMeasures
-		| { [key: string]: number } = {},
+	additionalMeasurements: TelemetryEventMeasures | { [key: string]: number } = {},
 	connectionInfo?: IConnectionProfile,
-	serverInfo?: vscodeMssql.IServerInfo
-): void {
-	let errorEvent = telemetryReporter
-		.createErrorEvent2(
-			telemetryView,
-			telemetryAction,
-			error,
-			includeErrorMessage,
-			errorCode,
-			errorType
-		)
-		.withAdditionalProperties(additionalProps)
-		.withAdditionalMeasurements(additionalMeasurements);
+	serverInfo?: vscodeMssql.IServerInfo): void {
+	let errorEvent = telemetryReporter.createErrorEvent2(
+		telemetryView,
+		telemetryAction,
+		error,
+		includeErrorMessage,
+		errorCode,
+		errorType).withAdditionalProperties(additionalProps).withAdditionalMeasurements(additionalMeasurements);
 
 	if (connectionInfo) {
 		errorEvent = errorEvent.withConnectionInfo(connectionInfo);

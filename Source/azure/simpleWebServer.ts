@@ -3,17 +3,13 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import * as http from "http";
-import * as url from "url";
-import { AddressInfo } from "net";
+import * as http from 'http';
+import * as url from 'url';
+import { AddressInfo } from 'net';
 
-export type WebHandler = (
-	req: http.IncomingMessage,
-	reqUrl: url.UrlWithParsedQuery,
-	res: http.ServerResponse
-) => void;
+export type WebHandler = (req: http.IncomingMessage, reqUrl: url.UrlWithParsedQuery, res: http.ServerResponse) => void;
 
-export class AlreadyRunningError extends Error {}
+export class AlreadyRunningError extends Error { }
 
 export class SimpleWebServer {
 	private hasStarted: boolean;
@@ -21,10 +17,9 @@ export class SimpleWebServer {
 	private readonly pathMappings = new Map<string, WebHandler>();
 	private readonly server: http.Server;
 	private lastUsed: number;
-	private shutoffInterval: NodeJS.Timer;
+	private shutoffInterval: NodeJS.Timeout;
 
-	constructor(private readonly autoShutoffTimer = 5 * 60 * 1000) {
-		// Default to five minutes.
+	constructor(private readonly autoShutoffTimer = 5 * 60 * 1000) { // Default to five minutes.
 		this.bumpLastUsed();
 		this.autoShutoff();
 		this.server = http.createServer((req, res) => {
@@ -63,30 +58,30 @@ export class SimpleWebServer {
 			throw new AlreadyRunningError();
 		}
 		this.hasStarted = true;
-		let portTimeout: NodeJS.Timer;
+		let portTimeout: NodeJS.Timeout;
 		const portPromise = new Promise<string>((resolve, reject) => {
 			portTimeout = setTimeout(() => {
-				reject(new Error("Timed out waiting for the server to start"));
+				reject(new Error('Timed out waiting for the server to start'));
 			}, 5000);
 
-			this.server.on("listening", () => {
+			this.server.on('listening', () => {
 				// TODO: What are string addresses?
 				const address = this.server.address() as AddressInfo;
 				if (address!.port === undefined) {
-					reject(new Error("Port was not defined"));
+					reject(new Error('Port was not defined'));
 				}
 				resolve(address.port.toString());
 			});
 
-			this.server.on("error", () => {
-				reject(new Error("Server error"));
+			this.server.on('error', () => {
+				reject(new Error('Server error'));
 			});
 
-			this.server.on("close", () => {
-				reject(new Error("Server closed"));
+			this.server.on('close', () => {
+				reject(new Error('Server closed'));
 			});
 
-			this.server.listen(0, "127.0.0.1");
+			this.server.listen(0, '127.0.0.1');
 		});
 
 		const clearPortTimeout = () => {
@@ -107,7 +102,7 @@ export class SimpleWebServer {
 			const time = Date.now();
 
 			if (time - this.lastUsed > this.autoShutoffTimer) {
-				console.log("Shutting off webserver...");
+				console.log('Shutting off webserver...');
 				this.shutdown().catch(console.error);
 			}
 		}, 1000);

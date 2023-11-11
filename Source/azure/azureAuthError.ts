@@ -4,11 +4,9 @@
  *--------------------------------------------------------------------------------------------*/
 
 export class AzureAuthError extends Error {
-	constructor(
-		localizedMessage: string,
+	constructor(localizedMessage: string,
 		public readonly originalMessage: string,
-		private readonly originalException: any
-	) {
+		private readonly originalException: any) {
 		super(localizedMessage);
 	}
 
@@ -16,13 +14,9 @@ export class AzureAuthError extends Error {
 	 * The original message and exception for displaying extra information
 	 */
 	public get originalMessageAndException(): string {
-		return JSON.stringify(
-			{
-				originalMessage: this.originalMessage,
-				originalException: this.originalException,
-			},
-			undefined,
-			2
-		);
+		return JSON.stringify({
+			originalMessage: this.originalMessage,
+			originalException: this.originalException
+		}, undefined, 2);
 	}
 }

@@ -3,27 +3,24 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import Config from "./config";
-import { workspace, WorkspaceConfiguration } from "vscode";
-import * as Constants from "../constants/constants";
-import { IConfig } from "../languageservice/interfaces";
+import Config from './config';
+import { workspace, WorkspaceConfiguration } from 'vscode';
+import * as Constants from '../constants/constants';
+import { IConfig } from '../languageservice/interfaces';
 
 /*
- * ExtConfig class handles getting values from workspace config or config.json.
- */
+* ExtConfig class handles getting values from workspace config or config.json.
+*/
 export default class ExtConfig implements IConfig {
-	constructor(
-		private _config?: IConfig,
+
+	constructor(private _config?: IConfig,
 		private _extensionConfig?: WorkspaceConfiguration,
-		private _workspaceConfig?: WorkspaceConfiguration
-	) {
+		private _workspaceConfig?: WorkspaceConfiguration) {
 		if (this._config === undefined) {
 			this._config = new Config();
 		}
 		if (this._extensionConfig === undefined) {
-			this._extensionConfig = workspace.getConfiguration(
-				Constants.extensionConfigSectionName
-			);
+			this._extensionConfig = workspace.getConfiguration(Constants.extensionConfigSectionName);
 		}
 		if (this._workspaceConfig === undefined) {
 			this._workspaceConfig = workspace.getConfiguration();
@@ -31,27 +28,19 @@ export default class ExtConfig implements IConfig {
 	}
 
 	public getSqlToolsServiceDownloadUrl(): string {
-		return this.getSqlToolsConfigValue(
-			Constants.sqlToolsServiceDownloadUrlConfigKey
-		);
+		return this.getSqlToolsConfigValue(Constants.sqlToolsServiceDownloadUrlConfigKey);
 	}
 
 	public getSqlToolsInstallDirectory(): string {
-		return this.getSqlToolsConfigValue(
-			Constants.sqlToolsServiceInstallDirConfigKey
-		);
+		return this.getSqlToolsConfigValue(Constants.sqlToolsServiceInstallDirConfigKey);
 	}
 
 	public getSqlToolsExecutableFiles(): string[] {
-		return this.getSqlToolsConfigValue(
-			Constants.sqlToolsServiceExecutableFilesConfigKey
-		);
+		return this.getSqlToolsConfigValue(Constants.sqlToolsServiceExecutableFilesConfigKey);
 	}
 
 	public getSqlToolsPackageVersion(): string {
-		return this.getSqlToolsConfigValue(
-			Constants.sqlToolsServiceVersionConfigKey
-		);
+		return this.getSqlToolsConfigValue(Constants.sqlToolsServiceVersionConfigKey);
 	}
 
 	public useServiceVersion(version: number): void {
@@ -63,11 +52,7 @@ export default class ExtConfig implements IConfig {
 	}
 
 	public getSqlToolsConfigValue(configKey: string): any {
-		let configValue: string = <string>(
-			this.getExtensionConfig(
-				`${Constants.sqlToolsServiceConfigKey}.${configKey}`
-			)
-		);
+		let configValue: string = <string>this.getExtensionConfig(`${Constants.sqlToolsServiceConfigKey}.${configKey}`);
 		if (!configValue) {
 			configValue = this._config.getSqlToolsConfigValue(configKey);
 		}
@@ -90,3 +75,10 @@ export default class ExtConfig implements IConfig {
 		return configValue;
 	}
 }
+
+
+
+
+
+
+

@@ -3,7 +3,7 @@
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * ------------------------------------------------------------------------------------------ */
 
-import { RequestType } from "vscode-jsonrpc";
+import { RequestType } from 'vscode-jsonrpc';
 
 export interface IConnectionInfo {
 	options: { [name: string]: any };
@@ -16,7 +16,7 @@ export enum ScriptOperation {
 	Update = 3,
 	Delete = 4,
 	Execute = 5,
-	Alter = 6,
+	Alter = 6
 }
 
 export interface IScriptOptions {
@@ -301,16 +301,13 @@ export interface IScriptingResult {
 	script: string;
 }
 
+
 // ------------------------------- < Scripting Request > ----------------------------------------------
 
 export namespace ScriptingRequest {
 	/**
 	 * Returns children of a given node as a NodeInfo array.
 	 */
-	export const type = new RequestType<
-		IScriptingParams,
-		IScriptingResult,
-		void,
-		void
-	>("scripting/script");
+	export const type = new RequestType<IScriptingParams, IScriptingResult, void, void>('scripting/script');
 }
+

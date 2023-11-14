@@ -2,17 +2,10 @@
  * Copyright (c) Microsoft Corporation. All rights reserved.
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * ------------------------------------------------------------------------------------------ */
-import {
-	Component,
-	Output,
-	EventEmitter,
-	Inject,
-	forwardRef,
-	OnInit,
-} from "@angular/core";
-import { ISlickRange } from "../../../../../models/interfaces";
-import { ShortcutService } from "./../services/shortcuts.service";
-import * as Constants from "./../constants";
+import { Component, Output, EventEmitter, Inject, forwardRef, OnInit } from '@angular/core';
+import { ISlickRange } from '../../../../../models/interfaces';
+import { ShortcutService } from './../services/shortcuts.service';
+import * as Constants from './../constants';
 
 export interface IContextMenuClickEventArgs {
 	type: string;
@@ -20,7 +13,7 @@ export interface IContextMenuClickEventArgs {
 	resultId: number;
 	index: number;
 	selection: ISlickRange[];
-	source: "contextMenu" | "gridIcons";
+	source: 'contextMenu' | 'gridIcons';
 }
 
 /**
@@ -47,35 +40,35 @@ const template = `
 `;
 
 @Component({
-	selector: "context-menu",
+	selector: 'context-menu',
 	providers: [ShortcutService],
-	template: template,
+	template: template
 })
+
 export class ContextMenu implements OnInit {
 	// tslint:disable-next-line:no-unused-variable
 	public Constants = Constants;
 
-	@Output() clickEvent: EventEmitter<IContextMenuClickEventArgs> =
-		new EventEmitter<IContextMenuClickEventArgs>();
+	@Output() clickEvent: EventEmitter<IContextMenuClickEventArgs>
+		= new EventEmitter<IContextMenuClickEventArgs>();
 	private batchId: number;
 	private resultId: number;
 	private index: number;
 	private selection: ISlickRange[];
 	private isDisabled: boolean;
-	public position: { x: number; y: number } = { x: 0, y: 0 };
+	public position: { x: number, y: number } = { x: 0, y: 0 };
 	public visible: boolean = false;
 	private keys = {
-		"event.saveAsCSV": "",
-		"event.saveAsJSON": "",
-		"event.selectAll": "",
-		"event.copySelection": "",
-		"event.copyWithHeaders": "",
-		"event.copyAllHeaders": "",
+		'event.saveAsCSV': '',
+		'event.saveAsJSON': '',
+		'event.selectAll': '',
+		'event.copySelection': '',
+		'event.copyWithHeaders': '',
+		'event.copyAllHeaders': ''
 	};
 
 	constructor(
-		@Inject(forwardRef(() => ShortcutService))
-		private shortcuts: ShortcutService
+		@Inject(forwardRef(() => ShortcutService)) private shortcuts: ShortcutService
 	) {
 		const self = this;
 		for (let key in this.keys) {
@@ -89,19 +82,12 @@ export class ContextMenu implements OnInit {
 
 	ngOnInit(): void {
 		const self = this;
-		$(document).on("click", () => {
+		$(document).on('click', () => {
 			self.hide();
 		});
 	}
 
-	show(
-		x: number,
-		y: number,
-		batchId: number,
-		resultId: number,
-		index: number,
-		selection: ISlickRange[]
-	): void {
+	show(x: number, y: number, batchId: number, resultId: number, index: number, selection: ISlickRange[]): void {
 		this.batchId = batchId;
 		this.resultId = resultId;
 		this.index = index;
@@ -116,14 +102,15 @@ export class ContextMenu implements OnInit {
 
 	handleContextActionClick(type: string): void {
 		if (!this.isDisabled) {
-			this.clickEvent.emit({
-				type: type,
-				batchId: this.batchId,
-				resultId: this.resultId,
-				selection: this.selection,
-				index: this.index,
-				source: "contextMenu",
-			});
+			this.clickEvent.emit(
+				{
+					type: type,
+					batchId: this.batchId,
+					resultId: this.resultId,
+					selection: this.selection,
+					index: this.index,
+					source: 'contextMenu'
+				});
 		}
 	}
 }

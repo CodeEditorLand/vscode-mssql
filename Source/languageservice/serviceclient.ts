@@ -3,33 +3,43 @@
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * ------------------------------------------------------------------------------------------ */
 
-import * as vscode from 'vscode';
+import * as vscode from "vscode";
 import {
-	LanguageClient, LanguageClientOptions, ServerOptions,
-	TransportKind, RequestType, NotificationType, NotificationHandler,
-	ErrorAction, CloseAction
-} from 'vscode-languageclient';
-import * as path from 'path';
-import VscodeWrapper from '../controllers/vscodeWrapper';
-import * as Utils from '../models/utils';
-import { Logger, LogLevel } from '../models/logger';
-import * as Constants from '../constants/constants';
-import ServerProvider from './server';
-import ServiceDownloadProvider from './serviceDownloadProvider';
-import DecompressProvider from './decompressProvider';
-import HttpClient from './httpClient';
-import ExtConfig from '../configurations/extConfig';
-import { PlatformInformation } from '../models/platform';
-import { ServerInitializationResult, ServerStatusView } from './serverStatus';
-import StatusView from '../views/statusView';
-import * as LanguageServiceContracts from '../models/contracts/languageService';
-import { IConfig } from '../languageservice/interfaces';
-import { exists } from '../utils/utils';
-import { env } from 'process';
-import { getAppDataPath, getEnableConnectionPoolingConfig, getEnableSqlAuthenticationProviderConfig } from '../azure/utils';
-import { serviceName } from '../azure/constants';
+	LanguageClient,
+	LanguageClientOptions,
+	ServerOptions,
+	TransportKind,
+	RequestType,
+	NotificationType,
+	NotificationHandler,
+	ErrorAction,
+	CloseAction,
+} from "vscode-languageclient";
+import * as path from "path";
+import VscodeWrapper from "../controllers/vscodeWrapper";
+import * as Utils from "../models/utils";
+import { Logger, LogLevel } from "../models/logger";
+import * as Constants from "../constants/constants";
+import ServerProvider from "./server";
+import ServiceDownloadProvider from "./serviceDownloadProvider";
+import DecompressProvider from "./decompressProvider";
+import HttpClient from "./httpClient";
+import ExtConfig from "../configurations/extConfig";
+import { PlatformInformation } from "../models/platform";
+import { ServerInitializationResult, ServerStatusView } from "./serverStatus";
+import StatusView from "../views/statusView";
+import * as LanguageServiceContracts from "../models/contracts/languageService";
+import { IConfig } from "../languageservice/interfaces";
+import { exists } from "../utils/utils";
+import { env } from "process";
+import {
+	getAppDataPath,
+	getEnableConnectionPoolingConfig,
+	getEnableSqlAuthenticationProviderConfig,
+} from "../azure/utils";
+import { serviceName } from "../azure/constants";
 
-const STS_OVERRIDE_ENV_VAR = 'MSSQL_SQLTOOLSSERVICE';
+const STS_OVERRIDE_ENV_VAR = "MSSQL_SQLTOOLSSERVICE";
 
 let _channel: vscode.OutputChannel = undefined;
 
@@ -40,13 +50,11 @@ interface IMessage {
 	jsonrpc: string;
 }
 
-
 /**
  * Handle Language Service client errors
  * @class LanguageClientErrorHandler
  */
 class LanguageClientErrorHandler {
-
 	/**
 	 * Creates an instance of LanguageClientErrorHandler.
 	 * @memberOf LanguageClientErrorHandler
@@ -62,11 +70,16 @@ class LanguageClientErrorHandler {
 	 * @memberOf LanguageClientErrorHandler
 	 */
 	showOnErrorPrompt(): void {
-		this.vscodeWrapper.showErrorMessage(
-			Constants.sqlToolsServiceCrashMessage,
-			Constants.sqlToolsServiceCrashButton).then(action => {
+		this.vscodeWrapper
+			.showErrorMessage(
+				Constants.sqlToolsServiceCrashMessage,
+				Constants.sqlToolsServiceCrashButton
+			)
+			.then((action) => {
 				if (action && action === Constants.sqlToolsServiceCrashButton) {
-					vscode.env.openExternal(vscode.Uri.parse(Constants.sqlToolsServiceCrashLink));
+					vscode.env.openExternal(
+						vscode.Uri.parse(Constants.sqlToolsServiceCrashLink)
+					);
 				}
 			});
 	}
@@ -107,7 +120,6 @@ class LanguageClientErrorHandler {
 
 // The Service Client class handles communication with the VS Code LanguageClient
 export default class SqlToolsServiceClient {
-
 	private _sqlToolsServicePath: string | undefined = undefined;
 	/**
 	 * Path to the root of the SQL Tools Service folder
@@ -148,51 +160,84 @@ export default class SqlToolsServiceClient {
 		private _server: ServerProvider,
 		private _logger: Logger,
 		private _statusView: StatusView,
-		private _vscodeWrapper: VscodeWrapper) {
-	}
+		private _vscodeWrapper: VscodeWrapper
+	) {}
 
 	// gets or creates the singleton SQL Tools service client instance
 	public static get instance(): SqlToolsServiceClient {
 		if (SqlToolsServiceClient._instance === undefined) {
 			let config = new ExtConfig();
 			let vscodeWrapper = new VscodeWrapper();
-			let logLevel: LogLevel = LogLevel[Utils.getConfigTracingLevel() as keyof typeof LogLevel];
+			let logLevel: LogLevel =
+				LogLevel[
+					Utils.getConfigTracingLevel() as keyof typeof LogLevel
+				];
 			let pii = Utils.getConfigPiiLogging();
-			_channel = vscodeWrapper.createOutputChannel(Constants.serviceInitializingOutputChannelName);
-			let logger = new Logger(text => _channel.append(text), logLevel, pii);
+			_channel = vscodeWrapper.createOutputChannel(
+				Constants.serviceInitializingOutputChannelName
+			);
+			let logger = new Logger(
+				(text) => _channel.append(text),
+				logLevel,
+				pii
+			);
 			let serverStatusView = new ServerStatusView();
 			let httpClient = new HttpClient();
 			let decompressProvider = new DecompressProvider();
-			let downloadProvider = new ServiceDownloadProvider(config, logger, serverStatusView, httpClient,
-				decompressProvider);
-			let serviceProvider = new ServerProvider(downloadProvider, config, serverStatusView);
+			let downloadProvider = new ServiceDownloadProvider(
+				config,
+				logger,
+				serverStatusView,
+				httpClient,
+				decompressProvider
+			);
+			let serviceProvider = new ServerProvider(
+				downloadProvider,
+				config,
+				serverStatusView
+			);
 			let statusView = new StatusView(vscodeWrapper);
-			SqlToolsServiceClient._instance = new SqlToolsServiceClient(config, serviceProvider, logger, statusView, vscodeWrapper);
+			SqlToolsServiceClient._instance = new SqlToolsServiceClient(
+				config,
+				serviceProvider,
+				logger,
+				statusView,
+				vscodeWrapper
+			);
 		}
 		return SqlToolsServiceClient._instance;
 	}
 
 	// initialize the SQL Tools Service Client instance by launching
 	// out-of-proc server through the LanguageClient
-	public initialize(context: vscode.ExtensionContext): Promise<ServerInitializationResult> {
+	public initialize(
+		context: vscode.ExtensionContext
+	): Promise<ServerInitializationResult> {
 		this._logger.appendLine(Constants.serviceInitializing);
 		this._logPath = context.logPath;
-		return PlatformInformation.getCurrent().then(platformInfo => {
+		return PlatformInformation.getCurrent().then((platformInfo) => {
 			return this.initializeForPlatform(platformInfo, context);
 		});
 	}
 
-	public initializeForPlatform(platformInfo: PlatformInformation, context: vscode.ExtensionContext): Promise<ServerInitializationResult> {
+	public initializeForPlatform(
+		platformInfo: PlatformInformation,
+		context: vscode.ExtensionContext
+	): Promise<ServerInitializationResult> {
 		return new Promise<ServerInitializationResult>((resolve, reject) => {
-			this._logger.appendLine(Constants.commandsNotAvailableWhileInstallingTheService);
+			this._logger.appendLine(
+				Constants.commandsNotAvailableWhileInstallingTheService
+			);
 			this._logger.appendLine();
 			this._logger.append(`Platform: ${platformInfo.toString()}`);
 			if (!platformInfo.isValidRuntime) {
 				Utils.showErrorMsg(Constants.unsupportedPlatformErrorMessage);
-				reject('Invalid Platform');
+				reject("Invalid Platform");
 			} else {
 				if (platformInfo.runtimeId) {
-					this._logger.appendLine(` (${platformInfo.getRuntimeDisplayName()})`);
+					this._logger.appendLine(
+						` (${platformInfo.getRuntimeDisplayName()})`
+					);
 				} else {
 					this._logger.appendLine();
 				}
@@ -201,34 +246,67 @@ export default class SqlToolsServiceClient {
 				// For macOS we need to ensure the tools service version is set appropriately
 				this.updateServiceVersion(platformInfo);
 
-				this._server.getServerPath(platformInfo.runtimeId).then(async serverPath => {
-					if (serverPath === undefined) {
-						// Check if the service already installed and if not open the output channel to show the logs
-						if (_channel !== undefined) {
-							_channel.show();
+				this._server
+					.getServerPath(platformInfo.runtimeId)
+					.then(async (serverPath) => {
+						if (serverPath === undefined) {
+							// Check if the service already installed and if not open the output channel to show the logs
+							if (_channel !== undefined) {
+								_channel.show();
+							}
+							let installedServerPath =
+								await this._server.downloadServerFiles(
+									platformInfo.runtimeId
+								);
+							this._sqlToolsServicePath =
+								path.dirname(installedServerPath);
+							await this.initializeLanguageClient(
+								installedServerPath,
+								context,
+								platformInfo.isWindows
+							);
+							await this._client.onReady();
+							resolve(
+								new ServerInitializationResult(
+									true,
+									true,
+									installedServerPath
+								)
+							);
+						} else {
+							this._sqlToolsServicePath =
+								path.dirname(serverPath);
+							await this.initializeLanguageClient(
+								serverPath,
+								context,
+								platformInfo.isWindows
+							);
+							await this._client.onReady();
+							resolve(
+								new ServerInitializationResult(
+									false,
+									true,
+									serverPath
+								)
+							);
 						}
-						let installedServerPath = await this._server.downloadServerFiles(platformInfo.runtimeId);
-						this._sqlToolsServicePath = path.dirname(installedServerPath);
-						await this.initializeLanguageClient(installedServerPath, context, platformInfo.isWindows);
-						await this._client.onReady();
-						resolve(new ServerInitializationResult(true, true, installedServerPath));
-					} else {
-						this._sqlToolsServicePath = path.dirname(serverPath);
-						await this.initializeLanguageClient(serverPath, context, platformInfo.isWindows);
-						await this._client.onReady();
-						resolve(new ServerInitializationResult(false, true, serverPath));
-					}
-				}).catch(err => {
-					Utils.logDebug(Constants.serviceLoadingFailed + ' ' + err);
-					Utils.showErrorMsg(Constants.serviceLoadingFailed);
-					reject(err);
-				});
+					})
+					.catch((err) => {
+						Utils.logDebug(
+							Constants.serviceLoadingFailed + " " + err
+						);
+						Utils.showErrorMsg(Constants.serviceLoadingFailed);
+						reject(err);
+					});
 			}
 		});
 	}
 
 	private updateServiceVersion(platformInfo: PlatformInformation): void {
-		if (platformInfo.isMacOS && platformInfo.isMacVersionLessThan('10.12.0')) {
+		if (
+			platformInfo.isMacOS &&
+			platformInfo.isMacVersionLessThan("10.12.0")
+		) {
 			// Version 1.0 is required as this is the last one supporting downlevel macOS versions
 			this._config.useServiceVersion(1);
 		}
@@ -251,31 +329,35 @@ export default class SqlToolsServiceClient {
 	 * @memberOf SqlToolsServiceClient
 	 */
 	private initializeLanguageConfiguration(): void {
-		vscode.languages.setLanguageConfiguration('sql', {
+		vscode.languages.setLanguageConfiguration("sql", {
 			comments: {
-				lineComment: '--',
-				blockComment: ['/*', '*/']
+				lineComment: "--",
+				blockComment: ["/*", "*/"],
 			},
 
 			brackets: [
-				['{', '}'],
-				['[', ']'],
-				['(', ')']
+				["{", "}"],
+				["[", "]"],
+				["(", ")"],
 			],
 
 			__characterPairSupport: {
 				autoClosingPairs: [
-					{ open: '{', close: '}' },
-					{ open: '[', close: ']' },
-					{ open: '(', close: ')' },
-					{ open: '"', close: '"', notIn: ['string'] },
-					{ open: '\'', close: '\'', notIn: ['string', 'comment'] }
-				]
-			}
+					{ open: "{", close: "}" },
+					{ open: "[", close: "]" },
+					{ open: "(", close: ")" },
+					{ open: '"', close: '"', notIn: ["string"] },
+					{ open: "'", close: "'", notIn: ["string", "comment"] },
+				],
+			},
 		});
 	}
 
-	private async initializeLanguageClient(serverPath: string, context: vscode.ExtensionContext, isWindows: boolean): Promise<void> {
+	private async initializeLanguageClient(
+		serverPath: string,
+		context: vscode.ExtensionContext,
+		isWindows: boolean
+	): Promise<void> {
 		if (serverPath === undefined) {
 			Utils.logDebug(Constants.invalidServiceFilePath);
 			throw new Error(Constants.invalidServiceFilePath);
@@ -291,30 +373,51 @@ export default class SqlToolsServiceClient {
 						const serverFullPath = path.join(stsRootPath, exeFile);
 						if (await exists(serverFullPath)) {
 							const overrideMessage = `Using ${exeFile} from ${stsRootPath}`;
-							void vscode.window.showInformationMessage(overrideMessage);
+							void vscode.window.showInformationMessage(
+								overrideMessage
+							);
 							console.log(overrideMessage);
 							overridePath = serverFullPath;
 							break;
 						}
 					}
 					if (!overridePath) {
-						console.warn(`Could not find valid SQL Tools Service EXE from ${JSON.stringify(exeFiles)} at ${stsRootPath}, falling back to config`);
+						console.warn(
+							`Could not find valid SQL Tools Service EXE from ${JSON.stringify(
+								exeFiles
+							)} at ${stsRootPath}, falling back to config`
+						);
 					}
 				}
 			} catch (err) {
-				console.warn('Unexpected error getting override path for SQL Tools Service client ', err);
+				console.warn(
+					"Unexpected error getting override path for SQL Tools Service client ",
+					err
+				);
 				// Fall back to config if something unexpected happens here
 			}
 			// Use the override path if we have one, otherwise just use the original serverPath passed in
-			let serverOptions: ServerOptions = this.createServiceLayerServerOptions(overridePath || serverPath);
+			let serverOptions: ServerOptions =
+				this.createServiceLayerServerOptions(
+					overridePath || serverPath
+				);
 			this.client = this.createLanguageClient(serverOptions);
-			let executablePath = isWindows ? Constants.windowsResourceClientPath : Constants.unixResourceClientPath;
-			let resourcePath = path.join(path.dirname(serverPath), executablePath);
+			let executablePath = isWindows
+				? Constants.windowsResourceClientPath
+				: Constants.unixResourceClientPath;
+			let resourcePath = path.join(
+				path.dirname(serverPath),
+				executablePath
+			);
 			// See if the override path exists and has the resource client as well, and if so use that instead
 			if (overridePath) {
 				const overrideDir = path.dirname(overridePath);
-				const resourceOverridePath = path.join(overrideDir, executablePath);
-				const resourceClientOverrideExists = await exists(resourceOverridePath);
+				const resourceOverridePath = path.join(
+					overrideDir,
+					executablePath
+				);
+				const resourceClientOverrideExists =
+					await exists(resourceOverridePath);
 				if (resourceClientOverrideExists) {
 					const overrideMessage = `Using ${resourceOverridePath} from ${overrideDir}`;
 					void vscode.window.showInformationMessage(overrideMessage);
@@ -342,37 +445,59 @@ export default class SqlToolsServiceClient {
 	private createLanguageClient(serverOptions: ServerOptions): LanguageClient {
 		// Options to control the language client
 		let clientOptions: LanguageClientOptions = {
-			documentSelector: ['sql'],
-			diagnosticCollectionName: 'mssql',
+			documentSelector: ["sql"],
+			diagnosticCollectionName: "mssql",
 			synchronize: {
 				configurationSection: [
 					Constants.extensionConfigSectionName,
-					Constants.telemetryConfigSectionName
-				]
+					Constants.telemetryConfigSectionName,
+				],
 			},
-			errorHandler: new LanguageClientErrorHandler(this._vscodeWrapper)
+			errorHandler: new LanguageClientErrorHandler(this._vscodeWrapper),
 		};
 
 		// cache the client instance for later use
-		let client = new LanguageClient(Constants.sqlToolsServiceName, serverOptions, clientOptions);
+		let client = new LanguageClient(
+			Constants.sqlToolsServiceName,
+			serverOptions,
+			clientOptions
+		);
 		client.onReady().then(() => {
-			client.onNotification(LanguageServiceContracts.StatusChangedNotification.type, this.handleLanguageServiceStatusNotification());
+			client.onNotification(
+				LanguageServiceContracts.StatusChangedNotification.type,
+				this.handleLanguageServiceStatusNotification()
+			);
 		});
 
 		return client;
 	}
 
-	private generateResourceServiceServerOptions(executablePath: string): ServerOptions {
-		let launchArgs = Utils.getCommonLaunchArgsAndCleanupOldLogFiles(executablePath, this._logPath, 'resourceprovider.log');
-		return { command: executablePath, args: launchArgs, transport: TransportKind.stdio };
+	private generateResourceServiceServerOptions(
+		executablePath: string
+	): ServerOptions {
+		let launchArgs = Utils.getCommonLaunchArgsAndCleanupOldLogFiles(
+			executablePath,
+			this._logPath,
+			"resourceprovider.log"
+		);
+		return {
+			command: executablePath,
+			args: launchArgs,
+			transport: TransportKind.stdio,
+		};
 	}
 
 	private createResourceClient(resourcePath: string): LanguageClient {
 		// add resource provider path here
-		let serverOptions = this.generateResourceServiceServerOptions(resourcePath);
+		let serverOptions =
+			this.generateResourceServiceServerOptions(resourcePath);
 		// client options are undefined since we don't want to send language events to the
 		// server, since it's handled by the main client
-		let client = new LanguageClient(Constants.resourceServiceName, serverOptions, undefined);
+		let client = new LanguageClient(
+			Constants.resourceServiceName,
+			serverOptions,
+			undefined
+		);
 		return client;
 	}
 
@@ -381,56 +506,74 @@ export default class SqlToolsServiceClient {
 	 */
 	public handleLanguageServiceStatusNotification(): NotificationHandler<LanguageServiceContracts.StatusChangeParams> {
 		return (event: LanguageServiceContracts.StatusChangeParams): void => {
-			this._statusView.languageServiceStatusChanged(event.ownerUri, event.status);
+			this._statusView.languageServiceStatusChanged(
+				event.ownerUri,
+				event.status
+			);
 		};
 	}
 
-	private createServiceLayerServerOptions(servicePath: string): ServerOptions {
+	private createServiceLayerServerOptions(
+		servicePath: string
+	): ServerOptions {
 		let serverArgs = [];
 		let serverCommand: string = servicePath;
-		if (servicePath.endsWith('.dll')) {
+		if (servicePath.endsWith(".dll")) {
 			serverArgs = [servicePath];
-			serverCommand = 'dotnet';
+			serverCommand = "dotnet";
 		}
 		// Get the extenion's configuration
-		let config = vscode.workspace.getConfiguration(Constants.extensionConfigSectionName);
+		let config = vscode.workspace.getConfiguration(
+			Constants.extensionConfigSectionName
+		);
 		if (config) {
 			// Populate common args
-			serverArgs = serverArgs.concat(Utils.getCommonLaunchArgsAndCleanupOldLogFiles(servicePath, this._logPath, 'sqltools.log'));
+			serverArgs = serverArgs.concat(
+				Utils.getCommonLaunchArgsAndCleanupOldLogFiles(
+					servicePath,
+					this._logPath,
+					"sqltools.log"
+				)
+			);
 
 			// Enable diagnostic logging in the service if it is configured
 			let logDebugInfo = config[Constants.configLogDebugInfo];
 			if (logDebugInfo) {
-				serverArgs.push('--enable-logging');
+				serverArgs.push("--enable-logging");
 			}
 
 			// Send application name and path to determine MSAL cache location
-			serverArgs.push('--application-name', serviceName);
-			serverArgs.push('--data-path', getAppDataPath());
+			serverArgs.push("--application-name", serviceName);
+			serverArgs.push("--data-path", getAppDataPath());
 
 			// Enable SQL Auth Provider registration for Azure MFA Authentication
-			const enableSqlAuthenticationProvider = getEnableSqlAuthenticationProviderConfig();
+			const enableSqlAuthenticationProvider =
+				getEnableSqlAuthenticationProviderConfig();
 			if (enableSqlAuthenticationProvider) {
-				serverArgs.push('--enable-sql-authentication-provider');
+				serverArgs.push("--enable-sql-authentication-provider");
 			}
 
 			// Enable Connection pooling to improve connection performance
 			const enableConnectionPooling = getEnableConnectionPoolingConfig();
 			if (enableConnectionPooling) {
-				serverArgs.push('--enable-connection-pooling');
+				serverArgs.push("--enable-connection-pooling");
 			}
 
 			// Send Locale for sqltoolsservice localization
 			let applyLocalization = config[Constants.configApplyLocalization];
 			if (applyLocalization) {
 				let locale = vscode.env.language;
-				serverArgs.push('--locale');
+				serverArgs.push("--locale");
 				serverArgs.push(locale);
 			}
 		}
 
 		// run the service host using dotnet.exe from the path
-		let serverOptions: ServerOptions = { command: serverCommand, args: serverArgs, transport: TransportKind.stdio };
+		let serverOptions: ServerOptions = {
+			command: serverCommand,
+			args: serverArgs,
+			transport: TransportKind.stdio,
+		};
 		return serverOptions;
 	}
 
@@ -441,7 +584,10 @@ export default class SqlToolsServiceClient {
 	 * @returns A thenable object for when the request receives a response
 	 */
 	// tslint:disable-next-line:no-unused-variable
-	public sendRequest<P, R, E, R0>(type: RequestType<P, R, E, R0>, params?: P): Thenable<R> {
+	public sendRequest<P, R, E, R0>(
+		type: RequestType<P, R, E, R0>,
+		params?: P
+	): Thenable<R> {
 		if (this.client !== undefined) {
 			return this.client.sendRequest(type, params);
 		}
@@ -454,7 +600,10 @@ export default class SqlToolsServiceClient {
 	 * @returns A thenable object for when the request receives a response
 	 */
 	// tslint:disable-next-line:no-unused-variable
-	public sendResourceRequest<P, R, E, R0>(type: RequestType<P, R, E, R0>, params?: P): Thenable<R> {
+	public sendResourceRequest<P, R, E, R0>(
+		type: RequestType<P, R, E, R0>,
+		params?: P
+	): Thenable<R> {
 		if (this._resourceClient !== undefined) {
 			return this._resourceClient.sendRequest(type, params);
 		}
@@ -465,7 +614,10 @@ export default class SqlToolsServiceClient {
 	 * @param params The params to pass with the notification
 	 */
 	// tslint:disable-next-line:no-unused-variable
-	public sendNotification<P, R0>(type: NotificationType<P, R0>, params?: P): void {
+	public sendNotification<P, R0>(
+		type: NotificationType<P, R0>,
+		params?: P
+	): void {
 		if (this.client !== undefined) {
 			this.client.sendNotification(type, params);
 		}
@@ -477,7 +629,10 @@ export default class SqlToolsServiceClient {
 	 * @param handler The handler to register
 	 */
 	// tslint:disable-next-line:no-unused-variable
-	public onNotification<P, R0>(type: NotificationType<P, R0>, handler: NotificationHandler<P>): void {
+	public onNotification<P, R0>(
+		type: NotificationType<P, R0>,
+		handler: NotificationHandler<P>
+	): void {
 		if (this._client !== undefined) {
 			return this.client.onNotification(type, handler);
 		}

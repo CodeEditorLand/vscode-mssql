@@ -32,12 +32,12 @@ export interface IAccountKey {
 
 export enum AzureAuthType {
 	AuthCodeGrant = 0,
-	DeviceCode = 1
+	DeviceCode = 1,
 }
 
 export enum AccountType {
-	Microsoft = 'microsoft',
-	WorkSchool = 'work_school'
+	Microsoft = "microsoft",
+	WorkSchool = "work_school",
 }
 
 /**

@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { NotificationType, RequestType } from 'vscode-languageclient';
+import { NotificationType, RequestType } from "vscode-languageclient";
 
 // ------------------------------- < IntelliSense Ready Event > ------------------------------------
 
@@ -11,7 +11,9 @@ import { NotificationType, RequestType } from 'vscode-languageclient';
  * Event sent when the language service is finished updating after a connection
  */
 export namespace IntelliSenseReadyNotification {
-	export const type = new NotificationType<IntelliSenseReadyParams, void>('textDocument/intelliSenseReady');
+	export const type = new NotificationType<IntelliSenseReadyParams, void>(
+		"textDocument/intelliSenseReady"
+	);
 }
 
 /**
@@ -28,7 +30,9 @@ export class IntelliSenseReadyParams {
  * Notification sent when the an IntelliSense cache invalidation is requested
  */
 export namespace RebuildIntelliSenseNotification {
-	export const type = new NotificationType<RebuildIntelliSenseParams, void>('textDocument/rebuildIntelliSense');
+	export const type = new NotificationType<RebuildIntelliSenseParams, void>(
+		"textDocument/rebuildIntelliSense"
+	);
 }
 
 /**
@@ -49,7 +53,9 @@ export class RebuildIntelliSenseParams {
  * Event sent when the language service send a status change event
  */
 export namespace StatusChangedNotification {
-	export const type = new NotificationType<StatusChangeParams, void>('textDocument/statusChanged');
+	export const type = new NotificationType<StatusChangeParams, void>(
+		"textDocument/statusChanged"
+	);
 }
 
 /**
@@ -66,7 +72,6 @@ export class StatusChangeParams {
 	 */
 	public status: string;
 }
-
 
 // ------------------------------- </ Status Sent Event > ----------------------------------
 
@@ -93,9 +98,11 @@ export class DidChangeLanguageFlavorParams {
  * Notification sent when the language flavor is changed
  */
 export namespace LanguageFlavorChangedNotification {
-	export const type = new NotificationType<DidChangeLanguageFlavorParams, void>('connection/languageflavorchanged');
+	export const type = new NotificationType<
+		DidChangeLanguageFlavorParams,
+		void
+	>("connection/languageflavorchanged");
 }
-
 
 // ------------------------------- < Load Completion Extension Request > ------------------------------------
 /**
@@ -117,5 +124,10 @@ export class CompletionExtensionParams {
 }
 
 export namespace CompletionExtLoadRequest {
-	export const type = new RequestType<CompletionExtensionParams, boolean, void, void>('completion/extLoad');
+	export const type = new RequestType<
+		CompletionExtensionParams,
+		boolean,
+		void,
+		void
+	>("completion/extLoad");
 }

@@ -2,24 +2,24 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-import * as os from 'os';
-import { ILogger } from './interfaces';
-import * as Utils from './utils';
+import * as os from "os";
+import { ILogger } from "./interfaces";
+import * as Utils from "./utils";
 
 export enum LogLevel {
-	'Pii',
-	'Off',
-	'Critical',
-	'Error',
-	'Warning',
-	'Information',
-	'Verbose',
-	'All'
+	"Pii",
+	"Off",
+	"Critical",
+	"Error",
+	"Warning",
+	"Information",
+	"Verbose",
+	"All",
 }
 
 /*
-* Logger class handles logging messages using the Util functions.
-*/
+ * Logger class handles logging messages using the Util functions.
+ */
 export class Logger implements ILogger {
 	private _writer: (message: string) => void;
 	private _piiLogging: boolean = false;
@@ -30,7 +30,12 @@ export class Logger implements ILogger {
 	private _indentSize: number = 4;
 	private _atLineStart: boolean = false;
 
-	constructor(writer: (message: string) => void, logLevel: LogLevel, piiLogging: boolean, prefix?: string) {
+	constructor(
+		writer: (message: string) => void,
+		logLevel: LogLevel,
+		piiLogging: boolean,
+		prefix?: string
+	) {
 		this._writer = writer;
 		this._logLevel = logLevel;
 		this._piiLogging = piiLogging;
@@ -44,14 +49,22 @@ export class Logger implements ILogger {
 	 * @param stringsToShorten Set of strings to shorten
 	 * @param vals Any other values to add on to the end of the log message
 	 */
-	public piiSanitized(msg: any, objsToSanitize: { name: string, objOrArray: any | any[] }[],
-		stringsToShorten: { name: string, value: string }[], ...vals: any[]): void {
+	public piiSanitized(
+		msg: any,
+		objsToSanitize: { name: string; objOrArray: any | any[] }[],
+		stringsToShorten: { name: string; value: string }[],
+		...vals: any[]
+	): void {
 		if (this.piiLogging) {
 			msg = [
 				msg,
-				...objsToSanitize?.map(obj => `${obj.name}=${sanitize(obj.objOrArray)}`),
-				...stringsToShorten.map(str => `${str.name}=${shorten(str.value)}`)
-			].join(' ');
+				...objsToSanitize?.map(
+					(obj) => `${obj.name}=${sanitize(obj.objOrArray)}`
+				),
+				...stringsToShorten.map(
+					(str) => `${str.name}=${shorten(str.value)}`
+				),
+			].join(" ");
 			this.write(LogLevel.Pii, msg, vals);
 		}
 	}
@@ -81,7 +94,9 @@ export class Logger implements ILogger {
 
 	private write(logLevel: LogLevel, msg: any, ...vals: any[]): void {
 		if (this.shouldLog(logLevel) || logLevel === LogLevel.Pii) {
-			const fullMessage = `[${LogLevel[logLevel]}]: ${msg} - ${vals.map(v => JSON.stringify(v)).join(' - ')}`;
+			const fullMessage = `[${LogLevel[logLevel]}]: ${msg} - ${vals
+				.map((v) => JSON.stringify(v))
+				.join(" - ")}`;
 			this.appendLine(fullMessage);
 		}
 	}
@@ -109,7 +124,7 @@ export class Logger implements ILogger {
 	private appendCore(message: string): void {
 		if (this._atLineStart) {
 			if (this._indentLevel > 0) {
-				const indent = ' '.repeat(this._indentLevel * this._indentSize);
+				const indent = " ".repeat(this._indentLevel * this._indentSize);
 				this._writer(indent);
 			}
 
@@ -134,12 +149,12 @@ export class Logger implements ILogger {
 	}
 
 	public append(message?: string): void {
-		message = message || '';
+		message = message || "";
 		this.appendCore(message);
 	}
 
 	public appendLine(message?: string): void {
-		message = message || '';
+		message = message || "";
 		this.appendCore(message + os.EOL);
 		this._atLineStart = true;
 	}
@@ -152,7 +167,7 @@ export class Logger implements ILogger {
  */
 function sanitize(objOrArray: any): string {
 	if (Array.isArray(objOrArray)) {
-		return JSON.stringify(objOrArray.map(o => sanitizeImpl(o)));
+		return JSON.stringify(objOrArray.map((o) => sanitizeImpl(o)));
 	} else {
 		return sanitizeImpl(objOrArray);
 	}
@@ -162,11 +177,11 @@ function sanitizeImpl(obj: any): string {
 	obj = Object.assign({}, obj);
 	delete obj.domains; // very long and not really useful
 	// shorten all tokens since we don't usually need the exact values and there's security concerns if they leaked
-	shortenIfExists(obj, 'token');
-	shortenIfExists(obj, 'refresh_token');
-	shortenIfExists(obj, 'access_token');
-	shortenIfExists(obj, 'code');
-	shortenIfExists(obj, 'id_token');
+	shortenIfExists(obj, "token");
+	shortenIfExists(obj, "refresh_token");
+	shortenIfExists(obj, "access_token");
+	shortenIfExists(obj, "code");
+	shortenIfExists(obj, "id_token");
 	return JSON.stringify(obj);
 }
 

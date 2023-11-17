@@ -3,22 +3,22 @@
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * ------------------------------------------------------------------------------------------ */
 
-import * as vscode from 'vscode';
-import * as LocalizedConstants from '../constants/localizedConstants';
-import * as Constants from '../constants/constants';
-import { TreeNodeInfo } from './treeNodeInfo';
+import * as vscode from "vscode";
+import * as LocalizedConstants from "../constants/localizedConstants";
+import * as Constants from "../constants/constants";
+import { TreeNodeInfo } from "./treeNodeInfo";
 
 export class ConnectTreeNode extends vscode.TreeItem {
-
-	constructor(
-		private _parentNode: TreeNodeInfo
-	) {
-		super(LocalizedConstants.msgConnect, vscode.TreeItemCollapsibleState.None);
+	constructor(private _parentNode: TreeNodeInfo) {
+		super(
+			LocalizedConstants.msgConnect,
+			vscode.TreeItemCollapsibleState.None
+		);
 
 		this.command = {
 			title: LocalizedConstants.msgConnect,
 			command: Constants.cmdConnectObjectExplorerNode,
-			arguments: [this]
+			arguments: [this],
 		};
 	}
 
@@ -27,7 +27,4 @@ export class ConnectTreeNode extends vscode.TreeItem {
 	}
 }
 
-export type TreeNodeType =
-	| TreeNodeInfo
-	| ConnectTreeNode;
-
+export type TreeNodeType = TreeNodeInfo | ConnectTreeNode;

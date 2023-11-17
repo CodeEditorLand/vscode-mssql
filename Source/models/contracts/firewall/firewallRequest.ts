@@ -3,20 +3,29 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { RequestType } from 'vscode-languageclient';
-import { IAccount } from 'vscode-mssql';
+import { RequestType } from "vscode-languageclient";
+import { IAccount } from "vscode-mssql";
 
 // ------------------------------- < Resource Events > ------------------------------------
 export namespace CreateFirewallRuleRequest {
-	export const type = new RequestType<ICreateFirewallRuleParams, ICreateFirewallRuleResponse, void, void>('resource/createFirewallRule');
+	export const type = new RequestType<
+		ICreateFirewallRuleParams,
+		ICreateFirewallRuleResponse,
+		void,
+		void
+	>("resource/createFirewallRule");
 }
 
 export namespace HandleFirewallRuleRequest {
-	export const type = new RequestType<IHandleFirewallRuleParams, IHandleFirewallRuleResponse, void, void>('resource/handleFirewallRule');
+	export const type = new RequestType<
+		IHandleFirewallRuleParams,
+		IHandleFirewallRuleResponse,
+		void,
+		void
+	>("resource/handleFirewallRule");
 }
 
 // Firewall rule interfaces
-
 
 export interface ICreateFirewallRuleParams {
 	account: IAccount;

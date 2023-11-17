@@ -3,13 +3,15 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { RequestType } from 'vscode-languageclient';
+import { RequestType } from "vscode-languageclient";
 
 // --------------------------------- < Read Credential Request > -------------------------------------------------
 
 // Read Credential request message callback declaration
 export namespace ReadCredentialRequest {
-	export const type = new RequestType<Credential, Credential, void, void>('credential/read');
+	export const type = new RequestType<Credential, Credential, void, void>(
+		"credential/read"
+	);
 }
 
 /**
@@ -33,20 +35,21 @@ export class Credential {
 
 // Save Credential request message callback declaration
 export namespace SaveCredentialRequest {
-	export const type = new RequestType<Credential, boolean, void, void>('credential/save');
+	export const type = new RequestType<Credential, boolean, void, void>(
+		"credential/save"
+	);
 }
 // --------------------------------- </ Save Credential Request > -------------------------------------------------
-
 
 // --------------------------------- < Delete Credential Request > -------------------------------------------------
 
 // Delete Credential request message callback declaration
 export namespace DeleteCredentialRequest {
-	export const type = new RequestType<Credential, boolean, void, void>('credential/delete');
+	export const type = new RequestType<Credential, boolean, void, void>(
+		"credential/delete"
+	);
 }
 // --------------------------------- </ Delete Credential Request > -------------------------------------------------
-
-
 
 export class SaveResultsRequestParams {
 	ownerUri: string;
@@ -61,10 +64,10 @@ export class SaveResultsRequestParams {
 
 export class SaveResultsAsCsvRequestParams extends SaveResultsRequestParams {
 	includeHeaders: boolean = true;
-	delimiter: string = ',';
+	delimiter: string = ",";
 	lineSeperator: string = undefined;
-	textIdentifier: string = '\"';
-	encoding: string = 'utf-8';
+	textIdentifier: string = '"';
+	encoding: string = "utf-8";
 }
 
 export class SaveResultsAsJsonRequestParams extends SaveResultsRequestParams {
@@ -82,20 +85,35 @@ export class SaveResultRequestResult {
 // --------------------------------- < Save Results as CSV Request > ------------------------------------------
 // save results in csv format
 export namespace SaveResultsAsCsvRequest {
-	export const type = new RequestType<SaveResultsAsCsvRequestParams, SaveResultRequestResult, void, void>('query/saveCsv');
+	export const type = new RequestType<
+		SaveResultsAsCsvRequestParams,
+		SaveResultRequestResult,
+		void,
+		void
+	>("query/saveCsv");
 }
 // --------------------------------- </ Save Results as CSV Request > ------------------------------------------
 
 // --------------------------------- < Save Results as JSON Request > ------------------------------------------
 // save results in json format
 export namespace SaveResultsAsJsonRequest {
-	export const type = new RequestType<SaveResultsAsJsonRequestParams, SaveResultRequestResult, void, void>('query/saveJson');
+	export const type = new RequestType<
+		SaveResultsAsJsonRequestParams,
+		SaveResultRequestResult,
+		void,
+		void
+	>("query/saveJson");
 }
 // --------------------------------- </ Save Results as JSON Request > ------------------------------------------
 
 // --------------------------------- < Save Results as Excel Request > ------------------------------------------
 // save results in Excel format
 export namespace SaveResultsAsExcelRequest {
-	export const type = new RequestType<SaveResultsAsExcelRequestParams, SaveResultRequestResult, void, void>('query/saveExcel');
+	export const type = new RequestType<
+		SaveResultsAsExcelRequestParams,
+		SaveResultRequestResult,
+		void,
+		void
+	>("query/saveExcel");
 }
 // --------------------------------- </ Save Results as Excel Request > ------------------------------------------

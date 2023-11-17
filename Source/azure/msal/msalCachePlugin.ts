@@ -3,15 +3,15 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { ICachePlugin, TokenCacheContext } from '@azure/msal-node';
-import { promises as fsPromises } from 'fs';
+import { ICachePlugin, TokenCacheContext } from "@azure/msal-node";
+import { promises as fsPromises } from "fs";
 
-import * as lockFile from 'lockfile';
-import * as path from 'path';
-import VscodeWrapper from '../../controllers/vscodeWrapper';
-import { ICredentialStore } from '../../credentialstore/icredentialstore';
-import { Logger } from '../../models/logger';
-import { FileEncryptionHelper } from '../fileEncryptionHelper';
+import * as lockFile from "lockfile";
+import * as path from "path";
+import VscodeWrapper from "../../controllers/vscodeWrapper";
+import { ICredentialStore } from "../../credentialstore/icredentialstore";
+import { Logger } from "../../models/logger";
+import { FileEncryptionHelper } from "../fileEncryptionHelper";
 
 export class MsalCachePluginProvider {
 	constructor(
@@ -22,16 +22,23 @@ export class MsalCachePluginProvider {
 		private readonly _credentialStore: ICredentialStore
 	) {
 		this._msalFilePath = path.join(this._msalFilePath, this._serviceName);
-		this._serviceName = this._serviceName.replace(/-/, '_');
-		this._fileEncryptionHelper = new FileEncryptionHelper(this._credentialStore, this._vscodeWrapper, this._logger, this._serviceName);
-		this._logger.verbose(`MsalCachePluginProvider: Using cache path ${_msalFilePath} and serviceName ${_serviceName}`);
+		this._serviceName = this._serviceName.replace(/-/, "_");
+		this._fileEncryptionHelper = new FileEncryptionHelper(
+			this._credentialStore,
+			this._vscodeWrapper,
+			this._logger,
+			this._serviceName
+		);
+		this._logger.verbose(
+			`MsalCachePluginProvider: Using cache path ${_msalFilePath} and serviceName ${_serviceName}`
+		);
 	}
 
 	private _lockTaken: boolean = false;
 	private _fileEncryptionHelper: FileEncryptionHelper;
 
 	private getLockfilePath(): string {
-		return this._msalFilePath + '.lockfile';
+		return this._msalFilePath + ".lockfile";
 	}
 
 	/**
@@ -47,26 +54,39 @@ export class MsalCachePluginProvider {
 
 	public getCachePlugin(): ICachePlugin {
 		const lockFilePath = this.getLockfilePath();
-		const beforeCacheAccess = async (cacheContext: TokenCacheContext): Promise<void> => {
+		const beforeCacheAccess = async (
+			cacheContext: TokenCacheContext
+		): Promise<void> => {
 			await this.waitAndLock(lockFilePath);
 			try {
-				const cache = await fsPromises.readFile(this._msalFilePath, { encoding: 'utf8' });
-				const decryptedCache = await this._fileEncryptionHelper.fileOpener(cache);
+				const cache = await fsPromises.readFile(this._msalFilePath, {
+					encoding: "utf8",
+				});
+				const decryptedCache =
+					await this._fileEncryptionHelper.fileOpener(cache);
 				try {
 					cacheContext.tokenCache.deserialize(decryptedCache);
 				} catch (e) {
 					// Handle deserialization error in cache file in case file gets corrupted.
 					// Clearing cache here will ensure account is marked stale so re-authentication can be triggered.
-					this._logger.verbose(`MsalCachePlugin: Error occurred when trying to read cache file, file contents will be cleared: ${e.message}`);
+					this._logger.verbose(
+						`MsalCachePlugin: Error occurred when trying to read cache file, file contents will be cleared: ${e.message}`
+					);
 					await fsPromises.unlink(this._msalFilePath);
 				}
-				this._logger.verbose(`MsalCachePlugin: Token read from cache successfully.`);
+				this._logger.verbose(
+					`MsalCachePlugin: Token read from cache successfully.`
+				);
 			} catch (e) {
-				if (e.code === 'ENOENT') {
+				if (e.code === "ENOENT") {
 					// File doesn't exist, log and continue
-					this._logger.verbose(`MsalCachePlugin: Cache file not found on disk: ${e.code}`);
+					this._logger.verbose(
+						`MsalCachePlugin: Cache file not found on disk: ${e.code}`
+					);
 				} else {
-					this._logger.error(`MsalCachePlugin: Failed to read from cache file, file contents will be cleared : ${e}`);
+					this._logger.error(
+						`MsalCachePlugin: Failed to read from cache file, file contents will be cleared : ${e}`
+					);
 					await fsPromises.unlink(this._msalFilePath);
 				}
 			} finally {
@@ -75,16 +95,27 @@ export class MsalCachePluginProvider {
 			}
 		};
 
-		const afterCacheAccess = async (cacheContext: TokenCacheContext): Promise<void> => {
+		const afterCacheAccess = async (
+			cacheContext: TokenCacheContext
+		): Promise<void> => {
 			if (cacheContext.cacheHasChanged) {
 				await this.waitAndLock(lockFilePath);
 				try {
 					const cache = cacheContext.tokenCache.serialize();
-					const encryptedCache = await this._fileEncryptionHelper.fileSaver(cache);
-					await fsPromises.writeFile(this._msalFilePath, encryptedCache, { encoding: 'utf8' });
-					this._logger.verbose(`MsalCachePlugin: Token written to cache successfully.`);
+					const encryptedCache =
+						await this._fileEncryptionHelper.fileSaver(cache);
+					await fsPromises.writeFile(
+						this._msalFilePath,
+						encryptedCache,
+						{ encoding: "utf8" }
+					);
+					this._logger.verbose(
+						`MsalCachePlugin: Token written to cache successfully.`
+					);
 				} catch (e) {
-					this._logger.error(`MsalCachePlugin: Failed to write to cache file. ${e}`);
+					this._logger.error(
+						`MsalCachePlugin: Failed to write to cache file. ${e}`
+					);
 					throw e;
 				} finally {
 					lockFile.unlockSync(lockFilePath);
@@ -100,7 +131,7 @@ export class MsalCachePluginProvider {
 		// Ref https://github.com/AzureAD/microsoft-authentication-library-for-js/issues/3332
 		return {
 			beforeCacheAccess,
-			afterCacheAccess
+			afterCacheAccess,
 		};
 	}
 
@@ -113,7 +144,9 @@ export class MsalCachePluginProvider {
 		// so we check if the lockfile exists and if it does, calling unlockSync() will clear it.
 		if (lockFile.checkSync(lockFilePath) && !this._lockTaken) {
 			lockFile.unlockSync(lockFilePath);
-			this._logger.verbose(`MsalCachePlugin: Stale lockfile found and has been removed.`);
+			this._logger.verbose(
+				`MsalCachePlugin: Stale lockfile found and has been removed.`
+			);
 		}
 
 		let retryAttempt = 0;
@@ -126,13 +159,21 @@ export class MsalCachePluginProvider {
 				break;
 			} catch (e) {
 				if (retryAttempt === retries) {
-					this._logger.error(`MsalCachePlugin: Failed to acquire lock on cache file after ${retries} attempts.`);
-					throw new Error(`Failed to acquire lock on cache file after ${retries} attempts. Please try clearing Access token cache.`);
+					this._logger.error(
+						`MsalCachePlugin: Failed to acquire lock on cache file after ${retries} attempts.`
+					);
+					throw new Error(
+						`Failed to acquire lock on cache file after ${retries} attempts. Please try clearing Access token cache.`
+					);
 				}
 				retryAttempt++;
-				this._logger.verbose(`MsalCachePlugin: Failed to acquire lock on cache file. Retrying in ${retryWait} ms.`);
+				this._logger.verbose(
+					`MsalCachePlugin: Failed to acquire lock on cache file. Retrying in ${retryWait} ms.`
+				);
 
-				await new Promise(resolve => setTimeout(() => resolve, retryWait));
+				await new Promise((resolve) =>
+					setTimeout(() => resolve, retryWait)
+				);
 			}
 		}
 	}

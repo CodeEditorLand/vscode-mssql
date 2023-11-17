@@ -3,11 +3,11 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import * as vscode from 'vscode';
-import { AccountStore } from '../azure/accountStore';
-import * as Constants from '../constants/constants';
-import * as vscodeMssql from 'vscode-mssql';
-import { AzureAuthType } from './contracts/azure';
+import * as vscode from "vscode";
+import { AccountStore } from "../azure/accountStore";
+import * as Constants from "../constants/constants";
+import * as vscodeMssql from "vscode-mssql";
+import { AzureAuthType } from "./contracts/azure";
 
 // interfaces
 export enum ContentType {
@@ -23,7 +23,7 @@ export enum ContentType {
 	ShowError = 9,
 	ShowWarning = 10,
 	Config = 11,
-	LocalizedTexts = 12
+	LocalizedTexts = 12,
 }
 
 export interface ISlickRange {
@@ -36,13 +36,13 @@ export interface ISlickRange {
 export enum AuthenticationTypes {
 	Integrated = 1,
 	SqlLogin = 2,
-	AzureMFA = 3
+	AzureMFA = 3,
 }
 
 export enum EncryptOptions {
-	Optional = 'Optional',
-	Mandatory = 'Mandatory',
-	Strict = 'Strict'
+	Optional = "Optional",
+	Mandatory = "Mandatory",
+	Strict = "Strict",
 }
 
 export const contentTypes = [
@@ -58,7 +58,7 @@ export const contentTypes = [
 	Constants.outputContentTypeShowError,
 	Constants.outputContentTypeShowWarning,
 	Constants.outputContentTypeConfig,
-	Constants.localizedTexts
+	Constants.localizedTexts,
 ];
 
 // A Connection Profile contains all the properties of connection credentials, with additional
@@ -76,9 +76,10 @@ export interface IConnectionProfile extends vscodeMssql.IConnectionInfo {
 export enum CredentialsQuickPickItemType {
 	Profile,
 	Mru,
-	NewConnection
+	NewConnection,
 }
-export interface IConnectionCredentialsQuickPickItem extends vscode.QuickPickItem {
+export interface IConnectionCredentialsQuickPickItem
+	extends vscode.QuickPickItem {
 	connectionCreds: vscodeMssql.IConnectionInfo;
 	quickPickItemType: CredentialsQuickPickItemType;
 }
@@ -179,7 +180,6 @@ export class ResultSetSubset {
 	rowCount: number;
 	rows: DbCellValue[][];
 }
-
 
 export interface IDbColumn {
 	allowDBNull?: boolean;
@@ -303,7 +303,7 @@ export enum FieldType {
 	Integer = 2,
 	Decimal = 3,
 	Date = 4,
-	Unknown = 5
+	Unknown = 5,
 }
 
 export interface IColumnDefinition {
@@ -315,8 +315,19 @@ export interface IColumnDefinition {
 	cssClass?: string;
 	focusable?: boolean;
 	selectable?: boolean;
-	asyncPostRender?: (cellRef: string, row: number, dataContext: JSON, colDef: any) => void;
-	formatter?: (row: number, cell: any, value: any, columnDef: any, dataContext: any) => string;
+	asyncPostRender?: (
+		cellRef: string,
+		row: number,
+		dataContext: JSON,
+		colDef: any
+	) => void;
+	formatter?: (
+		row: number,
+		cell: any,
+		value: any,
+		columnDef: any,
+		dataContext: any
+	) => string;
 }
 
 export interface IGridDataRow {
@@ -377,10 +388,10 @@ export interface IRange {
 
 /** Azure Account Interfaces */
 export enum AzureLoginStatus {
-	Initializing = 'Initializing',
-	LoggingIn = 'LoggingIn',
-	LoggedIn = 'LoggedIn',
-	LoggedOut = 'LoggedOut'
+	Initializing = "Initializing",
+	LoggingIn = "LoggingIn",
+	LoggedIn = "LoggedIn",
+	LoggedOut = "LoggedOut",
 }
 
 export interface IAzureSession {
@@ -435,7 +446,12 @@ export interface ISubscription {
  * @readonly
  * @enum {string}
  */
-export type SubscriptionState = 'Enabled' | 'Warned' | 'PastDue' | 'Disabled' | 'Deleted';
+export type SubscriptionState =
+	| "Enabled"
+	| "Warned"
+	| "PastDue"
+	| "Disabled"
+	| "Deleted";
 
 /**
  * Subscription policies.
@@ -466,7 +482,7 @@ export interface ISubscriptionPolicies {
  * @readonly
  * @enum {string}
  */
-export type SpendingLimit = 'On' | 'Off' | 'CurrentPeriodOff';
+export type SpendingLimit = "On" | "Off" | "CurrentPeriodOff";
 
 export interface IDeferred<T, E extends Error = Error> {
 	resolve: (result: T | Promise<T>) => void;

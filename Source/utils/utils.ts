@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { promises as fs } from 'fs';
+import { promises as fs } from "fs";
 
 export async function exists(path: string): Promise<boolean> {
 	try {
@@ -14,4 +14,4 @@ export async function exists(path: string): Promise<boolean> {
 	}
 }
 
-export class CancelError extends Error { }
+export class CancelError extends Error {}

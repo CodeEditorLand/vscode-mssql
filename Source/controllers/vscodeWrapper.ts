@@ -3,17 +3,16 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import * as vscode from 'vscode';
+import * as vscode from "vscode";
 
-import { TextDocumentShowOptions } from 'vscode';
-import { AzureLoginStatus } from '../models/interfaces';
-import * as Constants from './../constants/constants';
+import { TextDocumentShowOptions } from "vscode";
+import { AzureLoginStatus } from "../models/interfaces";
+import * as Constants from "./../constants/constants";
 
 export import TextEditor = vscode.TextEditor;
 export import ConfigurationTarget = vscode.ConfigurationTarget;
 
 export default class VscodeWrapper {
-
 	/**
 	 * Output channel for logging. Shared among all instances.
 	 */
@@ -23,8 +22,10 @@ export default class VscodeWrapper {
 	 * Default constructor.
 	 */
 	public constructor() {
-		if (typeof VscodeWrapper._outputChannel === 'undefined') {
-			VscodeWrapper._outputChannel = this.createOutputChannel(Constants.outputChannelName);
+		if (typeof VscodeWrapper._outputChannel === "undefined") {
+			VscodeWrapper._outputChannel = this.createOutputChannel(
+				Constants.outputChannelName
+			);
 		}
 	}
 
@@ -40,7 +41,9 @@ export default class VscodeWrapper {
 	 * has changed. *Note* that the event also fires when the active editor changes
 	 * to `undefined`.
 	 */
-	public get onDidChangeActiveTextEditor(): vscode.Event<vscode.TextEditor | undefined> {
+	public get onDidChangeActiveTextEditor(): vscode.Event<
+		vscode.TextEditor | undefined
+	> {
 		return vscode.window.onDidChangeActiveTextEditor;
 	}
 
@@ -62,8 +65,10 @@ export default class VscodeWrapper {
 	 * Get the URI string for the current active text editor
 	 */
 	public get activeTextEditorUri(): string | undefined {
-		if (typeof vscode.window.activeTextEditor !== 'undefined' &&
-			typeof vscode.window.activeTextEditor.document !== 'undefined') {
+		if (
+			typeof vscode.window.activeTextEditor !== "undefined" &&
+			typeof vscode.window.activeTextEditor.document !== "undefined"
+		) {
 			return vscode.window.activeTextEditor.document.uri.toString(true);
 		}
 		return undefined;
@@ -91,7 +96,10 @@ export default class VscodeWrapper {
 	 * the command handler function doesn't return anything.
 	 * @see vscode.commands.executeCommand
 	 */
-	public executeCommand<T>(command: string, ...rest: any[]): Thenable<T | undefined> {
+	public executeCommand<T>(
+		command: string,
+		...rest: any[]
+	): Thenable<T | undefined> {
 		return vscode.commands.executeCommand<T>(command, ...rest);
 	}
 
@@ -100,15 +108,21 @@ export default class VscodeWrapper {
 	 * @param extensionName The string name of the extension to get the configuration for
 	 * @param resource The optional URI, as a URI object or a string, to use to get resource-scoped configurations
 	 */
-	public getConfiguration(extensionName: string, resource?: vscode.Uri | string): vscode.WorkspaceConfiguration {
-		if (typeof resource === 'string') {
+	public getConfiguration(
+		extensionName: string,
+		resource?: vscode.Uri | string
+	): vscode.WorkspaceConfiguration {
+		if (typeof resource === "string") {
 			try {
 				resource = this.parseUri(resource);
 			} catch (e) {
 				resource = undefined;
 			}
 		}
-		return vscode.workspace.getConfiguration(extensionName, resource as vscode.Uri);
+		return vscode.workspace.getConfiguration(
+			extensionName,
+			resource as vscode.Uri
+		);
 	}
 
 	/**
@@ -161,7 +175,9 @@ export default class VscodeWrapper {
 	 * @return A promise that resolves to a [document](#TextDocument).
 	 * @see vscode.workspace.openTextDocument
 	 */
-	public async openTextDocument(uri: vscode.Uri): Promise<vscode.TextDocument> {
+	public async openTextDocument(
+		uri: vscode.Uri
+	): Promise<vscode.TextDocument> {
 		const doc = await vscode.workspace.openTextDocument(uri);
 		return doc;
 	}
@@ -177,8 +193,13 @@ export default class VscodeWrapper {
 	 * @return A promise that resolves to a [document](#TextDocument).
 	 * @see vscode.workspace.openTextDocument
 	 */
-	public async openMsSqlTextDocument(content?: string): Promise<vscode.TextDocument> {
-		const doc = await vscode.workspace.openTextDocument({ language: 'sql', content: content });
+	public async openMsSqlTextDocument(
+		content?: string
+	): Promise<vscode.TextDocument> {
+		const doc = await vscode.workspace.openTextDocument({
+			language: "sql",
+			content: content,
+		});
 		return doc;
 	}
 
@@ -188,11 +209,15 @@ export default class VscodeWrapper {
 	public logToOutputChannel(msg: any): void {
 		let date: Date = new Date();
 		if (msg instanceof Array) {
-			msg.forEach(element => {
-				VscodeWrapper._outputChannel.appendLine('[' + date.toLocaleTimeString() + '] ' + element.toString());
+			msg.forEach((element) => {
+				VscodeWrapper._outputChannel.appendLine(
+					"[" + date.toLocaleTimeString() + "] " + element.toString()
+				);
 			});
 		} else {
-			VscodeWrapper._outputChannel.appendLine('[' + date.toLocaleTimeString() + '] ' + msg.toString());
+			VscodeWrapper._outputChannel.appendLine(
+				"[" + date.toLocaleTimeString() + "] " + msg.toString()
+			);
 		}
 	}
 
@@ -219,36 +244,58 @@ export default class VscodeWrapper {
 	 * @param start The start postion of the selection
 	 * @param end The end position of the selection
 	 */
-	public selection(start: vscode.Position, end: vscode.Position): vscode.Selection {
+	public selection(
+		start: vscode.Position,
+		end: vscode.Position
+	): vscode.Selection {
 		return new vscode.Selection(start, end);
 	}
 
 	/**
 	 * Formats and shows a vscode error message
 	 */
-	public showErrorMessage(msg: string, ...items: string[]): Thenable<string | undefined> {
-		return vscode.window.showErrorMessage(Constants.extensionName + ': ' + msg, ...items);
+	public showErrorMessage(
+		msg: string,
+		...items: string[]
+	): Thenable<string | undefined> {
+		return vscode.window.showErrorMessage(
+			Constants.extensionName + ": " + msg,
+			...items
+		);
 	}
 
 	/**
 	 * Shows an input box with given options
 	 */
-	public showInputBox(options?: vscode.InputBoxOptions): Thenable<string | undefined> {
+	public showInputBox(
+		options?: vscode.InputBoxOptions
+	): Thenable<string | undefined> {
 		return vscode.window.showInputBox(options);
 	}
 
 	/**
 	 * Formats and shows a vscode information message
 	 */
-	public showInformationMessage(msg: string, ...items: string[]): Thenable<string | undefined> {
-		return vscode.window.showInformationMessage(Constants.extensionName + ': ' + msg, ...items);
+	public showInformationMessage(
+		msg: string,
+		...items: string[]
+	): Thenable<string | undefined> {
+		return vscode.window.showInformationMessage(
+			Constants.extensionName + ": " + msg,
+			...items
+		);
 	}
 
-	public showQuickPickStrings(items: string[] | Thenable<string[]>, options?: vscode.QuickPickOptions): Thenable<string | undefined> {
+	public showQuickPickStrings(
+		items: string[] | Thenable<string[]>,
+		options?: vscode.QuickPickOptions
+	): Thenable<string | undefined> {
 		return vscode.window.showQuickPick(items, options);
 	}
 
-	public createQuickPick<T extends vscode.QuickPickItem>(): vscode.QuickPick<T> {
+	public createQuickPick<
+		T extends vscode.QuickPickItem,
+	>(): vscode.QuickPick<T> {
 		return vscode.window.createQuickPick<T>();
 	}
 
@@ -259,7 +306,10 @@ export default class VscodeWrapper {
 	 * @param options Configures the behavior of the selection list.
 	 * @return A promise that resolves to the selected item or undefined.
 	 */
-	public showQuickPick<T extends vscode.QuickPickItem>(items: T[] | Thenable<T[]>, options?: vscode.QuickPickOptions): Thenable<T | undefined> {
+	public showQuickPick<T extends vscode.QuickPickItem>(
+		items: T[] | Thenable<T[]>,
+		options?: vscode.QuickPickOptions
+	): Thenable<T | undefined> {
 		return vscode.window.showQuickPick<T>(items, options);
 	}
 
@@ -269,7 +319,9 @@ export default class VscodeWrapper {
 	 * @param options Configures the behavior of the save dialog
 	 * @return A promise that resolves to the selected resource or `undefined`.
 	 */
-	public showSaveDialog(options: vscode.SaveDialogOptions): Thenable<vscode.Uri | undefined> {
+	public showSaveDialog(
+		options: vscode.SaveDialogOptions
+	): Thenable<vscode.Uri | undefined> {
 		return vscode.window.showSaveDialog(options);
 	}
 
@@ -283,7 +335,10 @@ export default class VscodeWrapper {
 	 * @param preserveFocus When `true` the editor will not take focus.
 	 * @return A promise that resolves to an [editor](#TextEditor).
 	 */
-	public async showTextDocument(document: vscode.TextDocument, options: TextDocumentShowOptions): Promise<vscode.TextEditor> {
+	public async showTextDocument(
+		document: vscode.TextDocument,
+		options: TextDocumentShowOptions
+	): Promise<vscode.TextEditor> {
 		const editor = await vscode.window.showTextDocument(document, options);
 		return editor;
 	}
@@ -292,14 +347,24 @@ export default class VscodeWrapper {
 	 * Formats and shows a vscode warning message
 	 */
 	public showWarningMessage(msg: string): Thenable<string | undefined> {
-		return vscode.window.showWarningMessage(Constants.extensionName + ': ' + msg);
+		return vscode.window.showWarningMessage(
+			Constants.extensionName + ": " + msg
+		);
 	}
 
 	/**
 	 * Formats and shows a vscode warning message with items
 	 */
-	public showWarningMessageAdvanced(msg: string, messageOptions: vscode.MessageOptions, items: any[]): Thenable<string> {
-		return vscode.window.showWarningMessage(Constants.extensionName + ': ' + msg, messageOptions, ...items);
+	public showWarningMessageAdvanced(
+		msg: string,
+		messageOptions: vscode.MessageOptions,
+		items: any[]
+	): Thenable<string> {
+		return vscode.window.showWarningMessage(
+			Constants.extensionName + ": " + msg,
+			messageOptions,
+			...items
+		);
 	}
 
 	/**
@@ -360,15 +425,24 @@ export default class VscodeWrapper {
 	/**
 	 * Change a configuration setting
 	 */
-	public setConfiguration(extensionName: string, resource: string, value: any, target: ConfigurationTarget = ConfigurationTarget.Global): Thenable<void> {
-		return this.getConfiguration(extensionName).update(resource, value, target);
+	public setConfiguration(
+		extensionName: string,
+		resource: string,
+		value: any,
+		target: ConfigurationTarget = ConfigurationTarget.Global
+	): Thenable<void> {
+		return this.getConfiguration(extensionName).update(
+			resource,
+			value,
+			target
+		);
 	}
 
 	/**
 	 * Set a context for contributing command actions
 	 */
 	public async setContext(contextSection: string, value: any): Promise<void> {
-		await this.executeCommand('setContext', contextSection, value);
+		await this.executeCommand("setContext", contextSection, value);
 	}
 
 	/**
@@ -389,7 +463,9 @@ export default class VscodeWrapper {
 	 * Gets the Azure Account extension
 	 */
 	public get azureAccountExtension(): vscode.Extension<any> | undefined {
-		return vscode.extensions.getExtension(Constants.azureAccountExtensionId);
+		return vscode.extensions.getExtension(
+			Constants.azureAccountExtensionId
+		);
 	}
 
 	/**
@@ -397,14 +473,20 @@ export default class VscodeWrapper {
 	 * but not active
 	 */
 	public get azureAccountExtensionActive(): boolean {
-		return this.azureAccountExtension !== undefined && this.azureAccountExtension.isActive;
+		return (
+			this.azureAccountExtension !== undefined &&
+			this.azureAccountExtension.isActive
+		);
 	}
 
 	/**
 	 * Returns whether an azure account is signed in
 	 */
 	public get isAccountSignedIn(): boolean {
-		return this.azureAccountExtensionActive &&
-			this.azureAccountExtension!.exports.status === AzureLoginStatus.LoggedIn;
+		return (
+			this.azureAccountExtensionActive &&
+			this.azureAccountExtension!.exports.status ===
+				AzureLoginStatus.LoggedIn
+		);
 	}
 }

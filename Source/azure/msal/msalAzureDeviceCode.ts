@@ -3,14 +3,22 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { AuthenticationResult, DeviceCodeRequest, PublicClientApplication } from '@azure/msal-node';
-import * as vscode from 'vscode';
-import * as LocalizedConstants from '../../constants/localizedConstants';
-import VscodeWrapper from '../../controllers/vscodeWrapper';
-import { AzureAuthType, IProviderSettings, ITenant } from '../../models/contracts/azure';
-import { IDeferred } from '../../models/interfaces';
-import { Logger } from '../../models/logger';
-import { MsalAzureAuth } from './msalAzureAuth';
+import {
+	AuthenticationResult,
+	DeviceCodeRequest,
+	PublicClientApplication,
+} from "@azure/msal-node";
+import * as vscode from "vscode";
+import * as LocalizedConstants from "../../constants/localizedConstants";
+import VscodeWrapper from "../../controllers/vscodeWrapper";
+import {
+	AzureAuthType,
+	IProviderSettings,
+	ITenant,
+} from "../../models/contracts/azure";
+import { IDeferred } from "../../models/interfaces";
+import { Logger } from "../../models/logger";
+import { MsalAzureAuth } from "./msalAzureAuth";
 
 export class MsalAzureDeviceCode extends MsalAzureAuth {
 	constructor(
@@ -18,13 +26,28 @@ export class MsalAzureDeviceCode extends MsalAzureAuth {
 		protected readonly context: vscode.ExtensionContext,
 		protected clientApplication: PublicClientApplication,
 		protected readonly vscodeWrapper: VscodeWrapper,
-		protected readonly logger: Logger) {
-		super(providerSettings, context, clientApplication, AzureAuthType.DeviceCode, vscodeWrapper, logger);
+		protected readonly logger: Logger
+	) {
+		super(
+			providerSettings,
+			context,
+			clientApplication,
+			AzureAuthType.DeviceCode,
+			vscodeWrapper,
+			logger
+		);
 	}
 
-	protected async login(tenant: ITenant): Promise<{ response: AuthenticationResult; authComplete: IDeferred<void, Error>; }> {
+	protected async login(
+		tenant: ITenant
+	): Promise<{
+		response: AuthenticationResult;
+		authComplete: IDeferred<void, Error>;
+	}> {
 		let authCompleteDeferred: IDeferred<void, Error>;
-		let authCompletePromise = new Promise<void>((resolve, reject) => authCompleteDeferred = { resolve, reject });
+		let authCompletePromise = new Promise<void>(
+			(resolve, reject) => (authCompleteDeferred = { resolve, reject })
+		);
 
 		let authority = this.loginEndpointUrl + tenant.id;
 		this.logger.info(`Authority URL set to: ${authority}`);
@@ -33,17 +56,27 @@ export class MsalAzureDeviceCode extends MsalAzureAuth {
 			scopes: this.scopes,
 			authority: authority,
 			deviceCodeCallback: async (response) => {
-				await this.displayDeviceCodeScreen(response.message, response.userCode, response.verificationUri);
-			}
+				await this.displayDeviceCodeScreen(
+					response.message,
+					response.userCode,
+					response.verificationUri
+				);
+			},
 		};
 
-		const authResult = await this.clientApplication.acquireTokenByDeviceCode(deviceCodeRequest);
-		this.logger.pii(`Authentication completed for account: ${authResult?.account!.name}, tenant: ${authResult?.tenantId}`);
+		const authResult =
+			await this.clientApplication.acquireTokenByDeviceCode(
+				deviceCodeRequest
+			);
+		this.logger.pii(
+			`Authentication completed for account: ${authResult?.account!
+				.name}, tenant: ${authResult?.tenantId}`
+		);
 		this.closeOnceComplete(authCompletePromise).catch(this.logger.error);
 
 		return {
 			response: authResult!,
-			authComplete: authCompleteDeferred!
+			authComplete: authCompleteDeferred!,
 		};
 	}
 
@@ -51,9 +84,16 @@ export class MsalAzureDeviceCode extends MsalAzureAuth {
 		await promise;
 	}
 
-	public async displayDeviceCodeScreen(msg: string, userCode: string, verificationUrl: string): Promise<void> {
+	public async displayDeviceCodeScreen(
+		msg: string,
+		userCode: string,
+		verificationUrl: string
+	): Promise<void> {
 		// create a notification with the device code message, usercode, and verificationurl
-		const selection = await this.vscodeWrapper.showInformationMessage(msg, LocalizedConstants.msgCopyAndOpenWebpage);
+		const selection = await this.vscodeWrapper.showInformationMessage(
+			msg,
+			LocalizedConstants.msgCopyAndOpenWebpage
+		);
 		if (selection === LocalizedConstants.msgCopyAndOpenWebpage) {
 			this.vscodeWrapper.clipboardWriteText(userCode);
 			await vscode.env.openExternal(vscode.Uri.parse(verificationUrl));

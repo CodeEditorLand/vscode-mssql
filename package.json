@@ -1,33 +1,20 @@
 {
-	"name": "mssql",
-	"displayName": "SQL Server (mssql)",
-	"version": "0.0.1",
-	"private": false,
-	"description": "Develop Microsoft SQL Server, Azure SQL Database and SQL Data Warehouse everywhere",
-	"keywords": [
-		"land"
+	"activationEvents": [
+		"onCommand:mssql.loadCompletionExtension"
 	],
-	"homepage": "HTTPS://GitHub.Com/CodeEditorLand/LandMssql#readme",
+	"aiKey": "29a207bb14f84905966a8f22524cb730-25407f35-11b6-4d4e-8114-ab9e843cb52f-7380",
+	"author": {
+		"email": "Land@PlayForm.Cloud",
+		"name": "🌆 — Land —",
+		"url": "HTTPS://Land.PlayForm.Cloud"
+	},
 	"bugs": {
 		"url": "HTTPS://GitHub.Com/CodeEditorLand/LandMssql/issues"
 	},
-	"repository": {
-		"type": "git",
-		"url": "git+HTTPS://github.com/CodeEditorLand/LandMssql.git"
-	},
-	"license": "SEE LICENSE IN LICENSE",
-	"author": {
-		"name": "🌆 — Land —",
-		"email": "Land@PlayForm.Cloud",
-		"url": "HTTPS://Land.PlayForm.Cloud"
-	},
-	"type": "module",
-	"main": "./out/src/extension",
-	"scripts": {
-		"Document": "Document 'Source/**/*.ts'",
-		"build": "gulp build",
-		"compile": "gulp ext:compile",
-		"prepublishOnly": "Build 'Source/**/*.ts'"
+	"capabilities": {
+		"untrustedWorkspaces": {
+			"supported": true
+		}
 	},
 	"contributes": {
 		"commands": [
@@ -1095,12 +1082,6 @@
 			]
 		}
 	},
-	"activationEvents": [
-		"onCommand:mssql.loadCompletionExtension"
-	],
-	"resolutions": {
-		"gulp-typescript/source-map": "0.7.4"
-	},
 	"dependencies": {
 		"axios": "1.6.8",
 		"core-js": "3.37.0",
@@ -1125,6 +1106,7 @@
 		"underscore": "1.13.6",
 		"zone.js": "0.14.5"
 	},
+	"description": "Develop Microsoft SQL Server, Azure SQL Database and SQL Data Warehouse everywhere",
 	"devDependencies": {
 		"@angular/common": "17.3.6",
 		"@angular/compiler": "17.3.6",
@@ -1164,27 +1146,45 @@
 		"uglify-js": "mishoo/UglifyJS2#harmony-v2.8.22",
 		"yargs": "https://registry.npmjs.org/yargs/-/yargs-3.32.0.tgz"
 	},
+	"displayName": "SQL Server (mssql)",
+	"extensionDependencies": [
+		"vscode.sql"
+	],
 	"extensionPack": [
 		"ms-mssql.data-workspace-vscode",
 		"ms-mssql.sql-bindings-vscode",
 		"ms-mssql.sql-database-projects-vscode"
 	],
-	"extensionDependencies": [
-		"vscode.sql"
-	],
-	"publishConfig": {
-		"access": "public"
-	},
-	"icon": "images/sqlserver.png",
 	"galleryBanner": {
 		"color": "#2F2F2F",
 		"theme": "dark"
 	},
+	"homepage": "HTTPS://GitHub.Com/CodeEditorLand/LandMssql#readme",
+	"icon": "images/sqlserver.png",
+	"keywords": [
+		"land"
+	],
+	"license": "SEE LICENSE IN LICENSE",
+	"main": "./out/src/extension",
+	"name": "mssql",
 	"preview": false,
-	"aiKey": "29a207bb14f84905966a8f22524cb730-25407f35-11b6-4d4e-8114-ab9e843cb52f-7380",
-	"capabilities": {
-		"untrustedWorkspaces": {
-			"supported": true
-		}
-	}
+	"private": false,
+	"publishConfig": {
+		"access": "public"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+HTTPS://github.com/CodeEditorLand/LandMssql.git"
+	},
+	"resolutions": {
+		"gulp-typescript/source-map": "0.7.4"
+	},
+	"scripts": {
+		"Document": "Document 'Source/**/*.ts'",
+		"build": "gulp build",
+		"compile": "gulp ext:compile",
+		"prepublishOnly": "Build 'Source/**/*.ts'"
+	},
+	"type": "module",
+	"version": "0.0.1"
 }

@@ -622,6 +622,7 @@ export class AppComponent implements OnInit, AfterViewChecked {
 			default:
 				break;
 		}
+
 		this.dataService.sendActionEvent(
 			TelemetryViews.ResultsGrid,
 			TelemetryActions.ResultPaneAction,

@@ -50,6 +50,7 @@ export class ConnectionUI {
 		if (!this._vscodeWrapper) {
 			this._vscodeWrapper = new VscodeWrapper();
 		}
+
 		this._errorOutputChannel = this._vscodeWrapper.createOutputChannel(LocalizedConstants.connectionErrorChannelName);
 	}
 

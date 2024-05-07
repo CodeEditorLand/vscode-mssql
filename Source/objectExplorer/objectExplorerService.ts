@@ -274,6 +274,7 @@ export class ObjectExplorerService {
 				return;
 			}
 		}
+
 		this._rootTreeNodeArray.push(node);
 	}
 
@@ -594,6 +595,7 @@ export class ObjectExplorerService {
 			this._currentNode = disconnectedNode;
 			this._treeNodeToChildrenMap.set(this._currentNode, [new ConnectTreeNode(this._currentNode)]);
 		}
+
 		this._nodePathToNodeLabelMap.delete(node.nodePath);
 		this.cleanNodeChildren(node);
 		sendActionEvent(

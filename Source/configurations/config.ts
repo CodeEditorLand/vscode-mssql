@@ -52,6 +52,7 @@ export default class Config implements IConfig {
 			default:
 				this._sqlToolsServiceConfigKey = Constants.sqlToolsServiceConfigKey;
 		}
+
 		this.version = version;
 	}
 

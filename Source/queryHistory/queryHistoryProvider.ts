@@ -59,6 +59,7 @@ export class QueryHistoryProvider implements vscode.TreeDataProvider<any> {
 				this._queryHistoryNodes = [];
 			}
 		}
+
 		this._queryHistoryNodes.push(node);
 		// sort the query history sorted by timestamp
 		this._queryHistoryNodes.sort((a, b) => {
@@ -70,6 +71,7 @@ export class QueryHistoryProvider implements vscode.TreeDataProvider<any> {
 		if (this._queryHistoryNodes.length > this._queryHistoryLimit) {
 			this._queryHistoryNodes.shift();
 		}
+
 		this._onDidChangeTreeData.fire(undefined);
 	}
 

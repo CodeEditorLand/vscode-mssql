@@ -81,6 +81,7 @@ export default class MainController implements vscode.Disposable {
 		if (connectionManager) {
 			this._connectionMgr = connectionManager;
 		}
+
 		this._vscodeWrapper = vscodeWrapper || new VscodeWrapper();
 		this._untitledSqlDocumentService = new UntitledSqlDocumentService(this._vscodeWrapper);
 	}
@@ -1157,6 +1158,7 @@ export default class MainController implements vscode.Disposable {
 			// Avoid processing events before initialization is complete
 			return;
 		}
+
 		this._connectionMgr.onDidOpenTextDocument(doc);
 
 		if (doc && doc.languageId === Constants.languageId) {

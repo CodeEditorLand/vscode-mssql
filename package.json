@@ -1,27 +1,7 @@
 {
 	"name": "mssql",
 	"displayName": "SQL Server (mssql)",
-	"version": "0.0.1",
-	"private": false,
 	"description": "Develop Microsoft SQL Server, Azure SQL Database and SQL Data Warehouse everywhere",
-	"keywords": [
-		"land"
-	],
-	"homepage": "HTTPS://GitHub.Com/CodeEditorLand/LandMssql#readme",
-	"bugs": {
-		"url": "HTTPS://GitHub.Com/CodeEditorLand/LandMssql/issues"
-	},
-	"repository": {
-		"type": "git",
-		"url": "git+HTTPS://github.com/CodeEditorLand/LandMssql.git"
-	},
-	"license": "SEE LICENSE IN LICENSE",
-	"author": {
-		"name": "🛬 Land —",
-		"email": "Land@PlayForm.Cloud",
-		"url": "HTTPS://Land.PlayForm.Cloud"
-	},
-	"type": "module",
 	"main": "./out/src/extension",
 	"scripts": {
 		"Document": "Document 'Source/**/*.ts'",
@@ -1135,7 +1115,6 @@
 		"@angular/router": "17.3.7",
 		"@angular/upgrade": "17.3.7",
 		"@playform/build": "0.0.7",
-		"@playform/document": "0.0.6",
 		"@types/azdata": "1.46.6",
 		"@types/ejs": "3.1.5",
 		"@types/jquery": "3.5.29",
@@ -1172,9 +1151,6 @@
 	"extensionDependencies": [
 		"vscode.sql"
 	],
-	"publishConfig": {
-		"access": "public"
-	},
 	"icon": "images/sqlserver.png",
 	"galleryBanner": {
 		"color": "#2F2F2F",

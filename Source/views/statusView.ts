@@ -48,7 +48,6 @@ export default class StatusView implements vscode.Disposable {
 		if (!this._vscodeWrapper) {
 			this._vscodeWrapper = new VscodeWrapper();
 		}
-
 		this._statusBars = {};
 		this._onDidChangeActiveTextEditorEvent = this._vscodeWrapper.onDidChangeActiveTextEditor((params) => this.onDidChangeActiveTextEditor(params));
 		this._onDidCloseTextDocumentEvent = this._vscodeWrapper.onDidCloseTextDocument((params) => this.onDidCloseTextDocument(params));
@@ -67,7 +66,6 @@ export default class StatusView implements vscode.Disposable {
 				delete this._statusBars[bar];
 			}
 		}
-
 		this._onDidChangeActiveTextEditorEvent.dispose();
 		this._onDidCloseTextDocumentEvent.dispose();
 	}
@@ -179,7 +177,6 @@ export default class StatusView implements vscode.Disposable {
 			bar.statusConnection.tooltip = LocalizedConstants.connectErrorTooltip + credentials.server + '\n' +
 				LocalizedConstants.connectErrorMessage + error.messages;
 		}
-
 		this.showStatusBarItem(fileUri, bar.statusConnection);
 	}
 
@@ -240,7 +237,6 @@ export default class StatusView implements vscode.Disposable {
 			// Remove parentheses from start and end
 			bar.rowCount.text = message.replace('(', '').replace(')', '');
 		}
-
 		this.showStatusBarItem(fileUri, bar.rowCount);
 	}
 

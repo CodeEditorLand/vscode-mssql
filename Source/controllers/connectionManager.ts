@@ -486,7 +486,6 @@ export default class ConnectionManager {
 				Utils.showErrorMsg(Utils.formatString(LocalizedConstants.msgConnectionError2, result.messages));
 			}
 		}
-
 		this.statusView.connectError(fileUri, connection.credentials, result);
 		this.vscodeWrapper.logToOutputChannel(
 			Utils.formatString(

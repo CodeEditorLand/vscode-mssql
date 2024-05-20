@@ -23,7 +23,6 @@ export class CredentialStore implements ICredentialStore {
 		if (!this._client) {
 			this._client = SqlToolsServerClient.instance;
 		}
-
 		this._secretStorage = this._context.secrets;
 	}
 

@@ -246,7 +246,6 @@ export default class QueryRunner {
 			promise.resolve();
 			this._uriToQueryPromiseMap.delete(result.ownerUri);
 		}
-
 		this._statusView.executedQuery(result.ownerUri);
 		let hasError = this._batchSets.some(batch => batch.hasError === true);
 		this.removeRunningQuery();
@@ -295,7 +294,6 @@ export default class QueryRunner {
 			// send a time message in the format used for query complete
 			this.sendBatchTimeMessage(batch.id, Utils.parseNumAsTimeString(executionTime));
 		}
-
 		this.eventEmitter.emit('batchComplete', batch);
 	}
 

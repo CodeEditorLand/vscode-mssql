@@ -1,5 +1,4 @@
 out
-node_modules
 packages
 .DS_Store
 *.dat

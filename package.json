@@ -1,11 +1,12 @@
 {
-	"name": "mssql",
-	"displayName": "SQL Server (mssql)",
-	"description": "Develop Microsoft SQL Server, Azure SQL Database and SQL Data Warehouse everywhere",
-	"main": "./out/src/extension",
-	"scripts": {
-		"build": "gulp build",
-		"compile": "gulp ext:compile"
+	"activationEvents": [
+		"onCommand:mssql.loadCompletionExtension"
+	],
+	"aiKey": "29a207bb14f84905966a8f22524cb730-25407f35-11b6-4d4e-8114-ab9e843cb52f-7380",
+	"capabilities": {
+		"untrustedWorkspaces": {
+			"supported": true
+		}
 	},
 	"contributes": {
 		"commands": [
@@ -1107,12 +1108,6 @@
 			]
 		}
 	},
-	"activationEvents": [
-		"onCommand:mssql.loadCompletionExtension"
-	],
-	"resolutions": {
-		"gulp-typescript/source-map": "0.7.4"
-	},
 	"dependencies": {
 		"axios": "^1.6.0",
 		"core-js": "^2.4.1",
@@ -1137,6 +1132,7 @@
 		"underscore": "^1.8.3",
 		"zone.js": "^0.6.26"
 	},
+	"description": "Develop Microsoft SQL Server, Azure SQL Database and SQL Data Warehouse everywhere",
 	"devDependencies": {
 		"@angular/common": "~2.1.2",
 		"@angular/compiler": "~2.1.2",
@@ -1178,24 +1174,28 @@
 		"uglify-js": "mishoo/UglifyJS2#harmony-v2.8.22",
 		"yargs": "https://registry.npmjs.org/yargs/-/yargs-3.32.0.tgz"
 	},
+	"displayName": "SQL Server (mssql)",
+	"extensionDependencies": [
+		"vscode.sql"
+	],
 	"extensionPack": [
 		"ms-mssql.data-workspace-vscode",
 		"ms-mssql.sql-bindings-vscode",
 		"ms-mssql.sql-database-projects-vscode"
 	],
-	"extensionDependencies": [
-		"vscode.sql"
-	],
-	"icon": "images/sqlserver.png",
 	"galleryBanner": {
 		"color": "#2F2F2F",
 		"theme": "dark"
 	},
+	"icon": "images/sqlserver.png",
+	"main": "./out/src/extension",
+	"name": "mssql",
 	"preview": false,
-	"aiKey": "29a207bb14f84905966a8f22524cb730-25407f35-11b6-4d4e-8114-ab9e843cb52f-7380",
-	"capabilities": {
-		"untrustedWorkspaces": {
-			"supported": true
-		}
+	"resolutions": {
+		"gulp-typescript/source-map": "0.7.4"
+	},
+	"scripts": {
+		"build": "gulp build",
+		"compile": "gulp ext:compile"
 	}
 }

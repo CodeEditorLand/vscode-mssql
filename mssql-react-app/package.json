@@ -6,13 +6,13 @@
 		"preview": "vite preview"
 	},
 	"dependencies": {
-		"@fluentui/react-components": "9.54.2",
+		"@fluentui/react-components": "9.54.3",
 		"@monaco-editor/react": "4.6.0",
 		"react-resizable": "3.0.5",
 		"react-router-dom": "6.24.0"
 	},
 	"devDependencies": {
-		"@types/react-resizable": "3.0.7",
+		"@types/react-resizable": "3.0.8",
 		"eslint-plugin-react-refresh": "0.4.7"
 	}
 }

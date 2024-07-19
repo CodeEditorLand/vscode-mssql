@@ -77,8 +77,8 @@ export const DesignerTable = ({
 	tableProps.columns!.forEach((column) => {
 		const colProps = tableProps.itemProperties?.find(item => item.propertyName === column);
 		sizingOptions[column] = {
-			minWidth: (colProps?.componentProperties.width ?? 100) + 50,
-			idealWidth: (colProps?.componentProperties.width ?? 100) + 50
+			minWidth: (colProps?.componentProperties.width ?? 100) + 30,
+			idealWidth: (colProps?.componentProperties.width ?? 100) + 30
 		}
 	});
 	sizingOptions['dragHandle'] = {
@@ -132,8 +132,7 @@ export const DesignerTable = ({
 				<Button appearance="subtle"
 					aria-label={message}
 					icon={<ErrorCircleFilled style={{
-						marginTop: '5px',
-						marginLeft: '5px'
+						marginTop: '5px'
 					}} color="red" />}></Button>
 			</PopoverTrigger>
 
@@ -191,7 +190,7 @@ export const DesignerTable = ({
 								component={colProps}
 								model={value as DropDownProperties}
 								componentPath={[...componentPath, row.rowId, columnId]}
-								UiArea={'TabsView'}
+								UiArea={UiArea}
 								showLabel={false}
 								showError={false}
 							/>

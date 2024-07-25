@@ -48,8 +48,6 @@ export interface TableDesignerProvider {
 	getErrorMessage: (componentPath: (string | number)[]) => string | undefined;
 	setPropertiesComponents: (data: PropertiesPaneData | undefined) => void;
 	setResultTab: (tabId: string) => void;
-	closeDesigner: () => void;
-	continueEditing: () => void;
 }
 
 /**

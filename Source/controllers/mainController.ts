@@ -125,7 +125,7 @@ export default class MainController implements vscode.Disposable {
 	}
 
 	public get isPreviewEnabled(): boolean {
-		return this.configuration.get(Constants.configEnableExperimentalFeatures);
+		return this.configuration.get(Constants.configEnablePreviewFeatures);
 	}
 
 	/**
@@ -495,8 +495,8 @@ export default class MainController implements vscode.Disposable {
 							this._context,
 							this.tableDesignerService,
 							this._connectionMgr,
-							this._untitledSqlDocumentService,
-							node
+							this._objectExplorerProvider,
+							this._untitledSqlDocumentService
 						);
 						reactPanel.revealToForeground();
 					}));
@@ -508,6 +508,7 @@ export default class MainController implements vscode.Disposable {
 							this._context,
 							this.tableDesignerService,
 							this._connectionMgr,
+							this._objectExplorerProvider,
 							this._untitledSqlDocumentService,
 							node
 						);

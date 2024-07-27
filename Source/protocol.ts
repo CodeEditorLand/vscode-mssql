@@ -3,19 +3,42 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { Event, Disposable } from 'vscode';
-import { ISlickRange, IResultsConfig, ResultSetSubset, ISelectionData } from './models/interfaces';
-import { TelemetryActions, TelemetryViews } from './telemetry/telemetryInterfaces';
+import { Event, Disposable } from "vscode";
+import {
+	ISlickRange,
+	IResultsConfig,
+	ResultSetSubset,
+	ISelectionData,
+} from "./models/interfaces";
+import {
+	TelemetryActions,
+	TelemetryViews,
+} from "./telemetry/telemetryInterfaces";
 
 export interface IWebviewProxy extends Disposable {
 	sendEvent(type: string, arg: any): void;
 }
 
 export interface IServerProxy extends Disposable {
-	getRows(batchId: number, resultId: number, rowStart: number, numberOfRows: number): Promise<ResultSetSubset>;
-	saveResults(batchId: number, resultId: number, format: string, selection: ISlickRange[]): void;
+	getRows(
+		batchId: number,
+		resultId: number,
+		rowStart: number,
+		numberOfRows: number,
+	): Promise<ResultSetSubset>;
+	saveResults(
+		batchId: number,
+		resultId: number,
+		format: string,
+		selection: ISlickRange[],
+	): void;
 	openLink(content: string, columnName: string, linkType: string): void;
-	copyResults(batchId: number, resultsId: number, selection: ISlickRange[], includeHeaders?: boolean): void;
+	copyResults(
+		batchId: number,
+		resultsId: number,
+		selection: ISlickRange[],
+		includeHeaders?: boolean,
+	): void;
 	getConfig(): Promise<IResultsConfig>;
 	setEditorSelection(selectionData: ISelectionData): void;
 	showWarning(message: string): void;
@@ -23,7 +46,12 @@ export interface IServerProxy extends Disposable {
 	getLocalizedTexts(): Promise<{ [key: string]: any }>;
 	sendReadyEvent(uri: string): Promise<boolean>;
 	getNewColumnWidth(current: number): Promise<number | undefined>;
-	sendActionEvent(view: TelemetryViews, action: TelemetryActions, properties?: { [key: string]: string }, measurement?: {[key: string]: number}): void;
+	sendActionEvent(
+		view: TelemetryViews,
+		action: TelemetryActions,
+		properties?: { [key: string]: string },
+		measurement?: { [key: string]: number },
+	): void;
 }
 
 export interface IMessageProtocol {
@@ -42,8 +70,14 @@ export class Deferred<T> {
 		});
 	}
 
-	then<TResult>(onfulfilled?: (value: T) => TResult | Thenable<TResult>, onrejected?: (reason: any) => TResult | Thenable<TResult>): Thenable<TResult>;
-	then<TResult>(onfulfilled?: (value: T) => TResult | Thenable<TResult>, onrejected?: (reason: any) => TResult | Thenable<TResult>): Thenable<TResult> {
+	then<TResult>(
+		onfulfilled?: (value: T) => TResult | Thenable<TResult>,
+		onrejected?: (reason: any) => TResult | Thenable<TResult>,
+	): Thenable<TResult>;
+	then<TResult>(
+		onfulfilled?: (value: T) => TResult | Thenable<TResult>,
+		onrejected?: (reason: any) => TResult | Thenable<TResult>,
+	): Thenable<TResult> {
 		return this.promise.then(onfulfilled, onrejected);
 	}
 }
@@ -68,26 +102,34 @@ class MessageProxy implements Disposable {
 
 	private disposables: Disposable[] = [];
 
-	constructor(private protocol: IMessageProtocol, private handler: any, isClient: boolean = false) {
+	constructor(
+		private protocol: IMessageProtocol,
+		private handler: any,
+		isClient: boolean = false,
+	) {
 		const self = this;
 		if (!isClient) {
-			const first = self.protocol.onMessage(message => {
+			const first = self.protocol.onMessage((message) => {
 				// first message
-				if (message === 'ready') {
+				if (message === "ready") {
 					// sanity check
-					this.disposables.push(self.protocol.onMessage((val) => {
-						if (val !== 'ready') {
-							self.onReceive(val);
-						}
-					}));
+					this.disposables.push(
+						self.protocol.onMessage((val) => {
+							if (val !== "ready") {
+								self.onReceive(val);
+							}
+						}),
+					);
 					first.dispose();
 					self.ready.resolve();
 				}
 			});
 		} else {
-			this.disposables.push(this.protocol.onMessage(val => this.onReceive(val)));
+			this.disposables.push(
+				this.protocol.onMessage((val) => this.onReceive(val)),
+			);
 			this.ready.resolve();
-			this.protocol.sendMessage('ready');
+			this.protocol.sendMessage("ready");
 		}
 	}
 
@@ -99,7 +141,7 @@ class MessageProxy implements Disposable {
 		const request: IRequest = {
 			messageId: messageId,
 			method: methodName,
-			passArguments: args
+			passArguments: args,
 		};
 		this.protocol.sendMessage(JSON.stringify(request));
 		return deferred.promise;
@@ -107,16 +149,22 @@ class MessageProxy implements Disposable {
 
 	private onReceive(val: string): void {
 		const message: IResponse | IRequest = JSON.parse(val);
-		if (isResponseMessage(message)) { // is a response
+		if (isResponseMessage(message)) {
+			// is a response
 			const deferred = this.responseMap.get(message.originalMessageId);
 			if (deferred) {
 				deferred.resolve(message.response);
 			}
 		} else {
-			Promise.resolve(this.handler[message.method].apply(this.handler, message.passArguments)).then(r => {
+			Promise.resolve(
+				this.handler[message.method].apply(
+					this.handler,
+					message.passArguments,
+				),
+			).then((r) => {
 				const response: IResponse = {
 					originalMessageId: message.messageId,
-					response: r
+					response: r,
 				};
 				this.protocol.sendMessage(JSON.stringify(response));
 			});
@@ -129,12 +177,24 @@ class MessageProxy implements Disposable {
 }
 
 function isResponseMessage(val: any): val is IResponse {
-	return typeof val.originalMessageId === 'number';
+	return typeof val.originalMessageId === "number";
 }
 
-export function createProxy(protocol: IMessageProtocol, handler: IServerProxy, isClient: boolean): IWebviewProxy;
-export function createProxy(protocol: IMessageProtocol, handler: IWebviewProxy, isClient: boolean): IServerProxy;
-export function createProxy(protocol: IMessageProtocol, handler: any, isClient: boolean): Disposable {
+export function createProxy(
+	protocol: IMessageProtocol,
+	handler: IServerProxy,
+	isClient: boolean,
+): IWebviewProxy;
+export function createProxy(
+	protocol: IMessageProtocol,
+	handler: IWebviewProxy,
+	isClient: boolean,
+): IServerProxy;
+export function createProxy(
+	protocol: IMessageProtocol,
+	handler: any,
+	isClient: boolean,
+): Disposable {
 	const messageProxy = new MessageProxy(protocol, handler, isClient);
 	let proxy = {
 		get: (target: any, name: string) => {
@@ -147,7 +207,7 @@ export function createProxy(protocol: IMessageProtocol, handler: any, isClient: 
 		},
 		dispose: () => {
 			messageProxy.dispose();
-		}
+		},
 	};
 	return new Proxy(Object.create(null), proxy);
 }

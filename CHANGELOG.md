@@ -1,10 +1,15 @@
 # Change Log
 
 ## Version 1.23.0
-* Release date: July, 31, 2024
-* Release status: GA
+
+-   Release date: July, 31, 2024
+-   Release status: GA
+
 ### What's new in 1.23.0
-* update STS dependency to address [Transaction Isolation Level](https://github.com/microsoft/azuredatastudio/issues/25525) bug
+
+-   update STS dependency to address
+    [Transaction Isolation Level](https://github.com/microsoft/azuredatastudio/issues/25525)
+    bug
 
 ## Version 1.22.1
 

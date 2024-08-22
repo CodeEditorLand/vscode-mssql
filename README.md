@@ -172,7 +172,14 @@ see the [Code of Conduct FAQ] or contact [opencode@microsoft.com] with any
 additional questions or comments.
 
 ## Telemetry
-This extension collects telemetry data, which is used to help understand how to improve the product. For example, this usage data helps to debug issues, such as slow start-up times, and to prioritize new features. While we appreciate the insights this data provides, we also know that not everyone wants to send usage data and you can disable telemetry as described in the VS Code [disable telemetry reporting](https://code.visualstudio.com/docs/getstarted/telemetry#_disable-telemetry-reporting) documentation.
+
+This extension collects telemetry data, which is used to help understand how to
+improve the product. For example, this usage data helps to debug issues, such as
+slow start-up times, and to prioritize new features. While we appreciate the
+insights this data provides, we also know that not everyone wants to send usage
+data and you can disable telemetry as described in the VS Code
+[disable telemetry reporting](https://code.visualstudio.com/docs/getstarted/telemetry#_disable-telemetry-reporting)
+documentation.
 
 ## Privacy Statement
 

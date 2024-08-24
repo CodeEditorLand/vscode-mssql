@@ -77,8 +77,8 @@ export const DesignerTable = ({
 	tableProps.columns!.forEach((column) => {
 		const colProps = tableProps.itemProperties?.find(item => item.propertyName === column);
 		sizingOptions[column] = {
-			minWidth: (colProps?.componentProperties.width ?? 100) + 50,
-			idealWidth: (colProps?.componentProperties.width ?? 100) + 50
+			minWidth: (colProps?.componentProperties.width ?? 100) + 30,
+			idealWidth: (colProps?.componentProperties.width ?? 100) + 30
 		}
 	});
 	sizingOptions['dragHandle'] = {
@@ -191,7 +191,7 @@ export const DesignerTable = ({
 								component={colProps}
 								model={value as designer.DropDownProperties}
 								componentPath={[...componentPath, row.rowId, columnId]}
-								UiArea={'TabsView'}
+								UiArea={UiArea}
 								showLabel={false}
 								showError={false}
 							/>

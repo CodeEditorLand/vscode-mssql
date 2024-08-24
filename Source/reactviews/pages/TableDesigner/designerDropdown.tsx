@@ -42,7 +42,7 @@ export const DesignerDropdown = ({
       </InfoLabel> : undefined
       }}
         validationState={(showError && state?.provider.getErrorMessage(componentPath)) ? 'error' : undefined}
-        validationMessage={showError ? state?.provider.getErrorMessage(componentPath): ''}
+        validationMessage={state?.provider.getErrorMessage(componentPath)}
         style={{ width: width }}
         size="small"
     >
@@ -51,7 +51,7 @@ export const DesignerDropdown = ({
             id={state?.provider.getComponentId(componentPath)}
             selectedOptions={value}
             disabled={model.enabled === undefined ? false : !model.enabled}
-            style={{ width: width, minWidth: width, maxWidth: width }}
+            style={{ width: width, minWidth: width }}
 
             value={model.value}
             size="small"

@@ -3,10 +3,10 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import dotenv from 'dotenv';
-import { defineConfig } from '@playwright/test';
+import dotenv from "dotenv";
+import { defineConfig } from "@playwright/test";
 
-dotenv.config({ path: './test/e2e/.env' });
+dotenv.config({ path: "./test/e2e/.env" });
 
 /**
  * Read environment variables from file.
@@ -39,8 +39,8 @@ export default defineConfig({
     /* Base URL to use in actions like `await page.goto('/')`. */
     // baseURL: 'http://127.0.0.1:3000',
 
-    /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
-    trace: 'on-first-retry',
-    video: 'retain-on-failure',
-  },
+		/* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
+		trace: "on-first-retry",
+		video: "retain-on-failure",
+	},
 });

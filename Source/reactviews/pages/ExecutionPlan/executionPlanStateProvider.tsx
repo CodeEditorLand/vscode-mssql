@@ -5,12 +5,12 @@
 
 import { ReactNode, createContext } from 'react';
 import * as ep from './executionPlanInterfaces';
-import { useVscodeWebview } from '../../common/vscodeWebviewProvider';
+import { useVscodeWebview } from '../../common/vscodeWebViewProvider';
 import { Theme } from '@fluentui/react-components';
 
 export interface ExecutionPlanState {
 	provider: ep.ExecutionPlanProvider;
-	state: ep.ExecutionPlanWebviewState;
+	state: ep.ExecutionPlanWebViewState;
 	theme: Theme;
 }
 
@@ -21,13 +21,13 @@ interface ExecutionPlanContextProps {
 }
 
 const ExecutionPlanStateProvider: React.FC<ExecutionPlanContextProps> = ({ children }) => {
-	const webviewState = useVscodeWebview<ep.ExecutionPlanWebviewState, ep.ExecutionPlanReducers>();
-	const executionPlanState = webviewState?.state;
+	const webViewState = useVscodeWebview<ep.ExecutionPlanWebViewState, ep.ExecutionPlanReducers>();
+	const executionPlanState = webViewState?.state;
 	return <ExecutionPlanContext.Provider value={
 		{
 			provider: {
 				getExecutionPlan: function (planFile: ep.ExecutionPlanGraphInfo): Promise<ep.GetExecutionPlanResult> {
-					webviewState?.extensionRpc.action('getExecutionPlan',
+					webViewState?.extensionRpc.action('getExecutionPlan',
 						{sqlPlanContent: planFile.graphFileContent}
 					);
 
@@ -38,28 +38,28 @@ const ExecutionPlanStateProvider: React.FC<ExecutionPlanContextProps> = ({ child
 					return Promise.resolve(executionPlanState.executionPlan);
 				},
 				saveExecutionPlan: function (sqlPlanContent: string): void {
-					webviewState?.extensionRpc.action('saveExecutionPlan',
+					webViewState?.extensionRpc.action('saveExecutionPlan',
 						{sqlPlanContent: sqlPlanContent}
 					);
 				},
 				showPlanXml: function (sqlPlanContent: string): void {
-					webviewState?.extensionRpc.action('showPlanXml',
+					webViewState?.extensionRpc.action('showPlanXml',
 						{sqlPlanContent: sqlPlanContent}
 					);
 				},
 				showQuery: function (query: string): void {
-					webviewState?.extensionRpc.action('showQuery',
+					webViewState?.extensionRpc.action('showQuery',
 						{query: query}
 					);
 				},
 				updateTotalCost: function (totalCost: number): void {
-					webviewState?.extensionRpc.action('updateTotalCost',
+					webViewState?.extensionRpc.action('updateTotalCost',
 						{totalCost: totalCost}
 					);
 				},
 			},
-			state: webviewState?.state as ep.ExecutionPlanWebviewState,
-			theme: webviewState?.theme
+			state: webViewState?.state as ep.ExecutionPlanWebViewState,
+			theme: webViewState?.theme
 		}
 	}>{children}</ExecutionPlanContext.Provider>;
 };

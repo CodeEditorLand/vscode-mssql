@@ -5,7 +5,7 @@
 
 import { ApiStatus } from "../../../sharedInterfaces/webview";
 
-export interface ExecutionPlanWebviewState {
+export interface ExecutionPlanWebViewState {
 	sqlPlanContent?: string;
 	executionPlan?: GetExecutionPlanResult;
 	executionPlanGraphs?: ExecutionPlanGraph[];

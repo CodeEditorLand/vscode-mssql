@@ -74,7 +74,6 @@ export class AccountStore {
 			if (val.key) {
 				return true;
 			} else {
-				this._logger.info('Unexpected empty account key, removing account from account store.');
 				return false;
 			}
 		});

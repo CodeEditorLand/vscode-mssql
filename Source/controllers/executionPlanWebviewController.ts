@@ -4,17 +4,18 @@
  *--------------------------------------------------------------------------------------------*/
 
 import * as vscode from "vscode";
-import { ReactWebviewPanelController } from "./reactWebviewController";
+import { ReactWebViewPanelController } from "./reactWebviewController";
 import * as ep from "../reactviews/pages/ExecutionPlan/executionPlanInterfaces";
-import * as LocalizedConstants from "../constants/locConstants";
+import { WebviewRoute } from "../sharedInterfaces/webviewRoutes";
+import * as LocalizedConstants from "../constants/localizedConstants";
 import { homedir } from "os";
 import { exists } from "../utils/utils";
 import UntitledSqlDocumentService from '../controllers/untitledSqlDocumentService';
 import * as path from 'path';
 import { ApiStatus } from "../sharedInterfaces/webview";
 
-export class ExecutionPlanWebviewController extends ReactWebviewPanelController<
-  ep.ExecutionPlanWebviewState,
+export class ExecutionPlanWebViewController extends ReactWebViewPanelController<
+  ep.ExecutionPlanWebViewState,
   ep.ExecutionPlanReducers
 > {
   constructor(
@@ -29,7 +30,7 @@ export class ExecutionPlanWebviewController extends ReactWebviewPanelController<
     super(
       context,
       `${xmlPlanFileName}`,  // Sets the webview title
-      'executionPlan',
+      WebviewRoute.executionPlanDocument,
       {
         sqlPlanContent: executionPlanContents,
         theme: vscode.window.activeColorTheme.kind === vscode.ColorThemeKind.Dark ? "dark" : "light",
@@ -44,12 +45,12 @@ export class ExecutionPlanWebviewController extends ReactWebviewPanelController<
         dark: vscode.Uri.joinPath(
           context.extensionUri,
           "media",
-          "executionPlan_dark.svg"
+          "executionPlan_inverse.svg"
         ),
         light: vscode.Uri.joinPath(
           context.extensionUri,
           "media",
-          "executionPlan_light.svg"
+          "executionPlan.svg"
         ),
       }
     );

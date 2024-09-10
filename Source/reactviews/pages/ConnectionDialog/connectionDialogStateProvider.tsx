@@ -4,7 +4,7 @@
  *--------------------------------------------------------------------------------------------*/
 
 import { createContext } from "react";
-import { useVscodeWebview } from "../../common/vscodeWebviewProvider";
+import { useVscodeWebview } from "../../common/vscodeWebViewProvider";
 import { ConnectionDialogContextProps, ConnectionDialogReducers, ConnectionDialogWebviewState, FormTabType, IConnectionDialogProfile } from "../../../sharedInterfaces/connectionDialog";
 
 const ConnectionDialogContext = createContext<ConnectionDialogContextProps | undefined>(undefined);
@@ -14,29 +14,29 @@ interface ConnectionDialogProviderProps {
 }
 
 const ConnectionDialogStateProvider: React.FC<ConnectionDialogProviderProps> = ({ children }) => {
-	const webviewState = useVscodeWebview<ConnectionDialogWebviewState, ConnectionDialogReducers>();
-	const connectionDialogState = webviewState?.state;
+	const webViewState = useVscodeWebview<ConnectionDialogWebviewState, ConnectionDialogReducers>();
+	const connectionDialogState = webViewState?.state;
 	return <ConnectionDialogContext.Provider value={
 		{
 			state: connectionDialogState,
-			theme: webviewState?.theme,
+			theme: webViewState?.theme,
 			loadConnection: function (connection: IConnectionDialogProfile): void {
-				webviewState?.extensionRpc.action('loadConnection', {
+				webViewState?.extensionRpc.action('loadConnection', {
 					connection: connection,
 				});
 			},
 			formAction: function (event): void {
-				webviewState?.extensionRpc.action('formAction', {
+				webViewState?.extensionRpc.action('formAction', {
 					event: event
 				});
 			},
 			setFormTab: function (tab: FormTabType): void {
-				webviewState?.extensionRpc.action('setFormTab', {
+				webViewState?.extensionRpc.action('setFormTab', {
 					tab: tab
 				});
 			},
 			connect: function (): void {
-				webviewState?.extensionRpc.action('connect');
+				webViewState?.extensionRpc.action('connect');
 			},
 		}
 	}>{children}</ConnectionDialogContext.Provider>;

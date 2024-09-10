@@ -12,7 +12,7 @@ import { AzureController } from '../azure/azureController';
 import { MsalAzureController } from '../azure/msal/msalAzureController';
 import providerSettings from '../azure/providerSettings';
 import * as Constants from '../constants/constants';
-import * as LocalizedConstants from '../constants/locConstants';
+import * as LocalizedConstants from '../constants/localizedConstants';
 import { CredentialStore } from '../credentialstore/credentialstore';
 import { FirewallService } from '../firewall/firewallService';
 import SqlToolsServerClient from '../languageservice/serviceclient';
@@ -355,7 +355,7 @@ export default class ConnectionManager {
 
 				self._statusView.connectSuccess(event.ownerUri, connectionInfo.credentials, connectionInfo.serverInfo);
 
-				let logMessage = LocalizedConstants.msgChangedDatabaseContext(event.connection.databaseName, event.ownerUri);
+				let logMessage = Utils.formatString(LocalizedConstants.msgChangedDatabaseContext, event.connection.databaseName, event.ownerUri);
 
 				self.vscodeWrapper.logToOutputChannel(logMessage);
 			}
@@ -448,7 +448,7 @@ export default class ConnectionManager {
 		this.statusView.languageServiceStatusChanged(fileUri, LocalizedConstants.updatingIntelliSenseStatus);
 
 		this._vscodeWrapper.logToOutputChannel(
-			LocalizedConstants.msgConnectedServerInfo(connection.credentials.server, fileUri, JSON.stringify(connection.serverInfo))
+			Utils.formatString(LocalizedConstants.msgConnectedServerInfo, connection.credentials.server, fileUri, JSON.stringify(connection.serverInfo))
 		);
 		sendActionEvent(
 			TelemetryViews.ConnectionPrompt,
@@ -465,7 +465,7 @@ export default class ConnectionManager {
 			// Check if the error is an expired password
 			if (result.errorNumber === Constants.errorPasswordExpired || result.errorNumber === Constants.errorPasswordNeedsReset) {
 				// TODO: we should allow the user to change their password here once corefx supports SqlConnection.ChangePassword()
-				Utils.showErrorMsg(LocalizedConstants.msgConnectionErrorPasswordExpired(result.errorNumber, result.errorMessage));
+				Utils.showErrorMsg(Utils.formatString(LocalizedConstants.msgConnectionErrorPasswordExpired, result.errorNumber, result.errorMessage));
 			} else if (result.errorNumber === Constants.errorSSLCertificateValidationFailed) { // check if it's an SSL failed error
 				this._failedUriToSSLMap.set(fileUri, result.errorMessage);
 			} else if (result.errorNumber === Constants.errorFirewallRule) { // check whether it's a firewall rule error
@@ -473,10 +473,10 @@ export default class ConnectionManager {
 				if (firewallResult.result && firewallResult.ipAddress) {
 					this.failedUriToFirewallIpMap.set(fileUri, firewallResult.ipAddress);
 				} else {
-					Utils.showErrorMsg(LocalizedConstants.msgConnectionError(result.errorNumber, result.errorMessage));
+					Utils.showErrorMsg(Utils.formatString(LocalizedConstants.msgConnectionError, result.errorNumber, result.errorMessage));
 				}
 			} else {
-				Utils.showErrorMsg(LocalizedConstants.msgConnectionError(result.errorNumber, result.errorMessage));
+				Utils.showErrorMsg(Utils.formatString(LocalizedConstants.msgConnectionError, result.errorNumber, result.errorMessage));
 			}
 			connection.errorNumber = result.errorNumber;
 			connection.errorMessage = result.errorMessage;
@@ -484,25 +484,26 @@ export default class ConnectionManager {
 			const platformInfo = await PlatformInformation.getCurrent();
 			if (!platformInfo.isWindows && result.errorMessage && result.errorMessage.includes('Kerberos')) {
 				const action = await this.vscodeWrapper.showErrorMessage(
-					LocalizedConstants.msgConnectionError2(result.errorMessage),
+					Utils.formatString(LocalizedConstants.msgConnectionError2, result.errorMessage),
 					LocalizedConstants.macOpenSslHelpButton);
 				if (action && action === LocalizedConstants.macOpenSslHelpButton) {
 					await vscode.env.openExternal(vscode.Uri.parse(Constants.integratedAuthHelpLink));
 				}
 			} else if (platformInfo.runtimeId === Runtime.OSX_10_11_64 &&
 				result.messages.indexOf('Unable to load DLL \'System.Security.Cryptography.Native\'') !== -1) {
-				const action = await this.vscodeWrapper.showErrorMessage(LocalizedConstants.msgConnectionError2(
+				const action = await this.vscodeWrapper.showErrorMessage(Utils.formatString(LocalizedConstants.msgConnectionError2,
 					LocalizedConstants.macOpenSslErrorMessage), LocalizedConstants.macOpenSslHelpButton);
 				if (action && action === LocalizedConstants.macOpenSslHelpButton) {
 					await vscode.env.openExternal(vscode.Uri.parse(Constants.macOpenSslHelpLink));
 				}
 			} else {
-				Utils.showErrorMsg(LocalizedConstants.msgConnectionError2(result.messages));
+				Utils.showErrorMsg(Utils.formatString(LocalizedConstants.msgConnectionError2, result.messages));
 			}
 		}
 		this.statusView.connectError(fileUri, connection.credentials, result);
 		this.vscodeWrapper.logToOutputChannel(
-			LocalizedConstants.msgConnectionFailed(
+			Utils.formatString(
+				LocalizedConstants.msgConnectionFailed,
 				connection.credentials.server,
 				result.errorMessage ? result.errorMessage : result.messages)
 		);
@@ -624,12 +625,13 @@ export default class ConnectionManager {
 		const newDatabaseCredentials = await this.connectionUI.showDatabasesOnCurrentServer(this._connections[fileUri].credentials, result.databaseNames);
 		if (newDatabaseCredentials) {
 			this.vscodeWrapper.logToOutputChannel(
-				LocalizedConstants.msgChangingDatabase(newDatabaseCredentials.database, newDatabaseCredentials.server, fileUri)
+				Utils.formatString(LocalizedConstants.msgChangingDatabase, newDatabaseCredentials.database, newDatabaseCredentials.server, fileUri)
 			);
 			await this.disconnect(fileUri);
 			await this.connect(fileUri, newDatabaseCredentials);
 			this.vscodeWrapper.logToOutputChannel(
-				LocalizedConstants.msgChangedDatabase(
+				Utils.formatString(
+					LocalizedConstants.msgChangedDatabase,
 					newDatabaseCredentials.database,
 					newDatabaseCredentials.server, fileUri)
 			);
@@ -661,7 +663,8 @@ export default class ConnectionManager {
 		await this.disconnect(fileUri);
 		await this.connect(fileUri, newDatabaseCredentials);
 		this.vscodeWrapper.logToOutputChannel(
-			LocalizedConstants.msgChangedDatabase(
+			Utils.formatString(
+				LocalizedConstants.msgChangedDatabase,
 				newDatabaseCredentials.database,
 				newDatabaseCredentials.server, fileUri));
 		return true;
@@ -713,7 +716,7 @@ export default class ConnectionManager {
 			}
 			if (result) {
 				this.vscodeWrapper.logToOutputChannel(
-					LocalizedConstants.msgDisconnected(fileUri)
+					Utils.formatString(LocalizedConstants.msgDisconnected, fileUri)
 				);
 			}
 
@@ -771,7 +774,7 @@ export default class ConnectionManager {
 				const newResult = await this.connect(fileUri, newConnection);
 				connection = this._connections[fileUri];
 				if (!newResult && connection && connection.loginFailed) {
-					Utils.showErrorMsg(LocalizedConstants.msgConnectionError(connection.errorNumber, connection.errorMessage));
+					Utils.showErrorMsg(Utils.formatString(LocalizedConstants.msgConnectionError, connection.errorNumber, connection.errorMessage));
 				}
 				return newResult;
 			} else {
@@ -877,7 +880,7 @@ export default class ConnectionManager {
 					this.statusView.languageFlavorChanged(fileUri, Constants.mssqlProviderName);
 				}
 				this.vscodeWrapper.logToOutputChannel(
-					LocalizedConstants.msgConnecting(connectionCreds.server, fileUri)
+					Utils.formatString(LocalizedConstants.msgConnecting, connectionCreds.server, fileUri)
 				);
 
 				// Setup the handler for the connection complete notification to call
@@ -1083,49 +1086,44 @@ export default class ConnectionManager {
 	public async refreshAzureAccountToken(uri: string): Promise<void> {
 		const profile = this.getConnectionInfo(uri);
 		if (!profile) {
-			this.vscodeWrapper.logToOutputChannel(LocalizedConstants.msgConnectionNotFound(uri));
+			this.vscodeWrapper.logToOutputChannel(Utils.formatString(LocalizedConstants.msgConnectionNotFound, uri));
 			return;
 		}
 
 		// Wait for the pending reconnction promise if any
 		const previousReconnectPromise = this._uriToConnectionPromiseMap.get(uri);
 		if (previousReconnectPromise) {
-			this.vscodeWrapper.logToOutputChannel(LocalizedConstants.msgFoundPendingReconnect(uri));
+			this.vscodeWrapper.logToOutputChannel(Utils.formatString(LocalizedConstants.msgFoundPendingReconnect, uri));
 			try {
 				const previousConnectionResult = await previousReconnectPromise;
 				if (previousConnectionResult) {
-					this.vscodeWrapper.logToOutputChannel(LocalizedConstants.msgPendingReconnectSuccess(uri));
+					this.vscodeWrapper.logToOutputChannel(Utils.formatString(LocalizedConstants.msgPendingReconnectSuccess, uri));
 					return;
 				}
-				this.vscodeWrapper.logToOutputChannel(LocalizedConstants.msgFoundPendingReconnectFailed(uri));
+				this.vscodeWrapper.logToOutputChannel(Utils.formatString(LocalizedConstants.msgFoundPendingReconnectFailed, uri));
 			} catch (err) {
-				this.vscodeWrapper.logToOutputChannel(LocalizedConstants.msgFoundPendingReconnectError(uri, err));
+				this.vscodeWrapper.logToOutputChannel(Utils.formatString(LocalizedConstants.msgFoundPendingReconnectError, uri, err));
 			}
 		}
 
 		const expiry = profile.credentials.expiresOn;
 		if (typeof expiry === 'number' && !Number.isNaN(expiry)) {
 			if (AzureController.isTokenExpired(expiry)) {
-				this.vscodeWrapper.logToOutputChannel(LocalizedConstants.msgAcessTokenExpired(profile.connectionId, uri));
+				this.vscodeWrapper.logToOutputChannel(Utils.formatString(LocalizedConstants.msgAcessTokenExpired, profile.connectionId, uri));
 				try {
 					let connectionResult = await this.connect(uri, profile.credentials);
 					if (!connectionResult) {
-						this.vscodeWrapper.showErrorMessage(LocalizedConstants.msgRefreshConnection(profile.connectionId, uri));
+						this.vscodeWrapper.showErrorMessage(Utils.formatString(LocalizedConstants.msgRefreshConnection, profile.connectionId, uri));
 						throw new Error('Unable to refresh connection');
 					}
-					this.vscodeWrapper.logToOutputChannel(
-						LocalizedConstants.msgRefreshTokenSuccess(
-							profile.connectionId,
-							uri,
-							JSON.stringify(this.getConnectionInfo(uri))
-						)
-					);
+					this.vscodeWrapper.logToOutputChannel(Utils.formatString(LocalizedConstants.msgRefreshTokenSuccess,
+						profile.connectionId, uri, this.getConnectionInfo(uri)));
 					return;
 				} catch {
-					this.vscodeWrapper.showInformationMessage(LocalizedConstants.msgRefreshTokenError);
+					this.vscodeWrapper.showInformationMessage(Utils.formatString(LocalizedConstants.msgRefreshTokenError));
 				}
 			}
-			this.vscodeWrapper.logToOutputChannel(LocalizedConstants.msgRefreshTokenNotNeeded(profile.connectionId, uri));
+			this.vscodeWrapper.logToOutputChannel(Utils.formatString(LocalizedConstants.msgRefreshTokenNotNeeded, profile.connectionId, uri));
 		}
 		return;
 	}
@@ -1133,7 +1131,7 @@ export default class ConnectionManager {
 	public async addAccount(): Promise<IAccount> {
 		let account = await this.connectionUI.addNewAccount();
 		if (account) {
-			this.vscodeWrapper.showInformationMessage(LocalizedConstants.accountAddedSuccessfully(account.displayInfo.displayName));
+			this.vscodeWrapper.showInformationMessage(Utils.formatString(LocalizedConstants.accountAddedSuccessfully, account.displayInfo.displayName));
 		} else {
 			this.vscodeWrapper.showErrorMessage(LocalizedConstants.accountCouldNotBeAdded);
 		}
@@ -1167,7 +1165,7 @@ export default class ConnectionManager {
 						this.vscodeWrapper.showInformationMessage(LocalizedConstants.accountRemovedSuccessfully);
 
 					} catch (e) {
-						this.vscodeWrapper.showErrorMessage(LocalizedConstants.accountRemovalFailed(e.message));
+						this.vscodeWrapper.showErrorMessage(Utils.formatString(LocalizedConstants.accountRemovalFailed, e.message));
 					}
 				}
 			});

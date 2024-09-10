@@ -4,23 +4,22 @@
  *--------------------------------------------------------------------------------------------*/
 
 import * as vscode from 'vscode';
-import { ReactWebViewPanelController } from "../controllers/reactWebviewController";
+import { ReactWebviewPanelController } from "../controllers/reactWebviewController";
 import { AuthenticationType, ConnectionDialogReducers, ConnectionDialogWebviewState, FormTabType, IConnectionDialogProfile } from '../sharedInterfaces/connectionDialog';
 import { IConnectionInfo } from 'vscode-mssql';
 import MainController from '../controllers/mainController';
 import { getConnectionDisplayName } from '../models/connectionInfo';
 import { AzureController } from '../azure/azureController';
 import { ObjectExplorerProvider } from '../objectExplorer/objectExplorerProvider';
-import { WebviewRoute } from '../sharedInterfaces/webviewRoutes';
 import { CapabilitiesResult, GetCapabilitiesRequest } from '../models/contracts/connection';
 import { ConnectionOption } from 'azdata';
 import { Logger } from '../models/logger';
 import VscodeWrapper from '../controllers/vscodeWrapper';
-import * as LocalizedConstants from '../constants/localizedConstants';
+import * as LocalizedConstants from '../constants/locConstants';
 import { FormItemSpec, FormItemActionButton, FormItemOptions, FormItemType } from '../reactviews/common/forms/form';
 import { ApiStatus } from '../sharedInterfaces/webview';
 
-export class ConnectionDialogWebViewController extends ReactWebViewPanelController<ConnectionDialogWebviewState, ConnectionDialogReducers> {
+export class ConnectionDialogWebviewController extends ReactWebviewPanelController<ConnectionDialogWebviewState, ConnectionDialogReducers> {
 	private _connectionToEditCopy: IConnectionDialogProfile | undefined;
 
 	private static _logger: Logger;
@@ -34,7 +33,7 @@ export class ConnectionDialogWebViewController extends ReactWebViewPanelControll
 		super(
 			context,
 			LocalizedConstants.connectionDialog,
-			WebviewRoute.connectionDialog,
+			'connectionDialog',
 			new ConnectionDialogWebviewState({
 				connectionProfile: {} as IConnectionDialogProfile,
 				recentConnections: [],
@@ -49,15 +48,15 @@ export class ConnectionDialogWebViewController extends ReactWebViewPanelControll
 			}),
 			vscode.ViewColumn.Active,
 			{
-				dark: vscode.Uri.joinPath(context.extensionUri, 'media', 'connectionDialogEditor_inverse.svg'),
-				light: vscode.Uri.joinPath(context.extensionUri, 'media', 'connectionDialogEditor.svg')
+				dark: vscode.Uri.joinPath(context.extensionUri, 'media', 'connectionDialogEditor_dark.svg'),
+				light: vscode.Uri.joinPath(context.extensionUri, 'media', 'connectionDialogEditor_light.svg')
 			}
 		);
 
-		if (!ConnectionDialogWebViewController._logger) {
+		if (!ConnectionDialogWebviewController._logger) {
 			const vscodeWrapper = new VscodeWrapper();
 			const channel = vscodeWrapper.createOutputChannel(LocalizedConstants.connectionDialog);
-			ConnectionDialogWebViewController._logger = Logger.create(channel);
+			ConnectionDialogWebviewController._logger = Logger.create(channel);
 		}
 
 		this.registerRpcHandlers();
@@ -82,7 +81,7 @@ export class ConnectionDialogWebViewController extends ReactWebViewPanelControll
 
 	private async loadRecentConnections() {
 		const recentConnections = this._mainController.connectionManager.connectionStore.loadAllConnections(true).map(c => c.connectionCreds);
-		const dialogConnections = [];
+		const dialogConnections: IConnectionDialogProfile[] = [];
 		for (let i = 0; i < recentConnections.length; i++) {
 			dialogConnections.push(await this.initializeConnectionForDialog(recentConnections[i]));
 		}
@@ -106,28 +105,41 @@ export class ConnectionDialogWebViewController extends ReactWebViewPanelControll
 		this.state.connectionProfile = emptyConnection;
 	}
 
-	private async initializeConnectionForDialog(connection: IConnectionInfo) {
+	private async initializeConnectionForDialog(connection: IConnectionInfo): Promise<IConnectionDialogProfile> {
 		// Load the password if it's saved
 		const isConnectionStringConnection = connection.connectionString !== undefined && connection.connectionString !== '';
-		const password = await this._mainController.connectionManager.connectionStore.lookupPassword(connection, isConnectionStringConnection);
 		if (!isConnectionStringConnection) {
+			const password = await this._mainController.connectionManager.connectionStore.lookupPassword(connection, isConnectionStringConnection);
 			connection.password = password;
 		} else {
-			connection.connectionString = '';
-			// extract password from connection string it starts after 'Password=' and ends before ';'
-			const passwordIndex = password.indexOf('Password=') === -1 ? password.indexOf('password=') : password.indexOf('Password=');
-			if (passwordIndex !== -1) {
-				const passwordStart = passwordIndex + 'Password='.length;
-				const passwordEnd = password.indexOf(';', passwordStart);
-				if (passwordEnd !== -1) {
-					connection.password = password.substring(passwordStart, passwordEnd);
+			// If the connection is a connection string connection with SQL Auth:
+			//   * the full connection string is stored as the "password" in the credential store
+			//   * we need to extract the password from the connection string
+			// If the connection is a connection string connection with a different auth type, then there's nothing in the credential store.
+
+			const connectionString = await this._mainController.connectionManager.connectionStore.lookupPassword(connection, isConnectionStringConnection);
+
+			if (connectionString) {
+				const passwordIndex = connectionString.toLowerCase().indexOf('password=');
+
+				if (passwordIndex !== -1) {
+					// extract password from connection string; found between 'Password=' and the next ';'
+					const passwordStart = passwordIndex + 'password='.length;
+					const passwordEnd = connectionString.indexOf(';', passwordStart);
+					if (passwordEnd !== -1) {
+						connection.password = connectionString.substring(passwordStart, passwordEnd);
+					}
+
+					// clear the connection string from the IConnectionDialogProfile so that the ugly connection string key
+					// that's used to look up the actual connection string (with password) isn't displayed
+					connection.connectionString = '';
 				}
 			}
-
 		}
+
 		const dialogConnection = connection as IConnectionDialogProfile;
-		// Set the profile name
-		dialogConnection.profileName = dialogConnection.profileName ?? getConnectionDisplayName(connection);
+		// Set the display name
+		dialogConnection.displayName = dialogConnection.profileName ? dialogConnection.profileName : getConnectionDisplayName(connection);
 		return dialogConnection;
 	}
 
@@ -245,7 +257,7 @@ export class ConnectionDialogWebViewController extends ReactWebViewPanelControll
 					}),
 				};
 			default:
-				ConnectionDialogWebViewController._logger.log(`Unhandled connection option type: ${connOption.valueType}`);
+				ConnectionDialogWebviewController._logger.log(`Unhandled connection option type: ${connOption.valueType}`);
 			}
 	}
 
@@ -490,7 +502,7 @@ export class ConnectionDialogWebViewController extends ReactWebViewPanelControll
 							const account = (await this._mainController.azureAccountService.getAccounts()).find(account => account.displayInfo.userId === this.state.connectionProfile.accountId);
 							if (account) {
 								const session = await this._mainController.azureAccountService.getAccountSecurityToken(account, undefined);
-								ConnectionDialogWebViewController._logger.log('Token refreshed', session.expiresOn);
+								ConnectionDialogWebviewController._logger.log('Token refreshed', session.expiresOn);
 							}
 						}
 					});

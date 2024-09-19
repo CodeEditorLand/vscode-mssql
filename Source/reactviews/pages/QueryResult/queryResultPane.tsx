@@ -21,7 +21,7 @@ import {
     useTableColumnSizing_unstable,
     useTableFeatures,
 } from "@fluentui/react-components";
-import { useContext, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { OpenFilled } from "@fluentui/react-icons";
 import { QueryResultContext } from "./queryResultStateProvider";
 import * as qr from "../../../sharedInterfaces/queryResult";
@@ -106,15 +106,42 @@ export const QueryResultPane = () => {
             renderHeaderCell: () => <>{MESSAGE}</>,
         }),
     ];
+    const gridParentRef = useRef<HTMLDivElement>(null);
+    const ribbonRef = useRef<HTMLDivElement>(null);
+    // Resize grid when parent element resizes
+    useEffect(() => {
+        const gridParent = gridParentRef.current;
+        if (!gridParent) {
+            return;
+        }
+        const observer = new ResizeObserver(() => {
+            if (!gridRef.current) {
+                return;
+            }
+            if (!ribbonRef.current) {
+                return;
+            }
+            if (gridParent.clientWidth && gridParent.clientHeight) {
+                gridRef.current.resizeGrid(
+                    gridParent.clientWidth,
+                    gridParent.clientHeight -
+                        ribbonRef.current.clientHeight -
+                        5,
+                );
+            }
+        });
+        observer.observe(gridParent);
+        return () => observer.disconnect();
+    }, []);
     const [columns] =
         useState<TableColumnDefinition<qr.IMessage>[]>(columnsDef);
     const items = metadata?.messages ?? [];
 
     const sizingOptions: TableColumnSizingOptions = {
         time: {
-            minWidth: 50,
-            idealWidth: 50,
-            defaultWidth: 50,
+            minWidth: 100,
+            idealWidth: 100,
+            defaultWidth: 100,
         },
         message: {
             minWidth: 500,
@@ -145,8 +172,8 @@ export const QueryResultPane = () => {
     const gridRef = useRef<SlickGridHandle>(null);
 
     return (
-        <div className={classes.root}>
-            <div className={classes.ribbon}>
+        <div className={classes.root} ref={gridParentRef}>
+            <div className={classes.ribbon} ref={ribbonRef}>
                 <TabList
                     size="medium"
                     selectedValue={metadata.tabStates!.resultPaneTab}
@@ -272,19 +299,6 @@ export const QueryResultPane = () => {
                             {...columnSizing_unstable.getTableProps()}
                             ref={tableRef}
                         >
-                            {/* <TableHeader>
-						<TableRow>
-							{
-								columnsDef.map((column) => {
-									return <TableHeaderCell
-										{...columnSizing_unstable.getTableHeaderCellProps(column.columnId)}
-										key={column.columnId}>
-										{column.renderHeaderCell()}
-									</TableHeaderCell>
-								})
-							}
-						</TableRow>
-					</TableHeader> */}
                             <TableBody>
                                 {rows.map((row, index) => {
                                     return (
@@ -294,7 +308,9 @@ export const QueryResultPane = () => {
                                                     "time",
                                                 )}
                                             >
-                                                {row.item.time}
+                                                {row.item.batchId === undefined
+                                                    ? row.item.time
+                                                    : null}
                                             </TableCell>
                                             <TableCell
                                                 {...columnSizing_unstable.getTableCellProps(
@@ -307,9 +323,16 @@ export const QueryResultPane = () => {
                                                         <>
                                                             {" "}
                                                             <Link
-                                                                onClick={() => {
-                                                                    console.log(
-                                                                        "TODO open link",
+                                                                onClick={async () => {
+                                                                    await webViewState.extensionRpc.call(
+                                                                        "setEditorSelection",
+                                                                        {
+                                                                            uri: metadata?.uri,
+                                                                            selectionData:
+                                                                                row
+                                                                                    .item
+                                                                                    .selection,
+                                                                        },
                                                                     );
                                                                 }}
                                                             >

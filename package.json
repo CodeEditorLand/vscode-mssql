@@ -1301,7 +1301,7 @@
 		"@types/jqueryui": "1.12.23",
 		"@types/keytar": "4.4.2",
 		"@types/lockfile": "1.0.4",
-		"@types/node": "22.7.2",
+		"@types/node": "22.7.3",
 		"@types/node-fetch": "2.6.11",
 		"@types/react-resizable": "3.0.8",
 		"@types/sinon": "17.0.3",

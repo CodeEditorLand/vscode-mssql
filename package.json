@@ -1,13 +1,14 @@
 {
-	"activationEvents": [
-		"onUri",
-		"onCommand:mssql.loadCompletionExtension"
-	],
-	"aiKey": "29a207bb14f84905966a8f22524cb730-25407f35-11b6-4d4e-8114-ab9e843cb52f-7380",
-	"capabilities": {
-		"untrustedWorkspaces": {
-			"supported": true
-		}
+	"name": "mssql",
+	"displayName": "SQL Server (mssql)",
+	"description": "Develop Microsoft SQL Server, Azure SQL Database and SQL Data Warehouse everywhere",
+	"main": "./out/src/extension",
+	"scripts": {
+		"build": "gulp build",
+		"compile": "gulp ext:compile",
+		"localization": "gulp ext:extract-localization-strings",
+		"prepare": "husky",
+		"smoketest": "gulp ext:smoke"
 	},
 	"contributes": {
 		"commands": [
@@ -1248,6 +1249,13 @@
 			]
 		}
 	},
+	"activationEvents": [
+		"onUri",
+		"onCommand:mssql.loadCompletionExtension"
+	],
+	"resolutions": {
+		"gulp-typescript/source-map": "0.7.4"
+	},
 	"dependencies": {
 		"axios": "1.7.4",
 		"core-js": "2.4.1",
@@ -1273,7 +1281,6 @@
 		"underscore": "1.8.3",
 		"zone.js": "0.6.26"
 	},
-	"description": "Develop Microsoft SQL Server, Azure SQL Database and SQL Data Warehouse everywhere",
 	"devDependencies": {
 		"@angular/common": "2.1.2",
 		"@angular/compiler": "2.1.2",
@@ -1328,32 +1335,25 @@
 		"xliff": "6.2.1",
 		"yargs": "17.7.2"
 	},
-	"displayName": "SQL Server (mssql)",
+	"extensionPack": [
+		"ms-mssql.data-workspace-vscode",
+		"ms-mssql.sql-bindings-vscode",
+		"ms-mssql.sql-database-projects-vscode"
+	],
 	"extensionDependencies": [
 		"vscode.sql"
 	],
-	"extensionPack": [
-		"ms-mssql.data-workspace-vscode",
-		"ms-mssql.sql-database-projects-vscode",
-		"ms-mssql.sql-bindings-vscode"
-	],
+	"icon": "images/sqlserver.png",
 	"galleryBanner": {
 		"color": "#2F2F2F",
 		"theme": "dark"
 	},
-	"icon": "images/sqlserver.png",
-	"l10n": "./localization/l10n",
-	"main": "./out/src/extension",
-	"name": "mssql",
 	"preview": false,
-	"resolutions": {
-		"gulp-typescript/source-map": "0.7.4"
+	"aiKey": "29a207bb14f84905966a8f22524cb730-25407f35-11b6-4d4e-8114-ab9e843cb52f-7380",
+	"capabilities": {
+		"untrustedWorkspaces": {
+			"supported": true
+		}
 	},
-	"scripts": {
-		"build": "gulp build",
-		"compile": "gulp ext:compile",
-		"localization": "gulp ext:extract-localization-strings",
-		"prepare": "husky",
-		"smoketest": "gulp ext:smoke"
-	}
+	"l10n": "./localization/l10n"
 }

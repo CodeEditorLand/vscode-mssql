@@ -4,7 +4,7 @@
  *--------------------------------------------------------------------------------------------*/
 
 export enum WebviewRoute {
-	tableDesigner = 'tableDesigner',
-	connectionDialog = 'connectionDialog',
-	executionPlanDocument = 'executionPlanDocument'
+	tableDesigner = "tableDesigner",
+	connectionDialog = "connectionDialog",
+	executionPlanDocument = "executionPlanDocument",
 }

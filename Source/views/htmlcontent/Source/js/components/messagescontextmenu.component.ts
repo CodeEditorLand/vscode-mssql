@@ -3,11 +3,19 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { Component, Output, EventEmitter, Inject, forwardRef, OnInit } from '@angular/core';
-import { ShortcutService } from './../services/shortcuts.service';
-import * as Constants from './../constants';
-import * as Utils from './../utils';
-import { IRange } from '../../../../../models/interfaces';
+import {
+	Component,
+	EventEmitter,
+	forwardRef,
+	Inject,
+	OnInit,
+	Output,
+} from "@angular/core";
+
+import { IRange } from "../../../../../models/interfaces";
+import * as Constants from "./../constants";
+import { ShortcutService } from "./../services/shortcuts.service";
+import * as Utils from "./../utils";
 
 /**
  * The component that acts as the contextMenu for slick grid
@@ -22,27 +30,30 @@ const template = `
 `;
 
 @Component({
-	selector: 'msg-context-menu',
+	selector: "msg-context-menu",
 	providers: [ShortcutService],
-	template: template
+	template: template,
 })
-
 export class MessagesContextMenu implements OnInit {
 	public Utils = Utils;
 	public Constants = Constants;
 
-	@Output() clickEvent: EventEmitter<{ type: string, selectedRange: IRange }>
-		= new EventEmitter<{ type: string, selectedRange: IRange }>();
+	@Output() clickEvent: EventEmitter<{
+		type: string;
+		selectedRange: IRange;
+	}> = new EventEmitter<{ type: string; selectedRange: IRange }>();
 	private selectedRange: IRange;
 	private isDisabled: boolean;
-	public position: { x: number, y: number } = { x: 0, y: 0 };
+	public position: { x: number; y: number } = { x: 0, y: 0 };
 	public visible: boolean = false;
 	private keys = {
-		'event.copySelection': ''
+		"event.copySelection": "",
 	};
 
-
-	constructor(@Inject(forwardRef(() => ShortcutService)) private shortcuts: ShortcutService) {
+	constructor(
+		@Inject(forwardRef(() => ShortcutService))
+		private shortcuts: ShortcutService,
+	) {
 		const self = this;
 		for (let key in this.keys) {
 			if (this.keys.hasOwnProperty(key)) {
@@ -55,19 +66,21 @@ export class MessagesContextMenu implements OnInit {
 
 	ngOnInit(): void {
 		const self = this;
-		$(document).on('click', () => {
+		$(document).on("click", () => {
 			self.hide();
 		});
 	}
 
 	show(x: number, y: number, selectedRange: IRange): void {
 		this.selectedRange = selectedRange;
-		let selectedText = (selectedRange && selectedRange.toString) ? selectedRange.toString() : '';
+		let selectedText =
+			selectedRange && selectedRange.toString
+				? selectedRange.toString()
+				: "";
 		this.isDisabled = selectedText.length === 0;
 		this.position = { x: x, y: y };
 		this.visible = true;
 	}
-
 
 	hide(): void {
 		this.visible = false;
@@ -75,7 +88,10 @@ export class MessagesContextMenu implements OnInit {
 
 	handleContextActionClick(type: string): void {
 		if (!this.isDisabled) {
-			this.clickEvent.emit({ 'type': type, 'selectedRange': this.selectedRange });
+			this.clickEvent.emit({
+				"type": type,
+				"selectedRange": this.selectedRange,
+			});
 		}
 	}
 }

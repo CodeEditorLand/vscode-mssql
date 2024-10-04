@@ -1,21 +1,19 @@
 // This code is originally from https://github.com/DonJayamanne/bowerVSCode
 // License: https://github.com/DonJayamanne/bowerVSCode/blob/master/LICENSE
 
-import { OutputChannel } from 'vscode';
-import * as nodeUtil from 'util';
-import PromptFactory from './factory';
-import EscapeException from '../utils/escapeException';
-import { IQuestion, IPrompter, IPromptCallback } from './question';
-import VscodeWrapper from '../controllers/vscodeWrapper';
+import * as nodeUtil from "util";
+import { OutputChannel } from "vscode";
+
+import VscodeWrapper from "../controllers/vscodeWrapper";
+import EscapeException from "../utils/escapeException";
+import PromptFactory from "./factory";
+import { IPromptCallback, IPrompter, IQuestion } from "./question";
 
 // Supports simple pattern for prompting for user input and acting on this
 export default class CodeAdapter implements IPrompter {
-
 	private outChannel: OutputChannel;
 	private messageLevelFormatters = {};
-	constructor(
-		private vscodeWrapper: VscodeWrapper
-	) {
+	constructor(private vscodeWrapper: VscodeWrapper) {
 		this.outChannel = this.vscodeWrapper.outputChannel;
 	}
 
@@ -30,8 +28,8 @@ export default class CodeAdapter implements IPrompter {
 	}
 
 	public log(message: any): void {
-		let line: string = '';
-		if (message && typeof (message.level) === 'string') {
+		let line: string = "";
+		if (message && typeof message.level === "string") {
 			let formatter: (a: any) => string = this.formatMessage;
 			if (this.messageLevelFormatters[message.level]) {
 				formatter = this.messageLevelFormatters[message.level];
@@ -54,11 +52,11 @@ export default class CodeAdapter implements IPrompter {
 
 	// TODO define question interface
 	private fixQuestion(question: any): any {
-		if (question.type === 'checkbox' && Array.isArray(question.choices)) {
+		if (question.type === "checkbox" && Array.isArray(question.choices)) {
 			// For some reason when there's a choice of checkboxes, they aren't formatted properly
 			// Not sure where the issue is
-			question.choices = question.choices.map(item => {
-				if (typeof (item) === 'string') {
+			question.choices = question.choices.map((item) => {
+				if (typeof item === "string") {
 					return { checked: false, name: item, value: item };
 				} else {
 					return item;
@@ -67,9 +65,12 @@ export default class CodeAdapter implements IPrompter {
 		}
 	}
 
-	public promptSingle<T>(question: IQuestion, ignoreFocusOut?: boolean): Promise<T> {
+	public promptSingle<T>(
+		question: IQuestion,
+		ignoreFocusOut?: boolean,
+	): Promise<T> {
 		let questions: IQuestion[] = [question];
-		return this.prompt<T>(questions, ignoreFocusOut).then(answers => {
+		return this.prompt<T>(questions, ignoreFocusOut).then((answers) => {
 			if (answers) {
 				return answers[question.name] || undefined;
 			}
@@ -77,38 +78,53 @@ export default class CodeAdapter implements IPrompter {
 		});
 	}
 
-	public prompt<T>(questions: IQuestion[], ignoreFocusOut?: boolean): Promise<{ [key: string]: T }> {
+	public prompt<T>(
+		questions: IQuestion[],
+		ignoreFocusOut?: boolean,
+	): Promise<{ [key: string]: T }> {
 		let answers: { [key: string]: T } = {};
 
 		// Collapse multiple questions into a set of prompt steps
-		let promptResult: Promise<{ [key: string]: T }> = questions.reduce((promise: Promise<{ [key: string]: T }>, question: IQuestion) => {
-			this.fixQuestion(question);
+		let promptResult: Promise<{ [key: string]: T }> = questions.reduce(
+			(promise: Promise<{ [key: string]: T }>, question: IQuestion) => {
+				this.fixQuestion(question);
 
-			return promise.then(() => {
-				return PromptFactory.createPrompt(question, this.vscodeWrapper, ignoreFocusOut);
-			}).then(prompt => {
-				// Original Code: uses jQuery patterns. Keeping for reference
-				// if (!question.when || question.when(answers) === true) {
-				//     return prompt.render().then(result => {
-				//         answers[question.name] = question.filter ? question.filter(result) : result;
-				//     });
-				// }
+				return promise
+					.then(() => {
+						return PromptFactory.createPrompt(
+							question,
+							this.vscodeWrapper,
+							ignoreFocusOut,
+						);
+					})
+					.then((prompt) => {
+						// Original Code: uses jQuery patterns. Keeping for reference
+						// if (!question.when || question.when(answers) === true) {
+						//     return prompt.render().then(result => {
+						//         answers[question.name] = question.filter ? question.filter(result) : result;
+						//     });
+						// }
 
-				if (!question.shouldPrompt || question.shouldPrompt(answers) === true) {
-					return prompt.render().then(async result => {
-						answers[question.name] = result;
+						if (
+							!question.shouldPrompt ||
+							question.shouldPrompt(answers) === true
+						) {
+							return prompt.render().then(async (result) => {
+								answers[question.name] = result;
 
-						if (question.onAnswered) {
-							await question.onAnswered(result);
+								if (question.onAnswered) {
+									await question.onAnswered(result);
+								}
+								return answers;
+							});
 						}
 						return answers;
 					});
-				}
-				return answers;
-			});
-		}, Promise.resolve());
+			},
+			Promise.resolve(),
+		);
 
-		return promptResult.catch(err => {
+		return promptResult.catch((err) => {
 			if (err instanceof EscapeException || err instanceof TypeError) {
 				return undefined;
 			}
@@ -118,9 +134,12 @@ export default class CodeAdapter implements IPrompter {
 	}
 
 	// Helper to make it possible to prompt using callback pattern. Generally Promise is a preferred flow
-	public promptCallback(questions: IQuestion[], callback: IPromptCallback): void {
+	public promptCallback(
+		questions: IQuestion[],
+		callback: IPromptCallback,
+	): void {
 		// Collapse multiple questions into a set of prompt steps
-		this.prompt(questions).then(answers => {
+		this.prompt(questions).then((answers) => {
 			if (callback) {
 				callback(answers);
 			}

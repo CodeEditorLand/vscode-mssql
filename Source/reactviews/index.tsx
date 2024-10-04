@@ -3,16 +3,21 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import ReactDOM from 'react-dom/client';
-import './index.css';
-import { useVscodeWebview, VscodeWebViewProvider } from './common/vscodeWebViewProvider'
-import { TableDesignerStateProvider } from './pages/TableDesigner/tableDesignerStateProvider';
-import { TableDesigner } from './pages/TableDesigner/tableDesignerPage';
-import { WebviewRoute } from '../sharedInterfaces/webviewRoutes';
-import { ConnectionDialogStateProvider } from './pages/ConnectionDialog/connectionDialogStateProvider';
-import { ConnectionPage } from './pages/ConnectionDialog/connectionPage';
-import { ExecutionPlanPage } from './pages/ExecutionPlan/executionPlanPage';
-import { ExecutionPlanStateProvider } from './pages/ExecutionPlan/executionPlanStateProvider';
+import ReactDOM from "react-dom/client";
+
+import "./index.css";
+
+import { WebviewRoute } from "../sharedInterfaces/webviewRoutes";
+import {
+	useVscodeWebview,
+	VscodeWebViewProvider,
+} from "./common/vscodeWebViewProvider";
+import { ConnectionDialogStateProvider } from "./pages/ConnectionDialog/connectionDialogStateProvider";
+import { ConnectionPage } from "./pages/ConnectionDialog/connectionPage";
+import { ExecutionPlanPage } from "./pages/ExecutionPlan/executionPlanPage";
+import { ExecutionPlanStateProvider } from "./pages/ExecutionPlan/executionPlanStateProvider";
+import { TableDesigner } from "./pages/TableDesigner/tableDesignerPage";
+import { TableDesignerStateProvider } from "./pages/TableDesigner/tableDesignerStateProvider";
 
 const Router = () => {
 	const vscodeWebviewState = useVscodeWebview<unknown, unknown>();
@@ -40,14 +45,13 @@ const Router = () => {
 					<ExecutionPlanPage />
 				</ExecutionPlanStateProvider>
 			);
-		default: (
-			<div>Route not found</div>
-		);
+		default:
+			<div>Route not found</div>;
 	}
 };
 
-ReactDOM.createRoot(document.getElementById('root')!).render(
+ReactDOM.createRoot(document.getElementById("root")!).render(
 	<VscodeWebViewProvider>
 		<Router />
-	</VscodeWebViewProvider>
-)
+	</VscodeWebViewProvider>,
+);

@@ -4,40 +4,41 @@
  *--------------------------------------------------------------------------------------------*/
 
 import { useContext } from "react";
-import { ConnectionDialogContext } from "./connectionDialogStateProvider";
-import { FormField, useFormStyles } from "../../common/forms/form.component";
+
 import { IConnectionDialogProfile } from "../../../sharedInterfaces/connectionDialog";
 import { FormItemSpec } from "../../common/forms/form";
+import { FormField, useFormStyles } from "../../common/forms/form.component";
 import { ConnectButton } from "./components/connectButton.component";
+import { ConnectionDialogContext } from "./connectionDialogStateProvider";
 
 export const ConnectionStringPage = () => {
-    const connectionDialogContext = useContext(ConnectionDialogContext);
-    const formStyles = useFormStyles();
+	const connectionDialogContext = useContext(ConnectionDialogContext);
+	const formStyles = useFormStyles();
 
-    if (connectionDialogContext === undefined) {
-        return undefined;
-    }
+	if (connectionDialogContext === undefined) {
+		return undefined;
+	}
 
-    let index = 0;
-    return (
-        <div>
-            <FormField
-                key={index++}
-                context={connectionDialogContext}
-                component={
-                    connectionDialogContext.state.connectionComponents
-                        .components[
-                        "connectionString"
-                    ] as FormItemSpec<IConnectionDialogProfile>
-                }
-                idx={index}
-                props={{ orientation: "horizontal" }}
-            />
-            <div className={formStyles.formNavTray}>
-                <div className={formStyles.formNavTrayRight}>
-                    <ConnectButton className={formStyles.formNavTrayButton} />
-                </div>
-            </div>
-        </div>
-    );
+	let index = 0;
+	return (
+		<div>
+			<FormField
+				key={index++}
+				context={connectionDialogContext}
+				component={
+					connectionDialogContext.state.connectionComponents
+						.components[
+						"connectionString"
+					] as FormItemSpec<IConnectionDialogProfile>
+				}
+				idx={index}
+				props={{ orientation: "horizontal" }}
+			/>
+			<div className={formStyles.formNavTray}>
+				<div className={formStyles.formNavTrayRight}>
+					<ConnectButton className={formStyles.formNavTrayButton} />
+				</div>
+			</div>
+		</div>
+	);
 };

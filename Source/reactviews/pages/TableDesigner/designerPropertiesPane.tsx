@@ -4,277 +4,277 @@
  *--------------------------------------------------------------------------------------------*/
 
 import {
-    Accordion,
-    AccordionHeader,
-    AccordionItem,
-    AccordionPanel,
-    Button,
-    Text,
-    makeStyles,
-    shorthands,
+	Accordion,
+	AccordionHeader,
+	AccordionItem,
+	AccordionPanel,
+	Button,
+	makeStyles,
+	shorthands,
+	Text,
 } from "@fluentui/react-components";
-import { useContext } from "react";
-import { TableDesignerContext } from "./tableDesignerStateProvider";
-import { DesignerCheckbox } from "./designerCheckbox";
-import { DesignerInputBox } from "./designerInputBox";
-import { DesignerDropdown } from "./designerDropdown";
-import { DesignerTable } from "./designerTable";
 import {
-    CheckBoxProperties,
-    DesignerTableProperties,
-    DropDownProperties,
-    InputBoxProperties,
-} from "../../../sharedInterfaces/tableDesigner";
-import {
-    ChevronRightFilled,
-    ChevronLeftFilled,
-    DismissRegular,
+	ChevronLeftFilled,
+	ChevronRightFilled,
+	DismissRegular,
 } from "@fluentui/react-icons";
 import * as l10n from "@vscode/l10n";
+import { useContext } from "react";
+
+import {
+	CheckBoxProperties,
+	DesignerTableProperties,
+	DropDownProperties,
+	InputBoxProperties,
+} from "../../../sharedInterfaces/tableDesigner";
 import { locConstants } from "../../common/locConstants";
+import { DesignerCheckbox } from "./designerCheckbox";
+import { DesignerDropdown } from "./designerDropdown";
+import { DesignerInputBox } from "./designerInputBox";
+import { DesignerTable } from "./designerTable";
+import { TableDesignerContext } from "./tableDesignerStateProvider";
 
 const useStyles = makeStyles({
-    root: {
-        display: "flex",
-        flexDirection: "column",
-        height: "100%",
-        overflowX: "hidden",
-        ...shorthands.overflow("hidden"),
-    },
-    title: {
-        display: "flex",
-        height: "30px",
-        paddingTop: "10px",
-        paddingBottom: "10px",
-        borderBottom: "1px solid var(--vscode-editorWidget-border)",
-        "> *": {
-            marginRight: "10px",
-        },
-        lineHeight: "30px",
-    },
-    stack: {
-        marginBottom: "10px",
-        flexDirection: "column",
-        // gap between children
-        "> *": {
-            marginBottom: "10px",
-        },
-        overflowY: "auto",
-        backgroundColor: "var(--vscode-editor-background)",
-    },
-    group: {
-        overflowX: "auto",
-        overflowY: "hidden",
-        "> *": {
-            marginBottom: "10px",
-        },
-    },
+	root: {
+		display: "flex",
+		flexDirection: "column",
+		height: "100%",
+		overflowX: "hidden",
+		...shorthands.overflow("hidden"),
+	},
+	title: {
+		display: "flex",
+		height: "30px",
+		paddingTop: "10px",
+		paddingBottom: "10px",
+		borderBottom: "1px solid var(--vscode-editorWidget-border)",
+		"> *": {
+			marginRight: "10px",
+		},
+		lineHeight: "30px",
+	},
+	stack: {
+		marginBottom: "10px",
+		flexDirection: "column",
+		// gap between children
+		"> *": {
+			marginBottom: "10px",
+		},
+		overflowY: "auto",
+		backgroundColor: "var(--vscode-editor-background)",
+	},
+	group: {
+		overflowX: "auto",
+		overflowY: "hidden",
+		"> *": {
+			marginBottom: "10px",
+		},
+	},
 });
 
 export const DesignerPropertiesPane = () => {
-    const classes = useStyles();
-    const state = useContext(TableDesignerContext);
-    if (!state) {
-        return null;
-    }
-    const propertiesPaneData = state.state.propertiesPaneData!;
-    const componentPath = propertiesPaneData.componentPath!;
-    const tablePropertyName = componentPath[0] as string;
-    const index = componentPath[componentPath.length - 1] as number;
-    const parentTableProperties = state.state.propertiesPaneData?.component
-        .componentProperties as DesignerTableProperties;
-    const parentTablePropertiesModel = state.state.model![
-        tablePropertyName
-    ] as DesignerTableProperties;
-    const data = parentTablePropertiesModel.data![index];
+	const classes = useStyles();
+	const state = useContext(TableDesignerContext);
+	if (!state) {
+		return null;
+	}
+	const propertiesPaneData = state.state.propertiesPaneData!;
+	const componentPath = propertiesPaneData.componentPath!;
+	const tablePropertyName = componentPath[0] as string;
+	const index = componentPath[componentPath.length - 1] as number;
+	const parentTableProperties = state.state.propertiesPaneData?.component
+		.componentProperties as DesignerTableProperties;
+	const parentTablePropertiesModel = state.state.model![
+		tablePropertyName
+	] as DesignerTableProperties;
+	const data = parentTablePropertiesModel.data![index];
 
-    const groups = Array.from(
-        new Set(
-            parentTableProperties.itemProperties
-                ?.filter((i) => i.group)
-                .map((i) => i.group),
-        ),
-    );
-    groups?.unshift("General");
+	const groups = Array.from(
+		new Set(
+			parentTableProperties.itemProperties
+				?.filter((i) => i.group)
+				.map((i) => i.group),
+		),
+	);
+	groups?.unshift("General");
 
-    const PROPERTIES = l10n.t("Properties");
-    const NO_DATA = l10n.t("No data");
+	const PROPERTIES = l10n.t("Properties");
+	const NO_DATA = l10n.t("No data");
 
-    if (!data) {
-        return (
-            <div className={classes.root}>
-                <Text className={classes.title} size={500}>
-                    {PROPERTIES}
-                </Text>
-                <div className={classes.stack}>
-                    <Text>{NO_DATA}</Text>
-                </div>
-            </div>
-        );
-    }
+	if (!data) {
+		return (
+			<div className={classes.root}>
+				<Text className={classes.title} size={500}>
+					{PROPERTIES}
+				</Text>
+				<div className={classes.stack}>
+					<Text>{NO_DATA}</Text>
+				</div>
+			</div>
+		);
+	}
 
-    const renderAccordionItem = (group: string | undefined) => {
-        if (!group) {
-            return undefined;
-        }
-        return (
-            <AccordionItem value={group} key={group}>
-                <AccordionHeader>{group}</AccordionHeader>
-                <AccordionPanel>
-                    <div className={classes.group}>
-                        {parentTableProperties
-                            .itemProperties!.filter(
-                                (i) =>
-                                    (group === "General" && !i.group) ||
-                                    group === i.group,
-                            )
-                            .filter(
-                                (item) => item.showInPropertiesView !== false,
-                            )
-                            .map((item) => {
-                                if (!data) {
-                                    return undefined;
-                                }
-                                const modelValue = data![item.propertyName];
-                                if (!modelValue) {
-                                    return undefined;
-                                }
-                                switch (item.componentType) {
-                                    case "checkbox":
-                                        return (
-                                            <DesignerCheckbox
-                                                UiArea="PropertiesView"
-                                                component={item}
-                                                model={
-                                                    modelValue as CheckBoxProperties
-                                                }
-                                                componentPath={[
-                                                    ...propertiesPaneData!
-                                                        .componentPath,
-                                                    item.propertyName,
-                                                ]}
-                                                key={`${group}-${item.propertyName}`}
-                                            />
-                                        );
-                                    case "input":
-                                        return (
-                                            <DesignerInputBox
-                                                UiArea="PropertiesView"
-                                                component={item}
-                                                model={
-                                                    modelValue as InputBoxProperties
-                                                }
-                                                componentPath={[
-                                                    ...propertiesPaneData!
-                                                        .componentPath,
-                                                    item.propertyName,
-                                                ]}
-                                                horizontal
-                                                key={`${group}-${item.propertyName}`}
-                                            />
-                                        );
-                                    case "dropdown":
-                                        return (
-                                            <DesignerDropdown
-                                                UiArea="PropertiesView"
-                                                component={item}
-                                                model={
-                                                    modelValue as DropDownProperties
-                                                }
-                                                componentPath={[
-                                                    ...propertiesPaneData!
-                                                        .componentPath,
-                                                    item.propertyName,
-                                                ]}
-                                                horizontal
-                                                key={`${group}-${item.propertyName}`}
-                                            />
-                                        );
-                                    case "table":
-                                        return (
-                                            <DesignerTable
-                                                UiArea="PropertiesView"
-                                                component={item}
-                                                model={
-                                                    modelValue as DesignerTableProperties
-                                                }
-                                                componentPath={[
-                                                    ...propertiesPaneData!
-                                                        .componentPath,
-                                                    item.propertyName,
-                                                ]}
-                                                loadPropertiesTabData={false}
-                                                key={`${group}-${item.propertyName}`}
-                                            />
-                                        );
-                                }
-                            })}
-                    </div>
-                </AccordionPanel>
-            </AccordionItem>
-        );
-    };
+	const renderAccordionItem = (group: string | undefined) => {
+		if (!group) {
+			return undefined;
+		}
+		return (
+			<AccordionItem value={group} key={group}>
+				<AccordionHeader>{group}</AccordionHeader>
+				<AccordionPanel>
+					<div className={classes.group}>
+						{parentTableProperties
+							.itemProperties!.filter(
+								(i) =>
+									(group === "General" && !i.group) ||
+									group === i.group,
+							)
+							.filter(
+								(item) => item.showInPropertiesView !== false,
+							)
+							.map((item) => {
+								if (!data) {
+									return undefined;
+								}
+								const modelValue = data![item.propertyName];
+								if (!modelValue) {
+									return undefined;
+								}
+								switch (item.componentType) {
+									case "checkbox":
+										return (
+											<DesignerCheckbox
+												UiArea="PropertiesView"
+												component={item}
+												model={
+													modelValue as CheckBoxProperties
+												}
+												componentPath={[
+													...propertiesPaneData!
+														.componentPath,
+													item.propertyName,
+												]}
+												key={`${group}-${item.propertyName}`}
+											/>
+										);
+									case "input":
+										return (
+											<DesignerInputBox
+												UiArea="PropertiesView"
+												component={item}
+												model={
+													modelValue as InputBoxProperties
+												}
+												componentPath={[
+													...propertiesPaneData!
+														.componentPath,
+													item.propertyName,
+												]}
+												horizontal
+												key={`${group}-${item.propertyName}`}
+											/>
+										);
+									case "dropdown":
+										return (
+											<DesignerDropdown
+												UiArea="PropertiesView"
+												component={item}
+												model={
+													modelValue as DropDownProperties
+												}
+												componentPath={[
+													...propertiesPaneData!
+														.componentPath,
+													item.propertyName,
+												]}
+												horizontal
+												key={`${group}-${item.propertyName}`}
+											/>
+										);
+									case "table":
+										return (
+											<DesignerTable
+												UiArea="PropertiesView"
+												component={item}
+												model={
+													modelValue as DesignerTableProperties
+												}
+												componentPath={[
+													...propertiesPaneData!
+														.componentPath,
+													item.propertyName,
+												]}
+												loadPropertiesTabData={false}
+												key={`${group}-${item.propertyName}`}
+											/>
+										);
+								}
+							})}
+					</div>
+				</AccordionPanel>
+			</AccordionItem>
+		);
+	};
 
-    return (
-        <div className={classes.root}>
-            <div className={classes.title}>
-                <Button
-                    appearance="transparent"
-                    onClick={() => {
-                        if (state.propertiesPaneResizeInfo.isMaximized) {
-                            state.propertiesPaneResizeInfo.setCurrentWidth(
-                                state.propertiesPaneResizeInfo.originalWidth,
-                            );
-                        }
-                        state.propertiesPaneResizeInfo.setIsMaximized(
-                            !state.propertiesPaneResizeInfo.isMaximized,
-                        );
-                    }}
-                    title={
-                        state.propertiesPaneResizeInfo.isMaximized
-                            ? locConstants.tableDesigner.restorePanelSize
-                            : locConstants.tableDesigner.maximizePanelSize
-                    }
-                    icon={
-                        state.propertiesPaneResizeInfo.isMaximized ? (
-                            <ChevronRightFilled />
-                        ) : (
-                            <ChevronLeftFilled />
-                        )
-                    }
-                />
-                <Text
-                    size={500}
-                    style={{
-                        fontWeight: "bold",
-                        flex: 1,
-                    }}
-                >
-                    {locConstants.tableDesigner.propertiesPaneTitle(
-                        parentTableProperties.objectTypeDisplayName ?? "",
-                    )}
-                </Text>
-                <Button
-                    appearance="outline"
-                    onClick={() => {
-                        state.provider.setPropertiesComponents(undefined);
-                    }}
-                    title={
-                        state.propertiesPaneResizeInfo.isMaximized
-                            ? locConstants.tableDesigner.restorePanelSize
-                            : locConstants.tableDesigner.maximizePanelSize
-                    }
-                    icon={<DismissRegular />}
-                />
-            </div>
-            <div className={classes.stack}>
-                <Accordion multiple collapsible defaultOpenItems={groups}>
-                    {data &&
-                        groups?.map((group) => {
-                            return renderAccordionItem(group);
-                        })}
-                </Accordion>
-            </div>
-        </div>
-    );
+	return (
+		<div className={classes.root}>
+			<div className={classes.title}>
+				<Button
+					appearance="transparent"
+					onClick={() => {
+						if (state.propertiesPaneResizeInfo.isMaximized) {
+							state.propertiesPaneResizeInfo.setCurrentWidth(
+								state.propertiesPaneResizeInfo.originalWidth,
+							);
+						}
+						state.propertiesPaneResizeInfo.setIsMaximized(
+							!state.propertiesPaneResizeInfo.isMaximized,
+						);
+					}}
+					title={
+						state.propertiesPaneResizeInfo.isMaximized
+							? locConstants.tableDesigner.restorePanelSize
+							: locConstants.tableDesigner.maximizePanelSize
+					}
+					icon={
+						state.propertiesPaneResizeInfo.isMaximized ? (
+							<ChevronRightFilled />
+						) : (
+							<ChevronLeftFilled />
+						)
+					}
+				/>
+				<Text
+					size={500}
+					style={{
+						fontWeight: "bold",
+						flex: 1,
+					}}>
+					{locConstants.tableDesigner.propertiesPaneTitle(
+						parentTableProperties.objectTypeDisplayName ?? "",
+					)}
+				</Text>
+				<Button
+					appearance="outline"
+					onClick={() => {
+						state.provider.setPropertiesComponents(undefined);
+					}}
+					title={
+						state.propertiesPaneResizeInfo.isMaximized
+							? locConstants.tableDesigner.restorePanelSize
+							: locConstants.tableDesigner.maximizePanelSize
+					}
+					icon={<DismissRegular />}
+				/>
+			</div>
+			<div className={classes.stack}>
+				<Accordion multiple collapsible defaultOpenItems={groups}>
+					{data &&
+						groups?.map((group) => {
+							return renderAccordionItem(group);
+						})}
+				</Accordion>
+			</div>
+		</div>
+	);
 };

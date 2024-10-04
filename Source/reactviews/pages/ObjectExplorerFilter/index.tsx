@@ -4,15 +4,17 @@
  *--------------------------------------------------------------------------------------------*/
 
 import ReactDOM from "react-dom/client";
+
 import "../../index.css";
+
 import { VscodeWebviewProvider } from "../../common/vscodeWebviewProvider";
-import { ObjectExplorerFilterStateProvider } from "./ObjectExplorerFilterStateProvider";
 import { ObjectExplorerFilterPage } from "./ObjectExplorerFilterPage";
+import { ObjectExplorerFilterStateProvider } from "./ObjectExplorerFilterStateProvider";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
-    <VscodeWebviewProvider>
-        <ObjectExplorerFilterStateProvider>
-            <ObjectExplorerFilterPage />
-        </ObjectExplorerFilterStateProvider>
-    </VscodeWebviewProvider>,
+	<VscodeWebviewProvider>
+		<ObjectExplorerFilterStateProvider>
+			<ObjectExplorerFilterPage />
+		</ObjectExplorerFilterStateProvider>
+	</VscodeWebviewProvider>,
 );

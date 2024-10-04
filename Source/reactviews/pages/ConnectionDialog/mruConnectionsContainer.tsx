@@ -4,81 +4,81 @@
  *--------------------------------------------------------------------------------------------*/
 
 import {
-    Text,
-    Tree,
-    TreeItem,
-    TreeItemLayout,
-    makeStyles,
-    tokens,
+	makeStyles,
+	Text,
+	tokens,
+	Tree,
+	TreeItem,
+	TreeItemLayout,
 } from "@fluentui/react-components";
 import { ServerRegular } from "@fluentui/react-icons";
 import { useContext } from "react";
-import { ConnectionDialogContext } from "./connectionDialogStateProvider";
+
 import { locConstants } from "../../common/locConstants";
+import { ConnectionDialogContext } from "./connectionDialogStateProvider";
 
 const useStyles = makeStyles({
-    paneTitle: {
-        marginTop: "12px",
-        marginBottom: "12px",
-    },
-    main: {
-        gap: "36px",
-        display: "flex",
-        flexDirection: "column",
-        flexWrap: "wrap",
-    },
+	paneTitle: {
+		marginTop: "12px",
+		marginBottom: "12px",
+	},
+	main: {
+		gap: "36px",
+		display: "flex",
+		flexDirection: "column",
+		flexWrap: "wrap",
+	},
 
-    card: {
-        width: "100%",
-        maxWidth: "100%",
-        height: "fit-content",
-        marginBottom: "10px",
-    },
-    horizontalCardImage: {
-        width: "50px",
-        height: "30px",
-        paddingRight: "0px",
-    },
-    caption: {
-        color: tokens.colorNeutralForeground3,
-    },
+	card: {
+		width: "100%",
+		maxWidth: "100%",
+		height: "fit-content",
+		marginBottom: "10px",
+	},
+	horizontalCardImage: {
+		width: "50px",
+		height: "30px",
+		paddingRight: "0px",
+	},
+	caption: {
+		color: tokens.colorNeutralForeground3,
+	},
 
-    text: { margin: "0" },
+	text: { margin: "0" },
 });
 
 export const MruConnectionsContainer = () => {
-    const styles = useStyles();
-    const connectionDialogContext = useContext(ConnectionDialogContext);
+	const styles = useStyles();
+	const connectionDialogContext = useContext(ConnectionDialogContext);
 
-    return (
-        <div>
-            <div className={styles.paneTitle}>
-                <Text weight="semibold" className={styles.paneTitle}>
-                    {locConstants.connectionDialog.recentConnections}
-                </Text>
-            </div>
-            <Tree>
-                {connectionDialogContext?.state?.recentConnections?.map(
-                    (connection, index) => {
-                        return (
-                            <TreeItem
-                                itemType="leaf"
-                                key={"mru" + index}
-                                className={styles.card}
-                                onClick={() => {
-                                    connectionDialogContext.loadConnection(
-                                        connection,
-                                    );
-                                }}
-                            >
-                                <TreeItemLayout iconBefore={<ServerRegular />}>
-                                    {connection.displayName}
-                                </TreeItemLayout>
-                            </TreeItem>
-                        );
-                    },
-                )}
-            </Tree>
-        </div>
-    );
+	return (
+		<div>
+			<div className={styles.paneTitle}>
+				<Text weight="semibold" className={styles.paneTitle}>
+					{locConstants.connectionDialog.recentConnections}
+				</Text>
+			</div>
+			<Tree>
+				{connectionDialogContext?.state?.recentConnections?.map(
+					(connection, index) => {
+						return (
+							<TreeItem
+								itemType="leaf"
+								key={"mru" + index}
+								className={styles.card}
+								onClick={() => {
+									connectionDialogContext.loadConnection(
+										connection,
+									);
+								}}>
+								<TreeItemLayout iconBefore={<ServerRegular />}>
+									{connection.displayName}
+								</TreeItemLayout>
+							</TreeItem>
+						);
+					},
+				)}
+			</Tree>
+		</div>
+	);
 };

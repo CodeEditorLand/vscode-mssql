@@ -4,50 +4,50 @@
  *--------------------------------------------------------------------------------------------*/
 
 import React, { createContext } from "react";
-import { useVscodeWebview } from "../../common/vscodeWebviewProvider";
+
 import {
-    UserSurveyContextProps,
-    UserSurveyState,
-    UserSurveyReducers,
+	UserSurveyContextProps,
+	UserSurveyReducers,
+	UserSurveyState,
 } from "../../../sharedInterfaces/userSurvey";
+import { useVscodeWebview } from "../../common/vscodeWebviewProvider";
 
 const UserSurveyContext = createContext<UserSurveyContextProps | undefined>(
-    undefined,
+	undefined,
 );
 
 interface UserSurveyProviderProps {
-    children: React.ReactNode;
+	children: React.ReactNode;
 }
 
 const UserSurveyStateProvider: React.FC<UserSurveyProviderProps> = ({
-    children,
+	children,
 }) => {
-    const vscodeWebviewProvider = useVscodeWebview<
-        UserSurveyState,
-        UserSurveyReducers
-    >();
-    return (
-        <UserSurveyContext.Provider
-            value={{
-                state: vscodeWebviewProvider.state,
-                submit: async (answers: Record<string, string>) => {
-                    await vscodeWebviewProvider.extensionRpc.action("submit", {
-                        answers: answers,
-                    });
-                },
-                cancel: async () => {
-                    await vscodeWebviewProvider.extensionRpc.action("cancel");
-                },
-                openPrivacyStatement: async () => {
-                    await vscodeWebviewProvider.extensionRpc.action(
-                        "openPrivacyStatement",
-                    );
-                },
-            }}
-        >
-            {children}
-        </UserSurveyContext.Provider>
-    );
+	const vscodeWebviewProvider = useVscodeWebview<
+		UserSurveyState,
+		UserSurveyReducers
+	>();
+	return (
+		<UserSurveyContext.Provider
+			value={{
+				state: vscodeWebviewProvider.state,
+				submit: async (answers: Record<string, string>) => {
+					await vscodeWebviewProvider.extensionRpc.action("submit", {
+						answers: answers,
+					});
+				},
+				cancel: async () => {
+					await vscodeWebviewProvider.extensionRpc.action("cancel");
+				},
+				openPrivacyStatement: async () => {
+					await vscodeWebviewProvider.extensionRpc.action(
+						"openPrivacyStatement",
+					);
+				},
+			}}>
+			{children}
+		</UserSurveyContext.Provider>
+	);
 };
 
 export { UserSurveyContext, UserSurveyStateProvider };

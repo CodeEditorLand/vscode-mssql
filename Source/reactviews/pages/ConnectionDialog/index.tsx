@@ -4,17 +4,15 @@
  *--------------------------------------------------------------------------------------------*/
 
 import ReactDOM from "react-dom/client";
-
 import "../../index.css";
-
 import { VscodeWebviewProvider } from "../../common/vscodeWebviewProvider";
-import { ConnectionDialogStateProvider } from "./connectionDialogStateProvider";
 import { ConnectionPage } from "./connectionPage";
+import { ConnectionDialogStateProvider } from "./connectionDialogStateProvider";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
-	<VscodeWebviewProvider>
-		<ConnectionDialogStateProvider>
-			<ConnectionPage />
-		</ConnectionDialogStateProvider>
-	</VscodeWebviewProvider>,
+    <VscodeWebviewProvider>
+        <ConnectionDialogStateProvider>
+            <ConnectionPage />
+        </ConnectionDialogStateProvider>
+    </VscodeWebviewProvider>,
 );

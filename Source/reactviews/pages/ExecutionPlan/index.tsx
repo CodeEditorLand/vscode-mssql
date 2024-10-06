@@ -4,17 +4,15 @@
  *--------------------------------------------------------------------------------------------*/
 
 import ReactDOM from "react-dom/client";
-
 import "../../index.css";
-
 import { VscodeWebviewProvider } from "../../common/vscodeWebviewProvider";
-import { ExecutionPlanPage } from "./executionPlanPage";
 import { ExecutionPlanStateProvider } from "./executionPlanStateProvider";
+import { ExecutionPlanPage } from "./executionPlanPage";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
-	<VscodeWebviewProvider>
-		<ExecutionPlanStateProvider>
-			<ExecutionPlanPage />
-		</ExecutionPlanStateProvider>
-	</VscodeWebviewProvider>,
+    <VscodeWebviewProvider>
+        <ExecutionPlanStateProvider>
+            <ExecutionPlanPage />
+        </ExecutionPlanStateProvider>
+    </VscodeWebviewProvider>,
 );

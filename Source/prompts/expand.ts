@@ -1,20 +1,20 @@
 // This code is originally from https://github.com/DonJayamanne/bowerVSCode
 // License: https://github.com/DonJayamanne/bowerVSCode/blob/master/LICENSE
 
-import * as figures from "figures";
-import * as vscode from "vscode";
+import * as vscode from 'vscode';
+import Prompt from './prompt';
+import EscapeException from '../utils/escapeException';
+import { INameValueChoice } from './question';
+import VscodeWrapper from '../controllers/vscodeWrapper';
 
-import VscodeWrapper from "../controllers/vscodeWrapper";
-import EscapeException from "../utils/escapeException";
-import Prompt from "./prompt";
-import { INameValueChoice } from "./question";
+import * as figures from 'figures';
 
 export default class ExpandPrompt extends Prompt {
+
 	constructor(
 		question: any,
 		vscodeWrapper: VscodeWrapper,
-		ignoreFocusOut?: boolean,
-	) {
+		ignoreFocusOut?: boolean) {
 		super(question, vscodeWrapper, ignoreFocusOut);
 	}
 
@@ -31,9 +31,8 @@ export default class ExpandPrompt extends Prompt {
 		let options = this.defaultQuickPickOptions;
 		options.placeHolder = this._question.message;
 
-		return this._vscodeWrapper
-			.showQuickPick(choices, options)
-			.then((result) => {
+		return this._vscodeWrapper.showQuickPick(choices, options)
+			.then(result => {
 				if (result === undefined) {
 					throw new EscapeException();
 				}
@@ -50,9 +49,8 @@ export default class ExpandPrompt extends Prompt {
 		let options = this.defaultQuickPickOptions;
 		options.placeHolder = this._question.message;
 
-		return this._vscodeWrapper
-			.showQuickPickStrings(Object.keys(choiceMap), options)
-			.then((result) => {
+		return this._vscodeWrapper.showQuickPickStrings(Object.keys(choiceMap), options)
+			.then(result => {
 				if (result === undefined) {
 					throw new EscapeException();
 				}
@@ -71,9 +69,7 @@ export default class ExpandPrompt extends Prompt {
 	}
 
 	private validate(value: any): boolean {
-		const validationError = this._question.validate
-			? this._question.validate(value || "")
-			: undefined;
+		const validationError = this._question.validate ? this._question.validate(value || '') : undefined;
 
 		if (validationError) {
 			this._question.message = `${figures.warning} ${validationError}`;

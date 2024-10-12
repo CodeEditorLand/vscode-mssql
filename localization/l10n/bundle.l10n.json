@@ -256,6 +256,9 @@
   "Save as CSV": "Save as CSV",
   "Save as Excel": "Save as Excel",
   "Save as JSON": "Save as JSON",
+  "No result found for the active editor; please run a query or switch to another editor.": "No result found for the active editor; please run a query or switch to another editor.",
+  "Hide this panel": "Hide this panel",
+  "Query Plan": "Query Plan",
   "Object Explorer Filter": "Object Explorer Filter",
   "{0} (filtered)": "{0} (filtered)",
   "View More": "View More",
@@ -663,7 +666,7 @@
   "An error occurred refreshing nodes. See the MSSQL output channel for more details.": "An error occurred refreshing nodes. See the MSSQL output channel for more details.",
   "Show MSSQL output": "Show MSSQL output",
   "Authentication Library has changed, please reload Visual Studio Code.": "Authentication Library has changed, please reload Visual Studio Code.",
-  "This setting requires Visual Studio Code to be relaunched, please reload Visual Studio Code.": "This setting requires Visual Studio Code to be relaunched, please reload Visual Studio Code.",
+  "Visual Studio Code must be relaunched for this setting to come into effect.  Please reload Visual Studio Code.": "Visual Studio Code must be relaunched for this setting to come into effect.  Please reload Visual Studio Code.",
   "Reload Visual Studio Code": "Reload Visual Studio Code",
   "Switch to MSAL": "Switch to MSAL",
   "Dismiss": "Dismiss",
@@ -673,6 +676,8 @@
   "Execution Plan": "Execution Plan",
   "Script copied to clipboard": "Script copied to clipboard",
   "Copied": "Copied",
+  "The MSSQL extension has some new GUI-based experiences! Would you like to enable them?": "The MSSQL extension has some new GUI-based experiences! Would you like to enable them?",
+  "Enable Rich Experiences": "Enable Rich Experiences",
   "Connection Dialog": "Connection Dialog",
   "Azure Account": "Azure Account",
   "Azure Account is required": "Azure Account is required",
@@ -711,6 +716,13 @@
     "message": "How likely it is that you would recommend {0} to a friend or colleague?",
     "comment": [
       "{0} is the feature name"
+    ]
+  },
+  "Learn More": "Learn More",
+  "{0} has been closed. Would you like to restore it?/{0} is the webview name": {
+    "message": "{0} has been closed. Would you like to restore it?",
+    "comment": [
+      "{0} is the webview name"
     ]
   },
   "Azure sign in failed.": "Azure sign in failed.",

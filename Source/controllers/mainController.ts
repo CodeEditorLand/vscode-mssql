@@ -56,8 +56,9 @@ import { ExecutionPlanService } from "../services/executionPlanService";
 import { ExecutionPlanWebviewController } from "./executionPlanWebviewController";
 import { QueryResultWebviewController } from "../queryResult/queryResultWebViewController";
 import { MssqlProtocolHandler } from "../mssqlProtocolHandler";
-import { isIConnectionInfo } from "../utils/utils";
+import { getErrorMessage, isIConnectionInfo } from "../utils/utils";
 import { getStandardNPSQuestions, UserSurvey } from "../nps/userSurvey";
+import { ExecutionPlanOptions } from "../models/contracts/queryExecute";
 
 /**
  * The main controller class that initializes the extension
@@ -81,6 +82,10 @@ export default class MainController implements vscode.Disposable {
     private _queryHistoryProvider: QueryHistoryProvider;
     private _scriptingService: ScriptingService;
     private _queryHistoryRegistered: boolean = false;
+    private _executionPlanOptions: ExecutionPlanOptions = {
+        includeEstimatedExecutionPlanXml: false,
+        includeActualExecutionPlanXml: false,
+    };
     public sqlTasksService: SqlTasksService;
     public dacFxService: DacFxService;
     public schemaCompareService: SchemaCompareService;
@@ -159,12 +164,8 @@ export default class MainController implements vscode.Disposable {
         );
     }
 
-    // Use a separate flag so it won't be enabled with the experimental features flag
-    public get isNewQueryResultFeatureEnabled(): boolean {
-        let config = this._vscodeWrapper.getConfiguration(
-            Constants.extensionConfigSectionName,
-        );
-        return config.get(Constants.configEnableNewQueryResultFeature);
+    public get isRichExperiencesEnabled(): boolean {
+        return this.configuration.get(Constants.configEnableRichExperiences);
     }
 
     /**
@@ -186,6 +187,8 @@ export default class MainController implements vscode.Disposable {
             this.registerCommand(Constants.cmdRunQuery);
             this._event.on(Constants.cmdRunQuery, () => {
                 void UserSurvey.getInstance().promptUserForNPSFeedback();
+                this._executionPlanOptions.includeEstimatedExecutionPlanXml =
+                    false;
                 void this.onRunQuery();
             });
             this.registerCommand(Constants.cmdManageConnectionProfiles);
@@ -258,6 +261,12 @@ export default class MainController implements vscode.Disposable {
             this._event.on(Constants.cmdClearAzureTokenCache, () =>
                 this.onClearAzureTokenCache(),
             );
+            this.registerCommand(Constants.cmdShowExecutionPlanInResults);
+            this._event.on(Constants.cmdShowExecutionPlanInResults, () => {
+                this._executionPlanOptions.includeEstimatedExecutionPlanXml =
+                    true;
+                void this.onRunQuery();
+            });
             this.initializeObjectExplorer();
 
             this.registerCommandWithArgs(
@@ -338,6 +347,13 @@ export default class MainController implements vscode.Disposable {
                 SqlToolsServerClient.instance,
             );
 
+            this._queryResultWebviewController.setExecutionPlanService(
+                this.executionPlanService,
+            );
+            this._queryResultWebviewController.setUntitledDocumentService(
+                this._untitledSqlDocumentService,
+            );
+
             const providerInstance = new this.ExecutionPlanCustomEditorProvider(
                 this._context,
                 this.executionPlanService,
@@ -350,18 +366,18 @@ export default class MainController implements vscode.Disposable {
 
             const self = this;
             const uriHandler: vscode.UriHandler = {
-                handleUri(uri: vscode.Uri): vscode.ProviderResult<void> {
-                    if (self.isExperimentalEnabled) {
-                        const mssqlProtocolHandler = new MssqlProtocolHandler();
+                async handleUri(uri: vscode.Uri): Promise<void> {
+                    const mssqlProtocolHandler = new MssqlProtocolHandler(
+                        self._connectionMgr.client,
+                    );
 
-                        const connectionInfo =
-                            mssqlProtocolHandler.handleUri(uri);
+                    const connectionInfo =
+                        await mssqlProtocolHandler.handleUri(uri);
 
-                        vscode.commands.executeCommand(
-                            Constants.cmdAddObjectExplorer,
-                            connectionInfo,
-                        );
-                    }
+                    vscode.commands.executeCommand(
+                        Constants.cmdAddObjectExplorer,
+                        connectionInfo,
+                    );
                 },
             };
             vscode.window.registerUriHandler(uriHandler);
@@ -441,6 +457,7 @@ export default class MainController implements vscode.Disposable {
                 uri,
                 undefined,
                 title,
+                {},
                 queryPromise,
             );
             await queryPromise;
@@ -512,6 +529,8 @@ export default class MainController implements vscode.Disposable {
         // Init Query Results Webview Controller
         this._queryResultWebviewController = new QueryResultWebviewController(
             this._context,
+            this.executionPlanService,
+            this.untitledSqlDocumentService,
         );
 
         // Init content provider for results pane
@@ -534,9 +553,7 @@ export default class MainController implements vscode.Disposable {
             this._prompter,
         );
 
-        // Shows first time notifications on extension installation or update
-        // This call is intentionally not awaited to avoid blocking extension activation
-        void this.showFirstLaunchPrompts();
+        void this.showOnLaunchPrompts();
 
         // Handle case where SQL file is the 1st opened document
         const activeTextEditor = this._vscodeWrapper.activeTextEditor;
@@ -707,8 +724,9 @@ export default class MainController implements vscode.Disposable {
 
         // Add Object Explorer Node
         this.registerCommandWithArgs(Constants.cmdAddObjectExplorer);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         this._event.on(Constants.cmdAddObjectExplorer, async (args: any) => {
-            if (!this.isExperimentalEnabled) {
+            if (!this.isRichExperiencesEnabled) {
                 if (!self._objectExplorerProvider.objectExplorerExists) {
                     self._objectExplorerProvider.objectExplorerExists = true;
                 }
@@ -845,7 +863,7 @@ export default class MainController implements vscode.Disposable {
             ),
         );
 
-        if (this.isExperimentalEnabled) {
+        if (this.isRichExperiencesEnabled) {
             this._context.subscriptions.push(
                 vscode.commands.registerCommand(
                     Constants.cmdEditConnection,
@@ -959,9 +977,7 @@ export default class MainController implements vscode.Disposable {
                     },
                 ),
             );
-        }
 
-        if (this.isNewQueryResultFeatureEnabled) {
             this._context.subscriptions.push(
                 vscode.window.registerWebviewViewProvider(
                     "queryResult",
@@ -1246,7 +1262,9 @@ export default class MainController implements vscode.Disposable {
             let uri = this._vscodeWrapper.activeTextEditorUri;
             this._outputContentProvider.cancelQuery(uri);
         } catch (err) {
-            console.warn(`Unexpected error cancelling query : ${err}`);
+            console.warn(
+                `Unexpected error cancelling query : ${getErrorMessage(err)}`,
+            );
         }
     }
 
@@ -1525,11 +1543,13 @@ export default class MainController implements vscode.Disposable {
             if (editor.document.getText(selectionToTrim).trim().length === 0) {
                 return;
             }
+
             await self._outputContentProvider.runQuery(
                 self._statusview,
                 uri,
                 querySelection,
                 title,
+                self._executionPlanOptions,
             );
         } catch (err) {
             console.warn(`Unexpected error running query : ${err}`);
@@ -1629,6 +1649,59 @@ export default class MainController implements vscode.Disposable {
     private canRunV2Command(): boolean {
         let version: number = SqlToolsServerClient.instance.getServiceVersion();
         return version > 1;
+    }
+
+    private async showOnLaunchPrompts(): Promise<void> {
+        // All prompts should be async and _not_ awaited so that we don't block the rest of the extension
+        void this.showFirstLaunchPrompts();
+        void this.showEnableRichExperiencesPrompt();
+    }
+
+    /**
+     * Prompts the user to enable rich experiences
+     */
+    private async showEnableRichExperiencesPrompt(): Promise<void> {
+        if (
+            this._vscodeWrapper
+                .getConfiguration()
+                .get<boolean>(
+                    Constants.configEnableRichExperiencesDoNotShowPrompt,
+                ) ||
+            this._vscodeWrapper
+                .getConfiguration()
+                .get<boolean>(Constants.configEnableRichExperiences)
+        ) {
+            return;
+        }
+
+        const response = await this._vscodeWrapper.showInformationMessage(
+            LocalizedConstants.enableRichExperiencesPrompt,
+            LocalizedConstants.enableRichExperiences,
+            LocalizedConstants.Common.learnMore,
+            LocalizedConstants.Common.dontShowAgain,
+        );
+
+        if (response === LocalizedConstants.enableRichExperiences) {
+            await this._vscodeWrapper
+                .getConfiguration()
+                .update(
+                    Constants.configEnableRichExperiences,
+                    true,
+                    vscode.ConfigurationTarget.Global,
+                );
+        } else if (response === LocalizedConstants.Common.learnMore) {
+            await vscode.env.openExternal(
+                vscode.Uri.parse(Constants.richFeaturesLearnMoreLink),
+            );
+        } else if (response === LocalizedConstants.Common.dontShowAgain) {
+            await this._vscodeWrapper
+                .getConfiguration()
+                .update(
+                    Constants.configEnableRichExperiencesDoNotShowPrompt,
+                    true,
+                    vscode.ConfigurationTarget.Global,
+                );
+        }
     }
 
     /**
@@ -2018,27 +2091,17 @@ export default class MainController implements vscode.Disposable {
                 this.updatePiiLoggingLevel();
             }
 
-            // Prompt to reload VS Code when below settings are updated.
-            if (
-                e.affectsConfiguration(
-                    Constants.enableSqlAuthenticationProvider,
-                )
-            ) {
-                await this.displayReloadMessage(
-                    LocalizedConstants.reloadPromptGeneric,
-                );
-            }
-
-            // Prompt to reload VS Code when below settings are updated.
-            if (e.affectsConfiguration(Constants.enableConnectionPooling)) {
-                await this.displayReloadMessage(
-                    LocalizedConstants.reloadPromptGeneric,
-                );
-            }
+            // Prompt to reload VS Code when any of these settings are updated.
+            const configSettingsRequiringReload = [
+                Constants.enableSqlAuthenticationProvider,
+                Constants.enableConnectionPooling,
+                Constants.configEnableExperimentalFeatures,
+                Constants.configEnableRichExperiences,
+            ];
 
             if (
-                e.affectsConfiguration(
-                    Constants.configEnableExperimentalFeatures,
+                configSettingsRequiringReload.some((setting) =>
+                    e.affectsConfiguration(setting),
                 )
             ) {
                 await this.displayReloadMessage(

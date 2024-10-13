@@ -3,11 +3,9 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-
-declare module 'vscode-mssql' {
-
-	import * as vscode from 'vscode';
-	import { RequestType } from 'vscode-languageclient';
+declare module "vscode-mssql" {
+	import * as vscode from "vscode";
+	import { RequestType } from "vscode-languageclient";
 
 	/**
 	 * Covers defining what the vscode-mssql extension exports to other extensions
@@ -16,16 +14,14 @@ declare module 'vscode-mssql' {
 	 * (const enums get evaluated when typescript -> javascript so those are fine)
 	 */
 
-
 	export const enum extension {
-		name = 'ms-mssql.mssql'
+		name = "ms-mssql.mssql",
 	}
 
 	/**
-	* The APIs provided by Mssql extension
-	*/
+	 * The APIs provided by Mssql extension
+	 */
 	export interface IExtension {
-
 		/**
 		 * Path to the root of the SQL Tools Service folder
 		 */
@@ -60,7 +56,9 @@ declare module 'vscode-mssql' {
 		 * Prompts the user to select an existing connection or create a new one, and then returns the result
 		 * @param ignoreFocusOut Whether the quickpick prompt ignores focus out (default false)
 		 */
-		promptForConnection(ignoreFocusOut?: boolean): Promise<IConnectionInfo | undefined>;
+		promptForConnection(
+			ignoreFocusOut?: boolean,
+		): Promise<IConnectionInfo | undefined>;
 
 		/**
 		 * Attempts to create a new connection for the given connection info. An error is thrown and displayed
@@ -71,7 +69,10 @@ declare module 'vscode-mssql' {
 		 * @param saveConnection Save the connection profile if sets to true
 		 * @returns The URI associated with this connection
 		 */
-		connect(connectionInfo: IConnectionInfo, saveConnection?: boolean): Promise<string>;
+		connect(
+			connectionInfo: IConnectionInfo,
+			saveConnection?: boolean,
+		): Promise<string>;
 
 		/**
 		 * Prompts the user to add firewall rule if connection failed with a firewall error.
@@ -79,7 +80,10 @@ declare module 'vscode-mssql' {
 		 * @param connectionInfo The connection info
 		 * @returns True if firewall rule added
 		 */
-		promptForFirewallRule(connectionUri: string, connectionInfo: IConnectionInfo): Promise<boolean>;
+		promptForFirewallRule(
+			connectionUri: string,
+			connectionInfo: IConnectionInfo,
+		): Promise<boolean>;
 
 		/**
 		 * Lists the databases for a given connection. Must be given an already-opened connection to succeed.
@@ -103,7 +107,11 @@ declare module 'vscode-mssql' {
 		 * @param includeApplicationName (optional) if application name should be included in connection string.
 		 * @returns connection string for the connection
 		 */
-		getConnectionString(connectionUriOrDetails: string | ConnectionDetails, includePassword?: boolean, includeApplicationName?: boolean): Promise<string>;
+		getConnectionString(
+			connectionUriOrDetails: string | ConnectionDetails,
+			includePassword?: boolean,
+			includeApplicationName?: boolean,
+		): Promise<string>;
 
 		/**
 		 * Set connection details for the provided connection info
@@ -111,7 +119,9 @@ declare module 'vscode-mssql' {
 		 * @param connectionInfo connection info of the connection
 		 * @returns connection details credentials for the connection
 		 */
-		createConnectionDetails(connectionInfo: IConnectionInfo): ConnectionDetails;
+		createConnectionDetails(
+			connectionInfo: IConnectionInfo,
+		): ConnectionDetails;
 
 		/**
 		 * Send a request to the SQL Tools Server client
@@ -119,14 +129,17 @@ declare module 'vscode-mssql' {
 		 * @param params The params to pass with the request
 		 * @returns A promise object for when the request receives a response
 		 */
-		sendRequest<P, R, E, R0>(requestType: RequestType<P, R, E, R0>, params?: P): Promise<R>;
+		sendRequest<P, R, E, R0>(
+			requestType: RequestType<P, R, E, R0>,
+			params?: P,
+		): Promise<R>;
 
 		/**
 		 * Get the server info for a connection
 		 * @param connectionInfo connection info of the connection
 		 * @returns server information
 		 */
-		getServerInfo(connectionInfo: IConnectionInfo): IServerInfo
+		getServerInfo(connectionInfo: IConnectionInfo): IServerInfo;
 	}
 
 	/**
@@ -191,27 +204,27 @@ declare module 'vscode-mssql' {
 		/**
 		 * Username and password
 		 */
-		SqlLogin = 'SqlLogin',
+		SqlLogin = "SqlLogin",
 		/**
 		 * Windows Authentication
 		 */
-		Integrated = 'Integrated',
+		Integrated = "Integrated",
 		/**
 		 * Microsoft Entra Id - Universal with MFA support
 		 */
-		AzureMFA = 'AzureMFA',
+		AzureMFA = "AzureMFA",
 		/**
 		 * Microsoft Entra Id - Password
 		 */
-		AzureMFAAndUser = 'AzureMFAAndUser',
+		AzureMFAAndUser = "AzureMFAAndUser",
 		/**
 		 * Datacenter Security Token Service Authentication
 		 */
-		DSTSAuth = 'dstsAuth',
+		DSTSAuth = "dstsAuth",
 		/**
 		 * No authentication required
 		 */
-		None = 'None'
+		None = "None",
 	}
 
 	/**
@@ -229,7 +242,7 @@ declare module 'vscode-mssql' {
 		SqlStretchDatabase = 7,
 		SqlManagedInstance = 8,
 		SqlOnDemand = 11,
-		SqlDbFabric = 12
+		SqlDbFabric = 12,
 	}
 
 	/**
@@ -436,7 +449,7 @@ declare module 'vscode-mssql' {
 		flat = 2,
 		objectType = 3,
 		schema = 4,
-		schemaObjectType = 5
+		schemaObjectType = 5,
 	}
 
 	export interface ISchemaCompareService {
@@ -444,16 +457,73 @@ declare module 'vscode-mssql' {
 	}
 
 	export interface IDacFxService {
-		exportBacpac(databaseName: string, packageFilePath: string, ownerUri: string, taskExecutionMode: TaskExecutionMode): Thenable<DacFxResult>;
-		importBacpac(packageFilePath: string, databaseName: string, ownerUri: string, taskExecutionMode: TaskExecutionMode): Thenable<DacFxResult>;
-		extractDacpac(databaseName: string, packageFilePath: string, applicationName: string, applicationVersion: string, ownerUri: string, taskExecutionMode: TaskExecutionMode): Thenable<DacFxResult>;
-		createProjectFromDatabase(databaseName: string, targetFilePath: string, applicationName: string, applicationVersion: string, ownerUri: string, extractTarget: ExtractTarget, taskExecutionMode: TaskExecutionMode, includePermissions?: boolean): Thenable<DacFxResult>;
-		deployDacpac(packageFilePath: string, databaseName: string, upgradeExisting: boolean, ownerUri: string, taskExecutionMode: TaskExecutionMode, sqlCommandVariableValues?: Map<string, string>, deploymentOptions?: DeploymentOptions): Thenable<DacFxResult>;
-		generateDeployScript(packageFilePath: string, databaseName: string, ownerUri: string, taskExecutionMode: TaskExecutionMode, sqlCommandVariableValues?: Map<string, string>, deploymentOptions?: DeploymentOptions): Thenable<DacFxResult>;
-		generateDeployPlan(packageFilePath: string, databaseName: string, ownerUri: string, taskExecutionMode: TaskExecutionMode): Thenable<GenerateDeployPlanResult>;
-		getOptionsFromProfile(profilePath: string): Thenable<DacFxOptionsResult>;
-		validateStreamingJob(packageFilePath: string, createStreamingJobTsql: string): Thenable<ValidateStreamingJobResult>;
-		savePublishProfile(profilePath: string, databaseName: string, connectionString: string, sqlCommandVariableValues?: Map<string, string>, deploymentOptions?: DeploymentOptions): Thenable<ResultStatus>;
+		exportBacpac(
+			databaseName: string,
+			packageFilePath: string,
+			ownerUri: string,
+			taskExecutionMode: TaskExecutionMode,
+		): Thenable<DacFxResult>;
+		importBacpac(
+			packageFilePath: string,
+			databaseName: string,
+			ownerUri: string,
+			taskExecutionMode: TaskExecutionMode,
+		): Thenable<DacFxResult>;
+		extractDacpac(
+			databaseName: string,
+			packageFilePath: string,
+			applicationName: string,
+			applicationVersion: string,
+			ownerUri: string,
+			taskExecutionMode: TaskExecutionMode,
+		): Thenable<DacFxResult>;
+		createProjectFromDatabase(
+			databaseName: string,
+			targetFilePath: string,
+			applicationName: string,
+			applicationVersion: string,
+			ownerUri: string,
+			extractTarget: ExtractTarget,
+			taskExecutionMode: TaskExecutionMode,
+			includePermissions?: boolean,
+		): Thenable<DacFxResult>;
+		deployDacpac(
+			packageFilePath: string,
+			databaseName: string,
+			upgradeExisting: boolean,
+			ownerUri: string,
+			taskExecutionMode: TaskExecutionMode,
+			sqlCommandVariableValues?: Map<string, string>,
+			deploymentOptions?: DeploymentOptions,
+		): Thenable<DacFxResult>;
+		generateDeployScript(
+			packageFilePath: string,
+			databaseName: string,
+			ownerUri: string,
+			taskExecutionMode: TaskExecutionMode,
+			sqlCommandVariableValues?: Map<string, string>,
+			deploymentOptions?: DeploymentOptions,
+		): Thenable<DacFxResult>;
+		generateDeployPlan(
+			packageFilePath: string,
+			databaseName: string,
+			ownerUri: string,
+			taskExecutionMode: TaskExecutionMode,
+		): Thenable<GenerateDeployPlanResult>;
+		getOptionsFromProfile(
+			profilePath: string,
+		): Thenable<DacFxOptionsResult>;
+		validateStreamingJob(
+			packageFilePath: string,
+			createStreamingJobTsql: string,
+		): Thenable<ValidateStreamingJobResult>;
+		savePublishProfile(
+			profilePath: string,
+			databaseName: string,
+			connectionString: string,
+			sqlCommandVariableValues?: Map<string, string>,
+			deploymentOptions?: DeploymentOptions,
+		): Thenable<ResultStatus>;
 	}
 
 	/**
@@ -478,7 +548,14 @@ declare module 'vscode-mssql' {
 			 If this is set, DatabaseVariable must also be set.
 		 * @param databaseLiteral Literal name used to reference another database in the same server, if not using SQLCMD variables
 		 */
-		addDacpacReference(projectUri: string, dacpacPath: string, suppressMissingDependencies: boolean, databaseVariable?: string, serverVariable?: string, databaseLiteral?: string): Promise<ResultStatus>;
+		addDacpacReference(
+			projectUri: string,
+			dacpacPath: string,
+			suppressMissingDependencies: boolean,
+			databaseVariable?: string,
+			serverVariable?: string,
+			databaseLiteral?: string,
+		): Promise<ResultStatus>;
 
 		/**
 		 * Add a SQL Project reference to a project
@@ -491,7 +568,15 @@ declare module 'vscode-mssql' {
 			 If this is set, DatabaseVariable must also be set.
 		 * @param databaseLiteral Literal name used to reference another database in the same server, if not using SQLCMD variables
 		 */
-		addSqlProjectReference(projectUri: string, projectPath: string, projectGuid: string, suppressMissingDependencies: boolean, databaseVariable?: string, serverVariable?: string, databaseLiteral?: string): Promise<ResultStatus>;
+		addSqlProjectReference(
+			projectUri: string,
+			projectPath: string,
+			projectGuid: string,
+			suppressMissingDependencies: boolean,
+			databaseVariable?: string,
+			serverVariable?: string,
+			databaseLiteral?: string,
+		): Promise<ResultStatus>;
 
 		/**
 		 * Add a system database reference to a project
@@ -501,7 +586,13 @@ declare module 'vscode-mssql' {
 		 * @param referenceType Type of reference - ArtifactReference or PackageReference
 		 * @param databaseLiteral Literal name used to reference another database in the same server, if not using SQLCMD variables
 		 */
-		addSystemDatabaseReference(projectUri: string, systemDatabase: SystemDatabase, suppressMissingDependencies: boolean, referenceType: SystemDbReferenceType, databaseLiteral?: string): Promise<ResultStatus>;
+		addSystemDatabaseReference(
+			projectUri: string,
+			systemDatabase: SystemDatabase,
+			suppressMissingDependencies: boolean,
+			referenceType: SystemDbReferenceType,
+			databaseLiteral?: string,
+		): Promise<ResultStatus>;
 
 		/**
 		 * Add a nuget package database reference to a project
@@ -514,14 +605,25 @@ declare module 'vscode-mssql' {
 			 If this is set, DatabaseVariable must also be set.
 		 * @param databaseLiteral Literal name used to reference another database in the same server, if not using SQLCMD variables
 		 */
-		addNugetPackageReference(projectUri: string, packageName: string, packageVersion: string, suppressMissingDependencies: boolean, databaseVariable?: string, serverVariable?: string, databaseLiteral?: string): Promise<ResultStatus>;
+		addNugetPackageReference(
+			projectUri: string,
+			packageName: string,
+			packageVersion: string,
+			suppressMissingDependencies: boolean,
+			databaseVariable?: string,
+			serverVariable?: string,
+			databaseLiteral?: string,
+		): Promise<ResultStatus>;
 
 		/**
 		 * Delete a database reference from a project
 		 * @param projectUri Absolute path of the project, including .sqlproj
 		 * @param name Name of the reference to be deleted. Name of the System DB, path of the sqlproj, or path of the dacpac
 		 */
-		deleteDatabaseReference(projectUri: string, name: string): Promise<ResultStatus>;
+		deleteDatabaseReference(
+			projectUri: string,
+			name: string,
+		): Promise<ResultStatus>;
 
 		/**
 		 * Add a folder to a project
@@ -550,49 +652,71 @@ declare module 'vscode-mssql' {
 		 * @param sourcePath Source path of the folder, typically relative to the .sqlproj file
 		 * @param destinationPath Destination path of the folder, typically relative to the .sqlproj file
 		 */
-		moveFolder(projectUri: string, sourcePath: string, destinationPath: string): Promise<ResultStatus>;
+		moveFolder(
+			projectUri: string,
+			sourcePath: string,
+			destinationPath: string,
+		): Promise<ResultStatus>;
 
 		/**
 		 * Add a post-deployment script to a project
 		 * @param projectUri Absolute path of the project, including .sqlproj
 		 * @param path Path of the script, including .sql, relative to the .sqlproj
 		 */
-		addPostDeploymentScript(projectUri: string, path: string): Promise<ResultStatus>;
+		addPostDeploymentScript(
+			projectUri: string,
+			path: string,
+		): Promise<ResultStatus>;
 
 		/**
 		 * Add a pre-deployment script to a project
 		 * @param projectUri Absolute path of the project, including .sqlproj
 		 * @param path Path of the script, including .sql, relative to the .sqlproj
 		 */
-		addPreDeploymentScript(projectUri: string, path: string): Promise<ResultStatus>;
+		addPreDeploymentScript(
+			projectUri: string,
+			path: string,
+		): Promise<ResultStatus>;
 
 		/**
 		 * Delete a post-deployment script from a project
 		 * @param projectUri Absolute path of the project, including .sqlproj
 		 * @param path Path of the script, including .sql, relative to the .sqlproj
 		 */
-		deletePostDeploymentScript(projectUri: string, path: string): Promise<ResultStatus>;
+		deletePostDeploymentScript(
+			projectUri: string,
+			path: string,
+		): Promise<ResultStatus>;
 
 		/**
 		 * Delete a pre-deployment script from a project
 		 * @param projectUri Absolute path of the project, including .sqlproj
 		 * @param path Path of the script, including .sql, relative to the .sqlproj
 		 */
-		deletePreDeploymentScript(projectUri: string, path: string): Promise<ResultStatus>;
+		deletePreDeploymentScript(
+			projectUri: string,
+			path: string,
+		): Promise<ResultStatus>;
 
 		/**
 		 * Exclude a post-deployment script from a project
 		 * @param projectUri Absolute path of the project, including .sqlproj
 		 * @param path Path of the script, including .sql, relative to the .sqlproj
 		 */
-		excludePostDeploymentScript(projectUri: string, path: string): Promise<ResultStatus>;
+		excludePostDeploymentScript(
+			projectUri: string,
+			path: string,
+		): Promise<ResultStatus>;
 
 		/**
 		 * Exclude a pre-deployment script from a project
 		 * @param projectUri Absolute path of the project, including .sqlproj
 		 * @param path Path of the script, including .sql, relative to the .sqlproj
 		 */
-		excludePreDeploymentScript(projectUri: string, path: string): Promise<ResultStatus>;
+		excludePreDeploymentScript(
+			projectUri: string,
+			path: string,
+		): Promise<ResultStatus>;
 
 		/**
 		 * Move a post-deployment script in a project
@@ -600,7 +724,11 @@ declare module 'vscode-mssql' {
 		 * @param path Path of the script, including .sql, relative to the .sqlproj
 		 * @param destinationPath Destination path of the file or folder, relative to the .sqlproj
 		 */
-		movePostDeploymentScript(projectUri: string, path: string, destinationPath: string): Promise<ResultStatus>;
+		movePostDeploymentScript(
+			projectUri: string,
+			path: string,
+			destinationPath: string,
+		): Promise<ResultStatus>;
 
 		/**
 		 * Move a pre-deployment script in a project
@@ -608,7 +736,11 @@ declare module 'vscode-mssql' {
 		 * @param path Path of the script, including .sql, relative to the .sqlproj
 		 * @param destinationPath Destination path of the file or folder, relative to the .sqlproj
 		 */
-		movePreDeploymentScript(projectUri: string, path: string, destinationPath: string): Promise<ResultStatus>;
+		movePreDeploymentScript(
+			projectUri: string,
+			path: string,
+			destinationPath: string,
+		): Promise<ResultStatus>;
 
 		/**
 		 * Close a SQL project
@@ -625,13 +757,20 @@ declare module 'vscode-mssql' {
 			 Case sensitive.
 		 * @param buildSdkVersion Version of the Microsoft.Build.Sql SDK for the project, if overriding the default
 		 */
-		createProject(projectUri: string, sqlProjectType: ProjectType, databaseSchemaProvider?: string, buildSdkVersion?: string): Promise<ResultStatus>;
+		createProject(
+			projectUri: string,
+			sqlProjectType: ProjectType,
+			databaseSchemaProvider?: string,
+			buildSdkVersion?: string,
+		): Promise<ResultStatus>;
 
 		/**
 		 * Get the cross-platform compatibility status for a project
 		 * @param projectUri Absolute path of the project, including .sqlproj
 		 */
-		getCrossPlatformCompatibility(projectUri: string): Promise<GetCrossPlatformCompatibilityResult>;
+		getCrossPlatformCompatibility(
+			projectUri: string,
+		): Promise<GetCrossPlatformCompatibilityResult>;
 
 		/**
 		 * Open an existing SQL project
@@ -643,27 +782,37 @@ declare module 'vscode-mssql' {
 		 * Update a SQL project to be cross-platform compatible
 		 * @param projectUri Absolute path of the project, including .sqlproj
 		 */
-		updateProjectForCrossPlatform(projectUri: string): Promise<ResultStatus>;
+		updateProjectForCrossPlatform(
+			projectUri: string,
+		): Promise<ResultStatus>;
 
 		/**
 		 * Set the DatabaseSource property of a .sqlproj file
 		 * @param projectUri Absolute path of the project, including .sqlproj
 		 * @param databaseSource Source of the database schema, used in telemetry
 		 */
-		setDatabaseSource(projectUri: string, databaseSource: string): Promise<ResultStatus>;
+		setDatabaseSource(
+			projectUri: string,
+			databaseSource: string,
+		): Promise<ResultStatus>;
 
 		/**
 		 * Set the DatabaseSchemaProvider property of a SQL project
 		 * @param projectUri Absolute path of the project, including .sqlproj
 		 * @param databaseSchemaProvider New DatabaseSchemaProvider value, in the form "Microsoft.Data.Tools.Schema.Sql.SqlXYZDatabaseSchemaProvider"
 		 */
-		setDatabaseSchemaProvider(projectUri: string, databaseSchemaProvider: string): Promise<ResultStatus>;
+		setDatabaseSchemaProvider(
+			projectUri: string,
+			databaseSchemaProvider: string,
+		): Promise<ResultStatus>;
 
 		/**
 		 * Get the cross-platform compatibility status for a project
 		 * @param projectUri Absolute path of the project, including .sqlproj
 		 */
-		getProjectProperties(projectUri: string): Promise<GetProjectPropertiesResult>;
+		getProjectProperties(
+			projectUri: string,
+		): Promise<GetProjectPropertiesResult>;
 
 		/**
 		 * Add a SQLCMD variable to a project
@@ -671,14 +820,21 @@ declare module 'vscode-mssql' {
 		 * @param name Name of the SQLCMD variable
 		 * @param defaultValue Default value of the SQLCMD variable
 		 */
-		addSqlCmdVariable(projectUri: string, name: string, defaultValue: string): Promise<ResultStatus>;
+		addSqlCmdVariable(
+			projectUri: string,
+			name: string,
+			defaultValue: string,
+		): Promise<ResultStatus>;
 
 		/**
 		 * Delete a SQLCMD variable from a project
 		 * @param projectUri Absolute path of the project, including .sqlproj
 		 * @param name Name of the SQLCMD variable to be deleted
 		 */
-		deleteSqlCmdVariable(projectUri: string, name?: string): Promise<ResultStatus>;
+		deleteSqlCmdVariable(
+			projectUri: string,
+			name?: string,
+		): Promise<ResultStatus>;
 
 		/**
 		 * Update an existing SQLCMD variable in a project
@@ -686,28 +842,41 @@ declare module 'vscode-mssql' {
 		 * @param name Name of the SQLCMD variable
 		 * @param defaultValue Default value of the SQLCMD variable
 		 */
-		updateSqlCmdVariable(projectUri: string, name: string, defaultValue: string): Promise<ResultStatus>;
+		updateSqlCmdVariable(
+			projectUri: string,
+			name: string,
+			defaultValue: string,
+		): Promise<ResultStatus>;
 
 		/**
 		 * Add a SQL object script to a project
 		 * @param projectUri Absolute path of the project, including .sqlproj
 		 * @param path Path of the script, including .sql, relative to the .sqlproj
 		 */
-		addSqlObjectScript(projectUri: string, path: string): Promise<ResultStatus>;
+		addSqlObjectScript(
+			projectUri: string,
+			path: string,
+		): Promise<ResultStatus>;
 
 		/**
 		 * Delete a SQL object script from a project
 		 * @param projectUri Absolute path of the project, including .sqlproj
 		 * @param path Path of the script, including .sql, relative to the .sqlproj
 		 */
-		deleteSqlObjectScript(projectUri: string, path: string): Promise<ResultStatus>;
+		deleteSqlObjectScript(
+			projectUri: string,
+			path: string,
+		): Promise<ResultStatus>;
 
 		/**
 		 * Exclude a SQL object script from a project
 		 * @param projectUri Absolute path of the project, including .sqlproj
 		 * @param path Path of the script, including .sql, relative to the .sqlproj
 		 */
-		excludeSqlObjectScript(projectUri: string, path: string): Promise<ResultStatus>;
+		excludeSqlObjectScript(
+			projectUri: string,
+			path: string,
+		): Promise<ResultStatus>;
 
 		/**
 		 * Move a SQL object script in a project
@@ -715,13 +884,19 @@ declare module 'vscode-mssql' {
 		 * @param path Path of the script, including .sql, relative to the .sqlproj
 		 * @param destinationPath Destination path of the file or folder, relative to the .sqlproj
 		 */
-		moveSqlObjectScript(projectUri: string, path: string, destinationPath: string): Promise<ResultStatus>;
+		moveSqlObjectScript(
+			projectUri: string,
+			path: string,
+			destinationPath: string,
+		): Promise<ResultStatus>;
 
 		/**
 		 * Get all the database references in a project
 		 * @param projectUri Absolute path of the project, including .sqlproj
 		 */
-		getDatabaseReferences(projectUri: string): Promise<GetDatabaseReferencesResult>;
+		getDatabaseReferences(
+			projectUri: string,
+		): Promise<GetDatabaseReferencesResult>;
 
 		/**
 		 * Get all the folders in a project
@@ -745,7 +920,9 @@ declare module 'vscode-mssql' {
 		 * Get all the SQLCMD variables in a project
 		 * @param projectUri Absolute path of the project, including .sqlproj
 		 */
-		getSqlCmdVariables(projectUri: string): Promise<GetSqlCmdVariablesResult>;
+		getSqlCmdVariables(
+			projectUri: string,
+		): Promise<GetSqlCmdVariablesResult>;
 
 		/**
 		 * Get all the SQL object scripts in a project
@@ -772,7 +949,10 @@ declare module 'vscode-mssql' {
 		 * @param projectUri Absolute path of the project, including .sqlproj
 		 * @param path Path of the item, including extension, relative to the .sqlproj
 		 */
-		excludeNoneItem(projectUri: string, path: string): Promise<ResultStatus>;
+		excludeNoneItem(
+			projectUri: string,
+			path: string,
+		): Promise<ResultStatus>;
 
 		/**
 		 * Get all the None items in a project
@@ -786,7 +966,11 @@ declare module 'vscode-mssql' {
 		 * @param path Path of the item, including extension, relative to the .sqlproj
 		 * @param destinationPath Destination path of the file or folder, relative to the .sqlproj
 		 */
-		moveNoneItem(projectUri: string, path: string, destinationPath: string): Promise<ResultStatus>;
+		moveNoneItem(
+			projectUri: string,
+			path: string,
+			destinationPath: string,
+		): Promise<ResultStatus>;
 	}
 
 	/**
@@ -819,12 +1003,12 @@ declare module 'vscode-mssql' {
 
 	export enum AzureAuthType {
 		AuthCodeGrant = 0,
-		DeviceCode = 1
+		DeviceCode = 1,
 	}
 
 	export enum AccountType {
-		Microsoft = 'microsoft',
-		WorkSchool = 'work_school'
+		Microsoft = "microsoft",
+		WorkSchool = "work_school",
 	}
 
 	/**
@@ -982,10 +1166,10 @@ declare module 'vscode-mssql' {
 	}
 
 	export interface IAzureAccountSession {
-		subscription: azure.subscription.Subscription,
-		tenantId: string,
-		account: IAccount,
-		token: IToken | undefined
+		subscription: azure.subscription.Subscription;
+		tenantId: string;
+		account: IAccount;
+		token: IToken | undefined;
 	}
 
 	export interface IAzureAccountService {
@@ -1002,7 +1186,10 @@ declare module 'vscode-mssql' {
 		/**
 		 * Returns an access token for given user and tenant
 		 */
-		getAccountSecurityToken(account: IAccount, tenantId: string | undefined): Promise<IToken>;
+		getAccountSecurityToken(
+			account: IAccount,
+			tenantId: string | undefined,
+		): Promise<IToken>;
 
 		/**
 		 * Returns Azure subscriptions with tenant and token for each given account
@@ -1011,13 +1198,14 @@ declare module 'vscode-mssql' {
 	}
 
 	export interface IAzureResourceService {
-
 		/**
 		 * Returns Azure resource groups for given subscription
 		 * @param session Azure session
 		 * @returns List of resource groups
 		 */
-		getResourceGroups(session: IAzureAccountSession): Promise<azure.resources.ResourceGroup[]>;
+		getResourceGroups(
+			session: IAzureAccountSession,
+		): Promise<azure.resources.ResourceGroup[]>;
 
 		/**
 		 * Creates or updates a Azure SQL server for given subscription, resource group and location
@@ -1027,25 +1215,32 @@ declare module 'vscode-mssql' {
 		 * @param parameters parameters for the SQL server
 		 * @returns name of the SQL server
 		 */
-		createOrUpdateServer(session: IAzureAccountSession, resourceGroupName: string, serverName: string, parameters: azure.sql.Server): Promise<string | undefined>;
+		createOrUpdateServer(
+			session: IAzureAccountSession,
+			resourceGroupName: string,
+			serverName: string,
+			parameters: azure.sql.Server,
+		): Promise<string | undefined>;
 
 		/**
 		 * Returns Azure locations for given session
 		 * @param session Azure session
 		 * @returns List of locations
 		 */
-		getLocations(session: IAzureAccountSession): Promise<azure.subscription.Location[]>;
+		getLocations(
+			session: IAzureAccountSession,
+		): Promise<azure.subscription.Location[]>;
 	}
 
 	export const enum TaskExecutionMode {
 		execute = 0,
 		script = 1,
-		executeAndScript = 2
+		executeAndScript = 2,
 	}
 
 	/**
-	* Interface containing deployment options of boolean type
-	*/
+	 * Interface containing deployment options of boolean type
+	 */
 	export interface DacDeployOptionPropertyBoolean {
 		value: boolean;
 		description: string;
@@ -1053,8 +1248,8 @@ declare module 'vscode-mssql' {
 	}
 
 	/**
-	* Interface containing deployment options of string[] type, value property holds enum names (nothing but option name) from <DacFx>\Product\Source\DeploymentApi\ObjectTypes.cs enum
-	*/
+	 * Interface containing deployment options of string[] type, value property holds enum names (nothing but option name) from <DacFx>\Product\Source\DeploymentApi\ObjectTypes.cs enum
+	 */
 	export interface DacDeployOptionPropertyObject {
 		value: string[];
 		description: string;
@@ -1062,13 +1257,15 @@ declare module 'vscode-mssql' {
 	}
 
 	/*
-	* Interface containing Deployment options from <DacFx>\Source\DeploymentApi\DacDeployOptions.cs
-	* These property names should match with the properties defined in <sqltoolsservice>\src\Microsoft.SqlTools.ServiceLayer\DacFx\Contracts\DeploymentOptions.cs
-	*/
+	 * Interface containing Deployment options from <DacFx>\Source\DeploymentApi\DacDeployOptions.cs
+	 * These property names should match with the properties defined in <sqltoolsservice>\src\Microsoft.SqlTools.ServiceLayer\DacFx\Contracts\DeploymentOptions.cs
+	 */
 	export interface DeploymentOptions {
 		excludeObjectTypes: DacDeployOptionPropertyObject;
 		// key will be the boolean option name
-		booleanOptionsDictionary: { [key: string]: DacDeployOptionPropertyBoolean };
+		booleanOptionsDictionary: {
+			[key: string]: DacDeployOptionPropertyBoolean;
+		};
 		// key will be the object type enum name (nothing but option name)
 		objectTypesDictionary: { [key: string]: string };
 	}
@@ -1093,7 +1290,7 @@ declare module 'vscode-mssql' {
 		deploymentOptions: DeploymentOptions;
 	}
 
-	export interface ValidateStreamingJobResult extends ResultStatus { }
+	export interface ValidateStreamingJobResult extends ResultStatus {}
 
 	export interface ExportParams {
 		databaseName: string;
@@ -1155,7 +1352,7 @@ declare module 'vscode-mssql' {
 		createStreamingJobTsql: string;
 	}
 
-	export interface SchemaCompareGetOptionsParams { }
+	export interface SchemaCompareGetOptionsParams {}
 
 	export interface SchemaCompareOptionsResult extends ResultStatus {
 		defaultDeploymentOptions: DeploymentOptions;
@@ -1187,7 +1384,8 @@ declare module 'vscode-mssql' {
 		path: string;
 	}
 
-	export interface AddDacpacReferenceParams extends AddUserDatabaseReferenceParams {
+	export interface AddDacpacReferenceParams
+		extends AddUserDatabaseReferenceParams {
 		/**
 		 * Path to the .dacpac file
 		 */
@@ -1205,7 +1403,8 @@ declare module 'vscode-mssql' {
 		databaseLiteral?: string;
 	}
 
-	export interface AddSqlProjectReferenceParams extends AddUserDatabaseReferenceParams {
+	export interface AddSqlProjectReferenceParams
+		extends AddUserDatabaseReferenceParams {
 		/**
 		 * Path to the referenced .sqlproj file
 		 */
@@ -1216,19 +1415,21 @@ declare module 'vscode-mssql' {
 		projectGuid: string;
 	}
 
-	export interface AddSystemDatabaseReferenceParams extends AddDatabaseReferenceParams {
+	export interface AddSystemDatabaseReferenceParams
+		extends AddDatabaseReferenceParams {
 		/**
 		 * Type of system database
 		 */
 		systemDatabase: SystemDatabase;
 
 		/**
-	 * Type of reference - ArtifactReference or PackageReference
-	 */
+		 * Type of reference - ArtifactReference or PackageReference
+		 */
 		referenceType: SystemDbReferenceType;
 	}
 
-	export interface AddNugetPackageReferenceParams extends AddUserDatabaseReferenceParams {
+	export interface AddNugetPackageReferenceParams
+		extends AddUserDatabaseReferenceParams {
 		/**
 		 * NuGet package name
 		 */
@@ -1240,7 +1441,8 @@ declare module 'vscode-mssql' {
 		packageVersion: string;
 	}
 
-	export interface AddUserDatabaseReferenceParams extends AddDatabaseReferenceParams {
+	export interface AddUserDatabaseReferenceParams
+		extends AddDatabaseReferenceParams {
 		/**
 		 * SQLCMD variable name for specifying the other database this reference is to, if different from that of the current project
 		 */
@@ -1373,7 +1575,7 @@ declare module 'vscode-mssql' {
 		/**
 		 * Database Schema Provider, in the format "Microsoft.Data.Tools.Schema.Sql.SqlXYZDatabaseSchemaProvider"
 		 */
-		databaseSchemaProvider: string
+		databaseSchemaProvider: string;
 	}
 
 	export interface GetDatabaseReferencesResult extends ResultStatus {
@@ -1422,17 +1624,17 @@ declare module 'vscode-mssql' {
 
 	export const enum ProjectType {
 		SdkStyle = 0,
-		LegacyStyle = 1
+		LegacyStyle = 1,
 	}
 
 	export const enum SystemDatabase {
 		Master = 0,
-		MSDB = 1
+		MSDB = 1,
 	}
 
 	export const enum SystemDbReferenceType {
 		ArtifactReference = 0,
-		PackageReference = 1
+		PackageReference = 1,
 	}
 
 	export interface DatabaseReference {
@@ -1466,7 +1668,7 @@ declare module 'vscode-mssql' {
 	export interface SqlCmdVariable {
 		varName: string;
 		value: string;
-		defaultValue: string
+		defaultValue: string;
 	}
 
 	//#endregion
@@ -1479,7 +1681,7 @@ declare module 'vscode-mssql' {
 		metadata: ObjectMetadata;
 		parentNode: ITreeNodeInfo;
 		filterableProperties?: NodeFilterProperty[];
-		context?: TreeNodeContextValue,
+		context?: TreeNodeContextValue;
 		filters?: NodeFilter[];
 	}
 
@@ -1519,7 +1721,6 @@ declare module 'vscode-mssql' {
 		choices: NodeFilterChoicePropertyValue[];
 	}
 
-
 	export interface NodeFilterChoicePropertyValue {
 		/**
 		 * The value of the choice
@@ -1553,7 +1754,7 @@ declare module 'vscode-mssql' {
 		Number = 1,
 		Boolean = 2,
 		Date = 3,
-		Choice = 4
+		Choice = 4,
 	}
 
 	export enum NodeFilterOperator {
@@ -1570,14 +1771,14 @@ declare module 'vscode-mssql' {
 		StartsWith = 10,
 		NotStartsWith = 11,
 		EndsWith = 12,
-		NotEndsWith = 13
+		NotEndsWith = 13,
 	}
 
 	export const enum MetadataType {
 		Table = 0,
 		View = 1,
 		SProc = 2,
-		Function = 3
+		Function = 3,
 	}
 
 	export interface ObjectMetadata {
@@ -1600,7 +1801,6 @@ declare module 'vscode-mssql' {
 	 * Parameters to initialize a connection to a database
 	 */
 	export interface ConnectionDetails {
-
 		options: { [name: string]: any };
 	}
 
@@ -1608,7 +1808,6 @@ declare module 'vscode-mssql' {
 	 * Namespace for Azure APIs
 	 */
 	export namespace azure {
-
 		/**
 		 * Namespace for Azure Subscriptions. Types from @azure/arm-subscriptions module
 		 */
@@ -1676,8 +1875,12 @@ declare module 'vscode-mssql' {
 			}
 
 			/** Defines values for SubscriptionState. */
-			export type SubscriptionState = 'Enabled' | 'Warned' | 'PastDue' | 'Disabled' | 'Deleted';
-
+			export type SubscriptionState =
+				| "Enabled"
+				| "Warned"
+				| "PastDue"
+				| "Disabled"
+				| "Deleted";
 
 			/** Subscription policies. */
 			export interface SubscriptionPolicies {
@@ -1699,7 +1902,7 @@ declare module 'vscode-mssql' {
 			}
 
 			/** Defines values for SpendingLimit. */
-			export type SpendingLimit = 'On' | 'Off' | 'CurrentPeriodOff';
+			export type SpendingLimit = "On" | "Off" | "CurrentPeriodOff";
 		}
 
 		/**
@@ -1785,7 +1988,6 @@ declare module 'vscode-mssql' {
 		 * Namespace for Azure SQL APIs. Types from @azure/arm-sql module
 		 */
 		export namespace sql {
-
 			/** ARM resource. */
 			export interface Resource {
 				/**
@@ -1937,13 +2139,13 @@ declare module 'vscode-mssql' {
 			export type ServerNetworkAccessFlag = string;
 
 			/**
-			* Defines values for ServerWorkspaceFeature. \
-			* {@link KnownServerWorkspaceFeature} can be used interchangeably with ServerWorkspaceFeature,
-			*  this enum contains the known values that the service supports.
-			* ### Known values supported by the service
-			* **Connected** \
-			* **Disconnected**
-			*/
+			 * Defines values for ServerWorkspaceFeature. \
+			 * {@link KnownServerWorkspaceFeature} can be used interchangeably with ServerWorkspaceFeature,
+			 *  this enum contains the known values that the service supports.
+			 * ### Known values supported by the service
+			 * **Connected** \
+			 * **Disconnected**
+			 */
 			export type ServerWorkspaceFeature = string;
 
 			/** Properties of a active directory administrator. */
@@ -1961,7 +2163,6 @@ declare module 'vscode-mssql' {
 				/** Microsoft Entra Id only Authentication enabled. */
 				azureADOnlyAuthentication?: boolean;
 			}
-
 
 			/** Properties of a private endpoint connection. */
 			export interface PrivateEndpointConnectionProperties {
@@ -1986,14 +2187,14 @@ declare module 'vscode-mssql' {
 			export type AdministratorType = string;
 
 			/**
-			* Defines values for PrincipalType. \
-			* {@link KnownPrincipalType} can be used interchangeably with PrincipalType,
-			*  this enum contains the known values that the service supports.
-			* ### Known values supported by the service
-			* **User** \
-			* **Group** \
-			* **Application**
-			*/
+			 * Defines values for PrincipalType. \
+			 * {@link KnownPrincipalType} can be used interchangeably with PrincipalType,
+			 *  this enum contains the known values that the service supports.
+			 * ### Known values supported by the service
+			 * **User** \
+			 * **Group** \
+			 * **Application**
+			 */
 			export type PrincipalType = string;
 
 			export interface PrivateEndpointProperty {
@@ -2027,15 +2228,15 @@ declare module 'vscode-mssql' {
 			export type PrivateEndpointProvisioningState = string;
 
 			/**
-			* Defines values for PrivateLinkServiceConnectionStateStatus. \
-			* {@link KnownPrivateLinkServiceConnectionStateStatus} can be used interchangeably with PrivateLinkServiceConnectionStateStatus,
-			*  this enum contains the known values that the service supports.
-			* ### Known values supported by the service
-			* **Approved** \
-			* **Pending** \
-			* **Rejected** \
-			* **Disconnected**
-			*/
+			 * Defines values for PrivateLinkServiceConnectionStateStatus. \
+			 * {@link KnownPrivateLinkServiceConnectionStateStatus} can be used interchangeably with PrivateLinkServiceConnectionStateStatus,
+			 *  this enum contains the known values that the service supports.
+			 * ### Known values supported by the service
+			 * **Approved** \
+			 * **Pending** \
+			 * **Rejected** \
+			 * **Disconnected**
+			 */
 			export type PrivateLinkServiceConnectionStateStatus = string;
 
 			/**
@@ -2045,7 +2246,8 @@ declare module 'vscode-mssql' {
 			 * ### Known values supported by the service
 			 * **None**
 			 */
-			export type PrivateLinkServiceConnectionStateActionsRequire = string;
+			export type PrivateLinkServiceConnectionStateActionsRequire =
+				string;
 
 			export interface PrivateLinkServiceConnectionStateProperty {
 				/** The private link service connection status. */

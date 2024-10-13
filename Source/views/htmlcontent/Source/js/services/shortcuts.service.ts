@@ -3,32 +3,32 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { Injectable, Inject, forwardRef } from '@angular/core';
+import { forwardRef, Inject, Injectable } from "@angular/core";
 
-import { DataService } from './data.service';
+import { DataService } from "./data.service";
 
 const keycodes = {
-	'37': 'left',
-	'38': 'up',
-	'39': 'right',
-	'40': 'down'
+	"37": "left",
+	"38": "up",
+	"39": "right",
+	"40": "down",
 };
 const displayCodes = {
-	'mac': {
-		'ctrl': '⌘',
-		'alt': '⌥',
-		'shift': '⇧'
+	"mac": {
+		"ctrl": "⌘",
+		"alt": "⌥",
+		"shift": "⇧",
 	},
-	'windows': {
-		'ctrl': 'Ctrl',
-		'alt': 'Alt',
-		'shift': 'Shift'
+	"windows": {
+		"ctrl": "Ctrl",
+		"alt": "Alt",
+		"shift": "Shift",
 	},
-	'linux': {
-		'ctrl': 'Ctrl',
-		'alt': 'Alt',
-		'shift': 'Shift'
-	}
+	"linux": {
+		"ctrl": "Ctrl",
+		"alt": "Alt",
+		"shift": "Shift",
+	},
 };
 
 /**
@@ -40,8 +40,10 @@ export class ShortcutService {
 	shortcuts: { [key: string]: string };
 	private waitPromise: Promise<void>;
 
-	constructor(@Inject(forwardRef(() => DataService)) private dataService: DataService,
-		@Inject(forwardRef(() => Window)) private window: Window) {
+	constructor(
+		@Inject(forwardRef(() => DataService)) private dataService: DataService,
+		@Inject(forwardRef(() => Window)) private window: Window,
+	) {
 		this.waitPromise = this.dataService.shortcuts.then((result) => {
 			this.shortcuts = result;
 		});
@@ -72,21 +74,30 @@ export class ShortcutService {
 			// find the current platform
 			if (platString.match(/win/i)) {
 				// iterate through the display replacement that are defined
-				for (let key in displayCodes['windows']) {
-					if (displayCodes['windows'].hasOwnProperty(key)) {
-						keyString = keyString.replace(key, displayCodes['windows'][key]);
+				for (let key in displayCodes["windows"]) {
+					if (displayCodes["windows"].hasOwnProperty(key)) {
+						keyString = keyString.replace(
+							key,
+							displayCodes["windows"][key],
+						);
 					}
 				}
 			} else if (platString.match(/linux/i)) {
-				for (let key in displayCodes['linux']) {
-					if (displayCodes['linux'].hasOwnProperty(key)) {
-						keyString = keyString.replace(key, displayCodes['linux'][key]);
+				for (let key in displayCodes["linux"]) {
+					if (displayCodes["linux"].hasOwnProperty(key)) {
+						keyString = keyString.replace(
+							key,
+							displayCodes["linux"][key],
+						);
 					}
 				}
 			} else if (platString.match(/mac/i)) {
-				for (let key in displayCodes['mac']) {
-					if (displayCodes['mac'].hasOwnProperty(key)) {
-						keyString = keyString.replace(key, displayCodes['mac'][key]);
+				for (let key in displayCodes["mac"]) {
+					if (displayCodes["mac"].hasOwnProperty(key)) {
+						keyString = keyString.replace(
+							key,
+							displayCodes["mac"][key],
+						);
 					}
 				}
 			}
@@ -119,11 +130,14 @@ export class ShortcutService {
 	 * @param e The Jquery event object to build the string from
 	 */
 	buildEventString(e): string {
-		let resString = '';
-		resString += (e.ctrlKey || e.metaKey) ? 'ctrl+' : '';
-		resString += e.altKey ? 'alt+' : '';
-		resString += e.shiftKey ? 'shift+' : '';
-		resString += e.which >= 65 && e.which <= 90 ? String.fromCharCode(e.which) : keycodes[e.which];
+		let resString = "";
+		resString += e.ctrlKey || e.metaKey ? "ctrl+" : "";
+		resString += e.altKey ? "alt+" : "";
+		resString += e.shiftKey ? "shift+" : "";
+		resString +=
+			e.which >= 65 && e.which <= 90
+				? String.fromCharCode(e.which)
+				: keycodes[e.which];
 		return resString;
 	}
 }

@@ -4,27 +4,27 @@
  *--------------------------------------------------------------------------------------------*/
 
 import {
-	teamsHighContrastTheme,
-	Theme,
-	webDarkTheme,
+    Theme,
+    webDarkTheme,
+    teamsHighContrastTheme,
 } from "@fluentui/react-components";
 
 /**
  * Format a string. Behaves like C#'s string.Format() function.
  */
 export function formatString(str: string, ...args: any[]): string {
-	// This is based on code originally from https://github.com/Microsoft/vscode/blob/master/src/vs/nls.js
-	// License: https://github.com/Microsoft/vscode/blob/master/LICENSE.txt
-	let result: string;
-	if (args.length === 0) {
-		result = str;
-	} else {
-		result = str.replace(/\{(\d+)\}/g, (match, rest) => {
-			let index = rest[0];
-			return typeof args[index] !== "undefined" ? args[index] : match;
-		});
-	}
-	return result;
+    // This is based on code originally from https://github.com/Microsoft/vscode/blob/master/src/vs/nls.js
+    // License: https://github.com/Microsoft/vscode/blob/master/LICENSE.txt
+    let result: string;
+    if (args.length === 0) {
+        result = str;
+    } else {
+        result = str.replace(/\{(\d+)\}/g, (match, rest) => {
+            let index = rest[0];
+            return typeof args[index] !== "undefined" ? args[index] : match;
+        });
+    }
+    return result;
 }
 
 /**
@@ -32,12 +32,20 @@ export function formatString(str: string, ...args: any[]): string {
  * @param theme the theme of the react webview
  */
 export function getVscodeThemeType(theme: Theme): string {
-	switch (theme) {
-		case webDarkTheme:
-			return "vs-dark";
-		case teamsHighContrastTheme:
-			return "hc-black";
-		default:
-			return "light";
-	}
+    switch (theme) {
+        case webDarkTheme:
+            return "vs-dark";
+        case teamsHighContrastTheme:
+            return "hc-black";
+        default:
+            return "light";
+    }
+}
+
+export function themeType(theme: Theme): string {
+    const themeType = getVscodeThemeType(theme);
+    if (themeType !== "light") {
+        return "dark";
+    }
+    return themeType;
 }

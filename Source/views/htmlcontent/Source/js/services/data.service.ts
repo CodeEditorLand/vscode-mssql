@@ -3,44 +3,31 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { Injectable, OnDestroy } from "@angular/core";
-import { ISlickRange } from "angular2-slickgrid";
-import { Subject } from "rxjs/Subject";
+import { Subject } from 'rxjs/Subject';
+import { Injectable, OnDestroy } from '@angular/core';
+import { ISlickRange } from 'angular2-slickgrid';
+import { QueryEvent, ResultSetSubset, ISelectionData } from './../../../../../models/interfaces';
+import * as Constants from './../constants';
+import { createProxy, IMessageProtocol, IServerProxy } from '../../../../../protocol';
+import { TelemetryActions, TelemetryViews } from '../../../../../sharedInterfaces/telemetry';
 
-import {
-	createProxy,
-	IMessageProtocol,
-	IServerProxy,
-} from "../../../../../protocol";
-import {
-	TelemetryActions,
-	TelemetryViews,
-} from "../../../../../sharedInterfaces/telemetry";
-import {
-	ISelectionData,
-	QueryEvent,
-	ResultSetSubset,
-} from "./../../../../../models/interfaces";
-import * as Constants from "./../constants";
-
-declare function acquireVsCodeApi(): { postMessage: (message: string) => void };
+declare function acquireVsCodeApi(): { postMessage: (message: string) => void; };
 
 export const vscodeApi = acquireVsCodeApi();
 
 function createMessageProtocol(): IMessageProtocol {
 	return {
-		onMessage: (listener) => {
+		onMessage: listener => {
 			const windowListener = (event: MessageEvent) => {
 				const message = event.data;
 				listener(message);
 			};
-			window.addEventListener("message", windowListener);
+			window.addEventListener('message', windowListener);
 			return {
-				dispose: () =>
-					window.removeEventListener("message", windowListener),
+				dispose: () => window.removeEventListener('message', windowListener)
 			};
 		},
-		sendMessage: (message) => vscodeApi.postMessage(message),
+		sendMessage: message => vscodeApi.postMessage(message)
 	};
 }
 
@@ -56,17 +43,13 @@ export class DataService implements OnDestroy {
 	public dataEventObs = new Subject<QueryEvent>();
 
 	constructor() {
-		this._proxy = createProxy(
-			createMessageProtocol(),
-			{
-				sendEvent: (type, args) => this.sendEvent(type, args),
-				dispose: () => void 0,
-			},
-			true,
-		);
+		this._proxy = createProxy(createMessageProtocol(), {
+			sendEvent: (type, args) => this.sendEvent(type, args),
+			dispose: () => void (0)
+		}, true);
 
-		this.getLocalizedTextsRequest().then((result) => {
-			Object.keys(result).forEach((key) => {
+		this.getLocalizedTextsRequest().then(result => {
+			Object.keys(result).forEach(key => {
 				Constants.loadLocalizedConstant(key, result[key]);
 			});
 		});
@@ -89,12 +72,7 @@ export class DataService implements OnDestroy {
 	 * @param batchId The batch id of the batch you are querying
 	 * @param resultId The id of the result you want to get the rows for
 	 */
-	getRows(
-		start: number,
-		numberOfRows: number,
-		batchId: number,
-		resultId: number,
-	): Promise<ResultSetSubset> {
+	getRows(start: number, numberOfRows: number, batchId: number, resultId: number): Promise<ResultSetSubset> {
 		return this._proxy.getRows(batchId, resultId, start, numberOfRows);
 	}
 
@@ -105,12 +83,7 @@ export class DataService implements OnDestroy {
 	 * @param format The format to save in - csv, json, excel
 	 * @param selection The range inside the result set to save, or empty if all results should be saved
 	 */
-	sendSaveRequest(
-		batchIndex: number,
-		resultSetNumber: number,
-		format: string,
-		selection: ISlickRange[],
-	): void {
+	sendSaveRequest(batchIndex: number, resultSetNumber: number, format: string, selection: ISlickRange[]): void {
 		this._proxy.saveResults(batchIndex, resultSetNumber, format, selection);
 	}
 
@@ -118,14 +91,9 @@ export class DataService implements OnDestroy {
 		telemetryView: TelemetryViews,
 		telemetryAction: TelemetryActions,
 		additionalProps: { [key: string]: string },
-		additionalMeasurements: { [key: string]: number },
-	): void {
-		this._proxy.sendActionEvent(
-			telemetryView,
-			telemetryAction,
-			additionalProps,
-			additionalMeasurements,
-		);
+		additionalMeasurements: { [key: string]: number }
+		): void {
+		this._proxy.sendActionEvent(telemetryView, telemetryAction, additionalProps, additionalMeasurements);
 	}
 
 	/**
@@ -159,12 +127,7 @@ export class DataService implements OnDestroy {
 	 * @param resultId The result id of the result to copy from
 	 * @param includeHeaders [Optional]: Should column headers be included in the copy selection
 	 */
-	copyResults(
-		selection: ISlickRange[],
-		batchId: number,
-		resultId: number,
-		includeHeaders?: boolean,
-	): void {
+	copyResults(selection: ISlickRange[], batchId: number, resultId: number, includeHeaders?: boolean): void {
 		this._proxy.copyResults(batchId, resultId, selection, includeHeaders);
 	}
 
@@ -189,7 +152,7 @@ export class DataService implements OnDestroy {
 		if (this._config) {
 			return Promise.resolve(this._config);
 		} else {
-			return this._proxy.getConfig().then((config) => {
+			return this._proxy.getConfig().then(config => {
 				self._shortcuts = config.shortcuts;
 				delete config.shortcuts;
 				self._config = config;
@@ -203,7 +166,7 @@ export class DataService implements OnDestroy {
 		if (this._shortcuts) {
 			return Promise.resolve(this._shortcuts);
 		} else {
-			return this._proxy.getConfig().then((config) => {
+			return this._proxy.getConfig().then(config => {
 				self._shortcuts = config.shortcuts;
 				delete config.shortcuts;
 				self._config = config;

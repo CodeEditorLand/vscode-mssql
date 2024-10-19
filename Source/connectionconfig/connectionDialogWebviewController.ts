@@ -7,7 +7,6 @@ import * as vscode from "vscode";
 
 import {
     AuthenticationType,
-    AzureSqlServerInfo,
     AzureSubscriptionInfo,
     ConnectionDialogFormItemSpec,
     ConnectionDialogReducers,
@@ -26,19 +25,16 @@ import {
     FormItemType,
 } from "../reactviews/common/forms/form";
 import {
-    GenericResourceExpanded,
-    ResourceManagementClient,
-} from "@azure/arm-resources";
-import {
     ConnectionDialog as Loc,
     refreshTokenLabel,
 } from "../constants/locConstants";
 import {
     azureSubscriptionFilterConfigKey,
     confirmVscodeAzureSignin,
+    fetchServersFromAzure,
     promptForAzureSubscriptionFilter,
 } from "./azureHelper";
-import { getErrorMessage, listAllIterator } from "../utils/utils";
+import { getErrorMessage } from "../utils/utils";
 
 import { ApiStatus } from "../sharedInterfaces/webview";
 import { AzureController } from "../azure/azureController";
@@ -54,6 +50,11 @@ import VscodeWrapper from "../controllers/vscodeWrapper";
 import { connectionCertValidationFailedErrorCode } from "./connectionConstants";
 import { getConnectionDisplayName } from "../models/connectionInfo";
 import { l10n } from "vscode";
+import {
+    TelemetryActions,
+    TelemetryViews,
+} from "../sharedInterfaces/telemetry";
+import { sendActionEvent, sendErrorEvent } from "../telemetry/telemetry";
 
 export class ConnectionDialogWebviewController extends ReactWebviewPanelController<
     ConnectionDialogWebviewState,
@@ -119,9 +120,18 @@ export class ConnectionDialogWebviewController extends ReactWebviewPanelControll
         }
 
         this.registerRpcHandlers();
-        this.initializeDialog().catch((err) =>
-            vscode.window.showErrorMessage(getErrorMessage(err)),
-        );
+        this.initializeDialog().catch((err) => {
+            void vscode.window.showErrorMessage(getErrorMessage(err));
+
+            // The spots in initializeDialog() that handle potential PII have their own error catches that emit error telemetry with `includeErrorMessage` set to false.
+            // Everything else during initialization shouldn't have PII, so it's okay to include the error message here.
+            sendErrorEvent(
+                TelemetryViews.ConnectionDialog,
+                TelemetryActions.Initialize,
+                err,
+                true, // includeErrorMessage
+            );
+        });
     }
 
     private async initializeDialog() {
@@ -129,7 +139,13 @@ export class ConnectionDialogWebviewController extends ReactWebviewPanelControll
             this.state.recentConnections = await this.loadRecentConnections();
             this.updateState();
         } catch (err) {
-            vscode.window.showErrorMessage(getErrorMessage(err));
+            void vscode.window.showErrorMessage(getErrorMessage(err));
+            sendErrorEvent(
+                TelemetryViews.ConnectionDialog,
+                TelemetryActions.Initialize,
+                err,
+                false, // includeErrorMessage
+            );
         }
 
         try {
@@ -140,7 +156,14 @@ export class ConnectionDialogWebviewController extends ReactWebviewPanelControll
             }
         } catch (err) {
             await this.loadEmptyConnection();
-            vscode.window.showErrorMessage(getErrorMessage(err));
+            void vscode.window.showErrorMessage(getErrorMessage(err));
+
+            sendErrorEvent(
+                TelemetryViews.ConnectionDialog,
+                TelemetryActions.Initialize,
+                err,
+                false, // includeErrorMessage
+            );
         }
 
         this.state.connectionComponents = {
@@ -180,6 +203,16 @@ export class ConnectionDialogWebviewController extends ReactWebviewPanelControll
             this._mainController.connectionManager.connectionStore
                 .loadAllConnections(true)
                 .map((c) => c.connectionCreds);
+
+        sendActionEvent(
+            TelemetryViews.ConnectionDialog,
+            TelemetryActions.LoadRecentConnections,
+            undefined, // additionalProperties
+            {
+                recentConnectionsCount: recentConnections.length,
+            },
+        );
+
         const dialogConnections: IConnectionDialogProfile[] = [];
         for (let i = 0; i < recentConnections.length; i++) {
             dialogConnections.push(
@@ -424,8 +457,13 @@ export class ConnectionDialogWebviewController extends ReactWebviewPanelControll
                     }),
                 };
             default:
-                ConnectionDialogWebviewController._logger.log(
-                    `Unhandled connection option type: ${connOption.valueType}`,
+                const error = `Unhandled connection option type: ${connOption.valueType}`;
+                ConnectionDialogWebviewController._logger.log(error);
+                sendErrorEvent(
+                    TelemetryViews.ConnectionDialog,
+                    TelemetryActions.LoadConnectionProperties,
+                    new Error(error),
+                    true, // includeErrorMessage
                 );
         }
     }
@@ -865,6 +903,11 @@ export class ConnectionDialogWebviewController extends ReactWebviewPanelControll
         });
 
         this.registerReducer("loadConnection", async (state, payload) => {
+            sendActionEvent(
+                TelemetryViews.ConnectionDialog,
+                TelemetryActions.LoadConnection,
+            );
+
             this._connectionToEditCopy = structuredClone(payload.connection);
             this.clearFormError();
             this.state.connectionProfile = payload.connection;
@@ -921,17 +964,70 @@ export class ConnectionDialogWebviewController extends ReactWebviewPanelControll
                             this.state.connectionStatus = ApiStatus.Error;
                             this.state.trustServerCertError =
                                 result.errorMessage;
+
+                            // connection failing because the user didn't trust the server cert is not an error worth logging;
+                            // just prompt the user to trust the cert
+
                             return state;
                         }
+
                         this.state.formError = result.errorMessage;
                         this.state.connectionStatus = ApiStatus.Error;
+
+                        sendActionEvent(
+                            TelemetryViews.ConnectionDialog,
+                            TelemetryActions.CreateConnection,
+                            {
+                                result: "connectionError",
+                                errorNumber: String(result.errorNumber),
+                                newOrEditedConnection: this
+                                    ._connectionToEditCopy
+                                    ? "edited"
+                                    : "new",
+                                connectionInputType:
+                                    this.state.selectedInputMode,
+                                authMode:
+                                    this.state.connectionProfile
+                                        .authenticationType,
+                            },
+                        );
+
                         return state;
                     }
                 } catch (error) {
                     this.state.formError = getErrorMessage(error);
                     this.state.connectionStatus = ApiStatus.Error;
+
+                    sendErrorEvent(
+                        TelemetryViews.ConnectionDialog,
+                        TelemetryActions.CreateConnection,
+                        error,
+                        false, // includeErrorMessage
+                        undefined, // errorCode
+                        undefined, // errorType
+                        {
+                            connectionInputType: this.state.selectedInputMode,
+                            authMode:
+                                this.state.connectionProfile.authenticationType,
+                        },
+                    );
+
                     return state;
                 }
+
+                sendActionEvent(
+                    TelemetryViews.ConnectionDialog,
+                    TelemetryActions.CreateConnection,
+                    {
+                        result: "success",
+                        newOrEditedConnection: this._connectionToEditCopy
+                            ? "edited"
+                            : "new",
+                        connectionInputType: this.state.selectedInputMode,
+                        authMode:
+                            this.state.connectionProfile.authenticationType,
+                    },
+                );
 
                 if (this._connectionToEditCopy) {
                     await this._mainController.connectionManager.getUriForConnection(
@@ -968,8 +1064,23 @@ export class ConnectionDialogWebviewController extends ReactWebviewPanelControll
                 });
                 await this.panel.dispose();
                 await UserSurvey.getInstance().promptUserForNPSFeedback();
-            } catch {
+            } catch (error) {
                 this.state.connectionStatus = ApiStatus.Error;
+
+                sendErrorEvent(
+                    TelemetryViews.ConnectionDialog,
+                    TelemetryActions.CreateConnection,
+                    error,
+                    undefined, // includeErrorMessage
+                    undefined, // errorCode
+                    undefined, // errorType
+                    {
+                        connectionInputType: this.state.selectedInputMode,
+                        authMode:
+                            this.state.connectionProfile.authenticationType,
+                    },
+                );
+
                 return state;
             }
             return state;
@@ -1068,6 +1179,7 @@ export class ConnectionDialogWebviewController extends ReactWebviewPanelControll
         state: ConnectionDialogWebviewState,
     ): Promise<void> {
         try {
+            const startTime = Date.now();
             const tenantSubMap = await this.loadAzureSubscriptions(state);
 
             if (!tenantSubMap) {
@@ -1095,6 +1207,16 @@ export class ConnectionDialogWebviewController extends ReactWebviewPanelControll
                 }
                 await Promise.all(promiseArray);
 
+                sendActionEvent(
+                    TelemetryViews.ConnectionDialog,
+                    TelemetryActions.LoadAzureServers,
+                    undefined, // additionalProperties
+                    {
+                        subscriptionCount: promiseArray.length,
+                        msToLoadServers: Date.now() - startTime,
+                    },
+                );
+
                 state.loadingAzureServersStatus = ApiStatus.Loaded;
                 return;
             }
@@ -1102,6 +1224,19 @@ export class ConnectionDialogWebviewController extends ReactWebviewPanelControll
             state.formError = l10n.t("Error loading Azure databases.");
             state.loadingAzureServersStatus = ApiStatus.Error;
             console.error(state.formError + "\n" + getErrorMessage(error));
+
+            sendErrorEvent(
+                TelemetryViews.ConnectionDialog,
+                TelemetryActions.LoadAzureServers,
+                error,
+                true, // includeErrorMessage
+                undefined, // errorCode
+                undefined, // errorType
+                {
+                    connectionInputType: this.state.selectedInputMode,
+                },
+            );
+
             return;
         }
     }
@@ -1116,7 +1251,7 @@ export class ConnectionDialogWebviewController extends ReactWebviewPanelControll
         );
 
         try {
-            const servers = await this.fetchServersFromAzure(azSub);
+            const servers = await fetchServersFromAzure(azSub);
             state.azureServers.push(...servers);
             stateSub.loaded = true;
             this.updateState();
@@ -1131,6 +1266,15 @@ export class ConnectionDialogWebviewController extends ReactWebviewPanelControll
                 ),
                 +"\n" + getErrorMessage(error),
             );
+
+            sendErrorEvent(
+                TelemetryViews.ConnectionDialog,
+                TelemetryActions.LoadAzureServers,
+                error,
+                true, // includeErrorMessage
+                undefined, // errorCode
+                undefined, // errorType
+            );
         }
     }
 
@@ -1143,75 +1287,5 @@ export class ConnectionDialogWebviewController extends ReactWebviewPanelControll
             rv.get(keyValue)!.push(x);
             return rv;
         }, new Map<K, V[]>());
-    }
-
-    private async fetchServersFromAzure(
-        sub: AzureSubscription,
-    ): Promise<AzureSqlServerInfo[]> {
-        const result: AzureSqlServerInfo[] = [];
-        const client = new ResourceManagementClient(
-            sub.credential,
-            sub.subscriptionId,
-        );
-        const servers = await listAllIterator<GenericResourceExpanded>(
-            client.resources.list({
-                filter: "resourceType eq 'Microsoft.Sql/servers'",
-            }),
-        );
-        const databasesPromise = listAllIterator<GenericResourceExpanded>(
-            client.resources.list({
-                filter: "resourceType eq 'Microsoft.Sql/servers/databases'",
-            }),
-        );
-
-        for (const server of servers) {
-            result.push({
-                server: server.name,
-                databases: [],
-                location: server.location,
-                resourceGroup: this.extractFromResourceId(
-                    server.id,
-                    "resourceGroups",
-                ),
-                subscription: `${sub.name} (${sub.subscriptionId})`,
-            });
-        }
-
-        for (const database of await databasesPromise) {
-            const serverName = this.extractFromResourceId(
-                database.id,
-                "servers",
-            );
-            const server = result.find((s) => s.server === serverName);
-            if (server) {
-                server.databases.push(
-                    database.name.substring(serverName.length + 1),
-                ); // database.name is in the form 'serverName/databaseName', so we need to remove the server name and slash
-            }
-        }
-
-        return result;
-    }
-
-    private extractFromResourceId(
-        resourceId: string,
-        property: string,
-    ): string | undefined {
-        if (!property.endsWith("/")) {
-            property += "/";
-        }
-
-        let startIndex = resourceId.indexOf(property);
-
-        if (startIndex === -1) {
-            return undefined;
-        } else {
-            startIndex += property.length;
-        }
-
-        return resourceId.substring(
-            startIndex,
-            resourceId.indexOf("/", startIndex),
-        );
     }
 }

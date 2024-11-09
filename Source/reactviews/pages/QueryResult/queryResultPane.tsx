@@ -9,18 +9,19 @@ import {
     Link,
     Tab,
     TabList,
-    Table,
-    TableBody,
-    TableCell,
     TableColumnDefinition,
     TableColumnSizingOptions,
-    TableRow,
     createTableColumn,
     makeStyles,
     shorthands,
-    useTableColumnSizing_unstable,
-    useTableFeatures,
 } from "@fluentui/react-components";
+import {
+    DataGridBody,
+    DataGrid,
+    DataGridRow,
+    DataGridCell,
+    RowRenderer,
+} from "@fluentui-contrib/react-data-grid-react-window";
 import { useContext, useEffect, useRef, useState } from "react";
 import { OpenFilled } from "@fluentui/react-icons";
 import { QueryResultContext } from "./queryResultStateProvider";
@@ -84,13 +85,9 @@ const useStyles = makeStyles({
         },
     },
     messagesRows: {
-        height: "18px",
+        lineHeight: "18px",
         fontSize: "12px",
         flexDirection: "row",
-        ...shorthands.padding("10px"),
-        "> *": {
-            marginRight: "10px",
-        },
         borderBottom: "none",
     },
     noResultMessage: {
@@ -107,10 +104,10 @@ const useStyles = makeStyles({
 const MIN_GRID_HEIGHT = 273; // Minimum height for a grid
 
 function getAvailableHeight(
-    gridParent: HTMLDivElement,
+    resultPaneParent: HTMLDivElement,
     ribbonRef: HTMLDivElement,
 ) {
-    return gridParent.clientHeight - ribbonRef.clientHeight;
+    return resultPaneParent.clientHeight - ribbonRef.clientHeight;
 }
 
 export const QueryResultPane = () => {
@@ -122,18 +119,10 @@ export const QueryResultPane = () => {
     >();
     webViewState;
     var metadata = state?.state;
-    const columnsDef: TableColumnDefinition<qr.IMessage>[] = [
-        createTableColumn({
-            columnId: "time",
-            renderHeaderCell: () => <>{locConstants.queryResult.timestamp}</>,
-        }),
-        createTableColumn({
-            columnId: "message",
-            renderHeaderCell: () => <>{locConstants.queryResult.message}</>,
-        }),
-    ];
-    const gridParentRef = useRef<HTMLDivElement>(null);
+    const resultPaneParentRef = useRef<HTMLDivElement>(null);
     const ribbonRef = useRef<HTMLDivElement>(null);
+    const gridParentRef = useRef<HTMLDivElement>(null);
+    const [messageGridHeight, setMessageGridHeight] = useState(0);
     // Resize grid when parent element resizes
     useEffect(() => {
         let gridCount = 0;
@@ -144,8 +133,8 @@ export const QueryResultPane = () => {
             return; // Exit if there are no grids to render
         }
 
-        const gridParent = gridParentRef.current;
-        if (!gridParent) {
+        const resultPaneParent = resultPaneParentRef.current;
+        if (!resultPaneParent) {
             return;
         }
         const observer = new ResizeObserver(() => {
@@ -154,79 +143,75 @@ export const QueryResultPane = () => {
             }
 
             const availableHeight = getAvailableHeight(
-                gridParent,
+                resultPaneParent,
                 ribbonRef.current,
             );
-
-            if (gridParent.clientWidth && availableHeight) {
+            setMessageGridHeight(availableHeight);
+            if (resultPaneParent.clientWidth && availableHeight) {
+                const gridHeight = calculateGridHeight(
+                    gridCount,
+                    availableHeight,
+                );
+                const gridWidth = calculateGridWidth(
+                    resultPaneParent,
+                    gridCount,
+                    availableHeight,
+                );
                 if (gridCount > 1) {
-                    let scrollbarAdjustment =
-                        gridCount * MIN_GRID_HEIGHT >= availableHeight
-                            ? SCROLLBAR_PX
-                            : 0;
-
-                    // Calculate the grid height, ensuring it's not smaller than the minimum height
-                    const gridHeight = Math.max(
-                        (availableHeight - gridCount * TABLE_ALIGN_PX) /
-                            gridCount,
-                        MIN_GRID_HEIGHT,
-                    );
-
                     gridRefs.current.forEach((gridRef) => {
-                        gridRef?.resizeGrid(
-                            gridParent.clientWidth -
-                                ACTIONBAR_WIDTH_PX -
-                                scrollbarAdjustment,
-                            gridHeight,
-                        );
+                        gridRef?.resizeGrid(gridWidth, gridHeight);
                     });
                 } else if (gridCount === 1) {
-                    gridRefs.current[0]?.resizeGrid(
-                        gridParent.clientWidth - ACTIONBAR_WIDTH_PX,
-                        availableHeight - TABLE_ALIGN_PX,
-                    );
+                    gridRefs.current[0]?.resizeGrid(gridWidth, gridHeight);
                 }
             }
         });
 
-        observer.observe(gridParent);
+        observer.observe(resultPaneParent);
 
-        return () => observer.disconnect();
-    }, [metadata?.resultSetSummaries]);
-    const [columns] =
-        useState<TableColumnDefinition<qr.IMessage>[]>(columnsDef);
-    const items = metadata?.messages ?? [];
+        return () => {
+            observer.disconnect();
+        };
+    }, [metadata?.resultSetSummaries, resultPaneParentRef.current]);
 
-    const sizingOptions: TableColumnSizingOptions = {
-        time: {
-            minWidth: 100,
-            idealWidth: 100,
-            defaultWidth: 100,
-        },
-        message: {
-            minWidth: 500,
-            idealWidth: 500,
-            defaultWidth: 500,
-        },
+    const calculateGridHeight = (
+        gridCount: number,
+        availableHeight: number,
+    ) => {
+        if (gridCount > 1) {
+            // Calculate the grid height, ensuring it's not smaller than the minimum height
+            return Math.max(
+                (availableHeight - gridCount * TABLE_ALIGN_PX) / gridCount,
+                MIN_GRID_HEIGHT,
+            );
+        }
+        // gridCount is 1
+        return Math.max(availableHeight - TABLE_ALIGN_PX, MIN_GRID_HEIGHT);
     };
 
-    const [columnSizingOption] =
-        useState<TableColumnSizingOptions>(sizingOptions);
-    const { getRows, columnSizing_unstable, tableRef } = useTableFeatures(
-        {
-            columns,
-            items: items,
-        },
-        [
-            useTableColumnSizing_unstable({
-                columnSizingOptions: columnSizingOption,
-            }),
-        ],
-    );
-    const rows = getRows();
+    const calculateGridWidth = (
+        resultPaneParent: HTMLDivElement,
+        gridCount: number,
+        availableHeight: number,
+    ) => {
+        if (gridCount > 1) {
+            let scrollbarAdjustment =
+                gridCount * MIN_GRID_HEIGHT >= availableHeight
+                    ? SCROLLBAR_PX
+                    : 0;
 
+            return (
+                resultPaneParent.clientWidth -
+                ACTIONBAR_WIDTH_PX -
+                scrollbarAdjustment
+            );
+        }
+        // gridCount is 1
+        return resultPaneParent.clientWidth - ACTIONBAR_WIDTH_PX;
+    };
+
+    //#region Result Grid
     const gridRefs = useRef<ResultGridHandle[]>([]);
-
     const renderGrid = (
         batchId: number,
         resultId: number,
@@ -234,7 +219,23 @@ export const QueryResultPane = () => {
     ) => {
         const divId = `grid-parent-${batchId}-${resultId}`;
         return (
-            <div id={divId} className={classes.queryResultContainer}>
+            <div
+                id={divId}
+                className={classes.queryResultContainer}
+                ref={gridParentRef}
+                style={{
+                    height:
+                        resultPaneParentRef.current && ribbonRef.current
+                            ? `${calculateGridHeight(
+                                  getAvailableHeight(
+                                      resultPaneParentRef.current!,
+                                      ribbonRef.current!,
+                                  ) - TABLE_ALIGN_PX,
+                                  gridCount,
+                              )}px`
+                            : "",
+                }}
+            >
                 <ResultGrid
                     loadFunc={(
                         offset: number,
@@ -286,7 +287,7 @@ export const QueryResultPane = () => {
                     resultSetSummary={
                         metadata?.resultSetSummaries[batchId][resultId]
                     }
-                    divId={divId}
+                    gridParentRef={gridParentRef}
                     uri={metadata?.uri}
                     webViewState={webViewState}
                 />
@@ -302,6 +303,7 @@ export const QueryResultPane = () => {
 
     const renderGridPanel = () => {
         const grids = [];
+        gridRefs.current.forEach((r) => r?.refreshGrid());
         let count = 0;
         for (
             let i = 0;
@@ -316,13 +318,116 @@ export const QueryResultPane = () => {
         }
         return grids;
     };
+    //#endregion
 
+    //#region Message Grid
+    const columnsDef: TableColumnDefinition<qr.IMessage>[] = [
+        createTableColumn({
+            columnId: "time",
+            renderHeaderCell: () => <>{locConstants.queryResult.timestamp}</>,
+            renderCell: (item) => (
+                <>{item.batchId === undefined ? item.time : null}</>
+            ),
+        }),
+        createTableColumn({
+            columnId: "message",
+            renderHeaderCell: () => <>{locConstants.queryResult.message}</>,
+            renderCell: (item) => {
+                if (item.link?.text && item.selection) {
+                    return (
+                        <div>
+                            {item.message}{" "}
+                            <Link
+                                onClick={async () => {
+                                    await webViewState.extensionRpc.call(
+                                        "setEditorSelection",
+                                        {
+                                            uri: metadata?.uri,
+                                            selectionData: item.selection,
+                                        },
+                                    );
+                                }}
+                                inline
+                                style={{ fontSize: "12px" }}
+                            >
+                                {item?.link?.text}
+                            </Link>
+                        </div>
+                    );
+                } else {
+                    return <>{item.message}</>;
+                }
+            },
+        }),
+    ];
+    const renderRow: RowRenderer<qr.IMessage> = ({ item, rowId }, style) => (
+        <DataGridRow<qr.IMessage>
+            key={rowId}
+            style={style}
+            className={classes.messagesRows}
+        >
+            {({ renderCell }) => (
+                <DataGridCell focusMode="group" style={{ minHeight: "18px" }}>
+                    {renderCell(item)}
+                </DataGridCell>
+            )}
+        </DataGridRow>
+    );
+
+    const [columns] =
+        useState<TableColumnDefinition<qr.IMessage>[]>(columnsDef);
+    const items = metadata?.messages ?? [];
+
+    const sizingOptions: TableColumnSizingOptions = {
+        time: {
+            minWidth: 100,
+            idealWidth: 100,
+            defaultWidth: 100,
+        },
+        message: {
+            minWidth: 500,
+            idealWidth: 500,
+            defaultWidth: 500,
+        },
+    };
+
+    const [columnSizingOption] =
+        useState<TableColumnSizingOptions>(sizingOptions);
+
+    const renderMessageGrid = () => {
+        return (
+            <DataGrid
+                items={items}
+                columns={columns}
+                focusMode="cell"
+                resizableColumns
+                columnSizingOptions={columnSizingOption}
+            >
+                <DataGridBody<qr.IMessage>
+                    itemSize={18}
+                    height={messageGridHeight}
+                >
+                    {renderRow}
+                </DataGridBody>
+            </DataGrid>
+        );
+    };
+    //#endregion
+
+    //#region Query Plan
     useEffect(() => {
         // gets execution plans
-        if (metadata && metadata.uri) {
-            state!.provider.getExecutionPlan(metadata!.uri!);
+        if (
+            state &&
+            metadata &&
+            metadata.uri &&
+            metadata.executionPlanState &&
+            !metadata.executionPlanState.executionPlanGraphs!.length
+        ) {
+            state.provider.getExecutionPlan(metadata.uri);
         }
-    });
+    }, [metadata?.executionPlanState?.xmlPlans]);
+    //#endregion
 
     return !metadata || !hasResultsOrMessages(metadata) ? (
         <div>
@@ -343,7 +448,7 @@ export const QueryResultPane = () => {
             </div>
         </div>
     ) : (
-        <div className={classes.root} ref={gridParentRef}>
+        <div className={classes.root} ref={resultPaneParentRef}>
             <div className={classes.ribbon} ref={ribbonRef}>
                 <TabList
                     size="medium"
@@ -413,66 +518,7 @@ export const QueryResultPane = () => {
                             uri: metadata?.uri,
                         })}
                     >
-                        <Table
-                            size="small"
-                            as="table"
-                            {...columnSizing_unstable.getTableProps()}
-                            ref={tableRef}
-                        >
-                            <TableBody>
-                                {rows.map((row, index) => {
-                                    return (
-                                        <TableRow
-                                            key={index}
-                                            className={classes.messagesRows}
-                                        >
-                                            <TableCell
-                                                {...columnSizing_unstable.getTableCellProps(
-                                                    "time",
-                                                )}
-                                            >
-                                                {row.item.batchId === undefined
-                                                    ? row.item.time
-                                                    : null}
-                                            </TableCell>
-                                            <TableCell
-                                                {...columnSizing_unstable.getTableCellProps(
-                                                    "message",
-                                                )}
-                                            >
-                                                {row.item.message}
-                                                {row.item.link?.text &&
-                                                    row.item.selection && (
-                                                        <>
-                                                            {" "}
-                                                            <Link
-                                                                onClick={async () => {
-                                                                    await webViewState.extensionRpc.call(
-                                                                        "setEditorSelection",
-                                                                        {
-                                                                            uri: metadata?.uri,
-                                                                            selectionData:
-                                                                                row
-                                                                                    .item
-                                                                                    .selection,
-                                                                        },
-                                                                    );
-                                                                }}
-                                                            >
-                                                                {
-                                                                    row.item
-                                                                        ?.link
-                                                                        ?.text
-                                                                }
-                                                            </Link>
-                                                        </>
-                                                    )}
-                                            </TableCell>
-                                        </TableRow>
-                                    );
-                                })}
-                            </TableBody>
-                        </Table>
+                        {renderMessageGrid()}
                     </div>
                 )}
                 {metadata.tabStates!.resultPaneTab ===

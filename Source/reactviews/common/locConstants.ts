@@ -210,13 +210,6 @@ export class LocConstants {
             default: l10n.t("Default"),
             deleteSavedConnection: l10n.t("Delete saved connection"),
             removeRecentConnection: l10n.t("Remove recent connection"),
-            deleteTheSavedConnection: (connectionName: string) => {
-                return l10n.t({
-                    message: "delete the saved connection: {0}?",
-                    args: [connectionName],
-                    comment: ["{0} is the connection name"],
-                });
-            },
         };
     }
 
@@ -298,7 +291,7 @@ export class LocConstants {
             messages: l10n.t("Messages"),
             timestamp: l10n.t("Timestamp"),
             message: l10n.t("Message"),
-            openSnapshot: l10n.t("Open snapshot in a new tab"),
+            openResultInNewTab: l10n.t("Open in New Tab"),
             showplanXML: l10n.t("Showplan XML"),
             showFilter: l10n.t("Show Filter"),
             sortAscending: l10n.t("Sort Ascending"),

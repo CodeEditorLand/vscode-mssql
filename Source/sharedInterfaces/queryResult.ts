@@ -32,10 +32,11 @@ export interface QueryResultReactProvider
     getExecutionPlan(uri: string): void;
 
     /**
-     * Gets the execution plan graph from the provider for a given plan file
-     * @param plan the xml plan contents to be added
+     * Opens a file of type with with specified content
+     * @param content the content of the file
+     * @param type the type of file to open
      */
-    addXmlPlan(plan: string): void;
+    openFileThroughLink(content: string, type: string): void;
 }
 
 export enum QueryResultPaneTabs {
@@ -44,12 +45,18 @@ export enum QueryResultPaneTabs {
     ExecutionPlan = "executionPlan",
 }
 
+export enum QueryResultWebviewLocation {
+    Panel = "panel", // VSCode panel area (Terminal, Debug Console, etc.), it's not related to the webview panel.
+    Document = "document", // VSCode document area (editor area)
+}
+
 export interface QueryResultTabStates {
     resultPaneTab: QueryResultPaneTabs;
 }
 
 export interface QueryResultWebviewState extends ExecutionPlanWebviewState {
     uri?: string;
+    title?: string;
     resultSetSummaries: Record<number, Record<number, ResultSetSummary>>;
     messages: IMessage[];
     tabStates?: QueryResultTabStates;
@@ -72,12 +79,13 @@ export interface QueryResultReducers
         uri: string;
     };
     /**
-     * Adds an xml plan to the current execution plan state.
-     * This is useful for multi-result sets
-     * @param xmlPlans  the xml plan to add
+     * Opens a file of type with with specified content
+     * @param content the content of the file
+     * @param type the type of file to open
      */
-    addXmlPlan: {
-        xmlPlan: string;
+    openFileThroughLink: {
+        content: string;
+        type: string;
     };
 }
 

@@ -229,12 +229,6 @@
   "Default": "Default",
   "Delete saved connection": "Delete saved connection",
   "Remove recent connection": "Remove recent connection",
-  "delete the saved connection: {0}?/{0} is the connection name": {
-    "message": "delete the saved connection: {0}?",
-    "comment": [
-      "{0} is the connection name"
-    ]
-  },
   "Query {0}:  Query cost (relative to the script):  {1}%/{0} is the query number{1} is the query cost": {
     "message": "Query {0}:  Query cost (relative to the script):  {1}%",
     "comment": [
@@ -282,7 +276,7 @@
   "Messages": "Messages",
   "Timestamp": "Timestamp",
   "Message": "Message",
-  "Open snapshot in a new tab": "Open snapshot in a new tab",
+  "Open in New Tab": "Open in New Tab",
   "Showplan XML": "Showplan XML",
   "Show Filter": "Show Filter",
   "Sort Ascending": "Sort Ascending",
@@ -296,6 +290,12 @@
   "Select All": "Select All",
   "Copy with Headers": "Copy with Headers",
   "Copy Headers": "Copy Headers",
+  "{0} (Preview)/{0} is the editor title": {
+    "message": "{0} (Preview)",
+    "comment": [
+      "{0} is the editor title"
+    ]
+  },
   "Object Explorer Filter (Preview)": "Object Explorer Filter (Preview)",
   "{0} (filtered)": "{0} (filtered)",
   "{0} (Preview)/{0} is the file name": {
@@ -719,6 +719,9 @@
   "SQL Plan Files": "SQL Plan Files",
   "Script copied to clipboard": "Script copied to clipboard",
   "Copied": "Copied",
+  "Do you want to always display query results in a new tab instead of the query pane?": "Do you want to always display query results in a new tab instead of the query pane?",
+  "Always show in new tab": "Always show in new tab",
+  "Keep in query pane": "Keep in query pane",
   "The MSSQL for VS Code extension is introducing new modern data development features! Would you like to enable them? [Learn more]({0})/{0} is a url to learn more about the new features": {
     "message": "The MSSQL for VS Code extension is introducing new modern data development features! Would you like to enable them? [Learn more]({0})",
     "comment": [
@@ -744,6 +747,12 @@
     "comment": [
       "{0} is the subscription name",
       "{1} is the subscription id"
+    ]
+  },
+  "delete the saved connection: {0}?/{0} is the connection name": {
+    "message": "delete the saved connection: {0}?",
+    "comment": [
+      "{0} is the connection name"
     ]
   },
   "How likely it is that you would recommend the MSSQL extension to a friend or colleague?": "How likely it is that you would recommend the MSSQL extension to a friend or colleague?",

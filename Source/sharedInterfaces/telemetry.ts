@@ -50,6 +50,8 @@ export enum TelemetryActions {
     CopyResultsHeaders = "CopyResultsHeaders",
     CopyHeaders = "CopyHeaders",
     EnableRichExperiencesPrompt = "EnableRichExperiencesPrompt",
+    OpenQueryResultsInTabByDefaultPrompt = "OpenQueryResultsInTabByDefaultPrompt",
+    OpenQueryResult = "OpenQueryResult",
     Restore = "Restore",
     LoadConnection = "LoadConnection",
     LoadAzureServers = "LoadAzureServers",
@@ -57,6 +59,9 @@ export enum TelemetryActions {
     LoadRecentConnections = "LoadRecentConnections",
     LoadAzureSubscriptions = "LoadAzureSubscriptions",
     OpenExecutionPlan = "OpenExecutionPlan",
+    LoadAzureAccountsForEntraAuth = "LoadAzureAccountsForEntraAuth",
+    LoadAzureTenantsForEntraAuth = "LoadAzureTenantsForEntraAuth",
+    LoadConnections = "LoadConnections",
 }
 
 /**

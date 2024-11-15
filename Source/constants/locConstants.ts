@@ -644,6 +644,12 @@ export let executionPlanFileFilter = l10n.t("SQL Plan Files");
 export let scriptCopiedToClipboard = l10n.t("Script copied to clipboard");
 export let copied = l10n.t("Copied");
 
+export let openQueryResultsInTabByDefaultPrompt = l10n.t(
+    "Do you want to always display query results in a new tab instead of the query pane?",
+);
+export let alwaysShowInNewTab = l10n.t("Always show in new tab");
+export let keepInQueryPane = l10n.t("Keep in query pane");
+
 export function enableRichExperiencesPrompt(learnMoreUrl: string) {
     return l10n.t({
         message:
@@ -688,6 +694,13 @@ export class ConnectionDialog {
             ],
         });
     }
+    public static deleteTheSavedConnection = (connectionName: string) => {
+        return l10n.t({
+            message: "delete the saved connection: {0}?",
+            args: [connectionName],
+            comment: ["{0} is the connection name"],
+        });
+    };
 }
 
 export class UserSurvey {
@@ -730,6 +743,15 @@ export class Common {
     public static remindMeLater = l10n.t("Remind Me Later");
     public static dontShowAgain = l10n.t("Don't Show Again");
     public static learnMore = l10n.t("Learn More");
+    public static delete = l10n.t("Delete");
+    public static cancel = l10n.t("Cancel");
+    public static areYouSure = l10n.t("Are you sure?");
+    public static areYouSureYouWantTo = (action: string) =>
+        l10n.t({
+            message: "Are you sure you want to {0}?",
+            args: [action],
+            comment: ["{0} is the action being confirmed"],
+        });
 }
 
 export class Webview {

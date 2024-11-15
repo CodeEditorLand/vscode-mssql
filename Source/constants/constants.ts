@@ -192,6 +192,12 @@ export const configEnableRichExperiences = "mssql.enableRichExperiences";
 export const configEnableRichExperiencesDoNotShowPrompt =
     "mssql.enableRichExperiencesDoNotShowPrompt";
 export const richFeaturesLearnMoreLink = "https://aka.ms/mssql-rich-features";
+export const configOpenQueryResultsInTabByDefault =
+    "mssql.openQueryResultsInTabByDefault";
+export const configEnableNewQueryResultFeature =
+    "mssql.enableNewQueryResultFeature";
+export const configOpenQueryResultsInTabByDefaultDoNotShowPrompt =
+    "mssql.openQueryResultsInTabByDefaultDoNotShowPrompt";
 
 // ToolsService Constants
 export const serviceInstallingTo = "Installing SQL tools service to";

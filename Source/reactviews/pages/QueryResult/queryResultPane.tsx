@@ -5,7 +5,6 @@
 
 import {
     Button,
-    Divider,
     Link,
     Tab,
     TabList,
@@ -23,7 +22,7 @@ import {
     RowRenderer,
 } from "@fluentui-contrib/react-data-grid-react-window";
 import { useContext, useEffect, useRef, useState } from "react";
-import { OpenFilled } from "@fluentui/react-icons";
+import { OpenRegular } from "@fluentui/react-icons";
 import { QueryResultContext } from "./queryResultStateProvider";
 import * as qr from "../../../sharedInterfaces/queryResult";
 import { useVscodeWebview } from "../../common/vscodeWebviewProvider";
@@ -186,7 +185,7 @@ export const QueryResultPane = () => {
             );
         }
         // gridCount is 1
-        return Math.max(availableHeight - TABLE_ALIGN_PX, MIN_GRID_HEIGHT);
+        return availableHeight - TABLE_ALIGN_PX;
     };
 
     const calculateGridWidth = (
@@ -208,6 +207,12 @@ export const QueryResultPane = () => {
         }
         // gridCount is 1
         return resultPaneParent.clientWidth - ACTIONBAR_WIDTH_PX;
+    };
+
+    const linkHandler = (fileContent: string, fileType: string) => {
+        if (state) {
+            state.provider.openFileThroughLink(fileContent, fileType);
+        }
     };
 
     //#region Result Grid
@@ -290,6 +295,7 @@ export const QueryResultPane = () => {
                     gridParentRef={gridParentRef}
                     uri={metadata?.uri}
                     webViewState={webViewState}
+                    linkHandler={linkHandler}
                 />
                 <CommandBar
                     uri={metadata?.uri}
@@ -305,14 +311,12 @@ export const QueryResultPane = () => {
         const grids = [];
         gridRefs.current.forEach((r) => r?.refreshGrid());
         let count = 0;
-        for (
-            let i = 0;
-            i < Object.keys(metadata?.resultSetSummaries ?? []).length;
-            i++
-        ) {
-            var batch = metadata?.resultSetSummaries[i];
-            for (let j = 0; j < Object.keys(batch ?? []).length; j++) {
-                grids.push(renderGrid(i, j, count));
+        for (const batchIdStr in metadata?.resultSetSummaries ?? {}) {
+            const batchId = parseInt(batchIdStr);
+            for (const resultIdStr in metadata?.resultSetSummaries[batchId] ??
+                {}) {
+                const resultId = parseInt(resultIdStr);
+                grids.push(renderGrid(batchId, resultId, count));
                 count++;
             }
         }
@@ -420,6 +424,7 @@ export const QueryResultPane = () => {
         if (
             state &&
             metadata &&
+            metadata.isExecutionPlan &&
             metadata.uri &&
             metadata.executionPlanState &&
             !metadata.executionPlanState.executionPlanGraphs!.length
@@ -428,6 +433,23 @@ export const QueryResultPane = () => {
         }
     }, [metadata?.executionPlanState?.xmlPlans]);
     //#endregion
+
+    const getWebviewLocation = async () => {
+        const res = (await webViewState.extensionRpc.call(
+            "getWebviewLocation",
+            {
+                uri: metadata?.uri,
+            },
+        )) as string;
+        setWebviewLocation(res);
+    };
+    const [webviewLocation, setWebviewLocation] = useState("");
+    useEffect(() => {
+        getWebviewLocation().catch((e) => {
+            console.error(e);
+            setWebviewLocation("panel");
+        });
+    }, []);
 
     return !metadata || !hasResultsOrMessages(metadata) ? (
         <div>
@@ -484,23 +506,19 @@ export const QueryResultPane = () => {
                             </Tab>
                         )}
                 </TabList>
-                {false && ( // hide divider until we implement snapshot
-                    <Divider
-                        vertical
-                        style={{
-                            flex: "0",
-                        }}
-                    />
-                )}
-                {false && ( // hide button until we implement snapshot
+                {webviewLocation === "panel" && (
                     <Button
-                        appearance="transparent"
-                        icon={<OpenFilled />}
+                        icon={<OpenRegular />}
+                        appearance="subtle"
                         onClick={async () => {
-                            console.log("todo: open in new tab");
-                            // gridRef.current.refreshGrid();
+                            await webViewState.extensionRpc.call(
+                                "openInNewTab",
+                                {
+                                    uri: metadata?.uri,
+                                },
+                            );
                         }}
-                        title={locConstants.queryResult.openSnapshot}
+                        title={locConstants.queryResult.openResultInNewTab}
                     ></Button>
                 )}
             </div>
@@ -523,7 +541,7 @@ export const QueryResultPane = () => {
                 )}
                 {metadata.tabStates!.resultPaneTab ===
                     qr.QueryResultPaneTabs.ExecutionPlan &&
-                    Object.keys(metadata.resultSetSummaries).length > 0 && (
+                    metadata.isExecutionPlan && (
                         <div
                             id={"executionPlanResultsTab"}
                             className={classes.queryResultContainer}

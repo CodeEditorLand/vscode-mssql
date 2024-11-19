@@ -1423,7 +1423,7 @@
 		"@fluentui/react-list-preview": "^0.4.1",
 		"@jgoz/esbuild-plugin-typecheck": "^4.0.2",
 		"@monaco-editor/react": "^4.6.0",
-		"@stylistic/eslint-plugin": "^2.10.1",
+		"@stylistic/eslint-plugin": "^2.11.0",
 		"@types/azdata": "^1.46.6",
 		"@types/ejs": "^3.1.5",
 		"@types/eslint__js": "^8.42.3",

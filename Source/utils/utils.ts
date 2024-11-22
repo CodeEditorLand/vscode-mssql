@@ -11,8 +11,10 @@ import { IConnectionInfo } from "vscode-mssql";
 export async function exists(path: string, uri?: vscode.Uri): Promise<boolean> {
     if (uri) {
         const fullPath = vscode.Uri.joinPath(uri, path);
+
         try {
             await vscode.workspace.fs.stat(fullPath);
+
             return true;
         } catch {
             return false;
@@ -20,6 +22,7 @@ export async function exists(path: string, uri?: vscode.Uri): Promise<boolean> {
     } else {
         try {
             await fs.access(path);
+
             return true;
         } catch (e) {
             return false;
@@ -37,7 +40,9 @@ export async function getUniqueFilePath(
     fileExtension: string,
 ): Promise<vscode.Uri> {
     let uniqueFileName: vscode.Uri;
+
     let counter = 1;
+
     if (await exists(`${basename}.${fileExtension}`, folder)) {
         while (await exists(`${basename}${counter}.${fileExtension}`, folder)) {
             counter += 1;
@@ -60,8 +65,10 @@ export async function getUniqueFilePath(
  */
 export function getNonce(): string {
     let text = "";
+
     const possible =
         "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
     for (let i = 0; i < 32; i++) {
         text += possible.charAt(Math.floor(Math.random() * possible.length));
     }
@@ -100,6 +107,7 @@ export async function listAllIterator<T>(
     iterator: PagedAsyncIterableIterator<T>,
 ): Promise<T[]> {
     const resources: T[] = [];
+
     for await (const r of iterator) {
         resources.push(r);
     }

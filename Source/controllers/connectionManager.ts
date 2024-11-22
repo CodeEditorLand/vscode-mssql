@@ -137,6 +137,7 @@ export default class ConnectionManager {
             string,
             Deferred<ConnectionContracts.ConnectionCompleteParams>
         >();
+
         if (!this.client) {
             this.client = SqlToolsServerClient.instance;
         }
@@ -311,6 +312,7 @@ export default class ConnectionManager {
         const connectedCredentials = Object.keys(this._connections).map(
             (uri) => this._connections[uri].credentials,
         );
+
         for (let connectedCredential of connectedCredentials) {
             if (Utils.isSameConnection(credential, connectedCredential)) {
                 return true;
@@ -361,6 +363,7 @@ export default class ConnectionManager {
         includeApplicationName: boolean = true,
     ): Promise<string> {
         const listParams = new ConnectionContracts.GetConnectionStringParams();
+
         if (typeof connectionUriOrDetails === "string") {
             listParams.ownerUri = connectionUriOrDetails;
         } else {
@@ -368,6 +371,7 @@ export default class ConnectionManager {
         }
         listParams.includePassword = includePassword;
         listParams.includeApplicationName = includeApplicationName;
+
         return this.client.sendRequest(
             ConnectionContracts.GetConnectionStringRequest.type,
             listParams,
@@ -427,6 +431,7 @@ export default class ConnectionManager {
     public handleConnectionChangedNotification(): NotificationHandler<ConnectionContracts.ConnectionChangedParams> {
         // Using a lambda here to perform variable capture on the 'this' reference
         const self = this;
+
         return (event: ConnectionContracts.ConnectionChangedParams): void => {
             if (self.isConnected(event.ownerUri)) {
                 let connectionInfo: ConnectionInfo =
@@ -458,10 +463,12 @@ export default class ConnectionManager {
     public handleConnectionCompleteNotification(): NotificationHandler<ConnectionContracts.ConnectionCompleteParams> {
         // Using a lambda here to perform variable capture on the 'this' reference
         const self = this;
+
         return async (
             result: ConnectionContracts.ConnectionCompleteParams,
         ): Promise<void> => {
             let fileUri = result.ownerUri;
+
             let connection = self.getConnectionInfo(fileUri);
             connection.connecting = false;
 
@@ -495,6 +502,7 @@ export default class ConnectionManager {
                     newCredentials,
                     connection.credentials,
                 );
+
                 if (
                     result.connectionSummary &&
                     result.connectionSummary.databaseName
@@ -510,15 +518,18 @@ export default class ConnectionManager {
                     newCredentials,
                     result,
                 );
+
                 const promise = self._uriToConnectionPromiseMap.get(
                     result.ownerUri,
                 );
+
                 if (promise) {
                     promise.resolve(true);
                     self._uriToConnectionPromiseMap.delete(result.ownerUri);
                 }
                 const completePromise =
                     self._uriToConnectionCompleteParamsMap.get(result.ownerUri);
+
                 if (completePromise) {
                     completePromise.resolve(result);
                     self._uriToConnectionCompleteParamsMap.delete(
@@ -527,9 +538,11 @@ export default class ConnectionManager {
                 }
             } else {
                 mruConnection = undefined;
+
                 const promise = self._uriToConnectionPromiseMap.get(
                     result.ownerUri,
                 );
+
                 if (promise) {
                     if (result.errorMessage) {
                         await self.handleConnectionErrors(
@@ -546,6 +559,7 @@ export default class ConnectionManager {
                 }
                 const completePromise =
                     self._uriToConnectionCompleteParamsMap.get(result.ownerUri);
+
                 if (completePromise) {
                     completePromise.resolve(result);
                     self._uriToConnectionCompleteParamsMap.delete(
@@ -633,6 +647,7 @@ export default class ConnectionManager {
                         result.errorNumber,
                         result.errorMessage,
                     );
+
                 if (firewallResult.result && firewallResult.ipAddress) {
                     this.failedUriToFirewallIpMap.set(
                         fileUri,
@@ -658,6 +673,7 @@ export default class ConnectionManager {
             connection.errorMessage = result.errorMessage;
         } else {
             const platformInfo = await PlatformInformation.getCurrent();
+
             if (
                 !platformInfo.isWindows &&
                 result.errorMessage &&
@@ -667,6 +683,7 @@ export default class ConnectionManager {
                     LocalizedConstants.msgConnectionError2(result.errorMessage),
                     LocalizedConstants.macOpenSslHelpButton,
                 );
+
                 if (
                     action &&
                     action === LocalizedConstants.macOpenSslHelpButton
@@ -687,6 +704,7 @@ export default class ConnectionManager {
                     ),
                     LocalizedConstants.macOpenSslHelpButton,
                 );
+
                 if (
                     action &&
                     action === LocalizedConstants.macOpenSslHelpButton
@@ -737,6 +755,7 @@ export default class ConnectionManager {
                 LocalizedConstants.cancel,
             ],
         );
+
         if (selection === LocalizedConstants.enableTrustServerCertificate) {
             if (profile.connectionString) {
                 // Append connection string with encryption options
@@ -769,6 +788,7 @@ export default class ConnectionManager {
             },
         );
         this.failedUriToSSLMap.delete(uri);
+
         return updatedConn;
     }
 
@@ -781,6 +801,7 @@ export default class ConnectionManager {
                 {},
                 newConnection,
             );
+
             try {
                 await this._connectionStore.addRecentlyUsed(connectionToSave);
                 connection.connectHandler(true);
@@ -809,6 +830,7 @@ export default class ConnectionManager {
             ConnectionCredentials.isPasswordBasedConnectionString(
                 credentials.connectionString,
             );
+
         if (isPasswordBased) {
             // save the connection string here
             await this._connectionStore.saveProfileWithConnectionString(
@@ -847,16 +869,19 @@ export default class ConnectionManager {
     // choose database to use on current server from UI
     public async onChooseDatabase(): Promise<boolean> {
         const fileUri = this.vscodeWrapper.activeTextEditorUri;
+
         if (!this.isConnected(fileUri)) {
             this.vscodeWrapper.showWarningMessage(
                 LocalizedConstants.msgChooseDatabaseNotConnected,
             );
+
             return false;
         }
 
         // Get list of databases on current server
         let listParams = new ConnectionContracts.ListDatabasesParams();
         listParams.ownerUri = fileUri;
+
         const result: ConnectionContracts.ListDatabasesResult =
             await this.client.sendRequest(
                 ConnectionContracts.ListDatabasesRequest.type,
@@ -868,6 +893,7 @@ export default class ConnectionManager {
                 this._connections[fileUri].credentials,
                 result.databaseNames,
             );
+
         if (newDatabaseCredentials) {
             this.vscodeWrapper.logToOutputChannel(
                 LocalizedConstants.msgChangingDatabase(
@@ -885,6 +911,7 @@ export default class ConnectionManager {
                     fileUri,
                 ),
             );
+
             return true;
         } else {
             return false;
@@ -898,13 +925,16 @@ export default class ConnectionManager {
      */
     public async listDatabases(connectionUri: string): Promise<string[]> {
         await this.refreshAzureAccountToken(connectionUri);
+
         const listParams = new ConnectionContracts.ListDatabasesParams();
         listParams.ownerUri = connectionUri;
+
         const result: ConnectionContracts.ListDatabasesResult =
             await this.client.sendRequest(
                 ConnectionContracts.ListDatabasesRequest.type,
                 listParams,
             );
+
         return result.databaseNames;
     }
 
@@ -912,10 +942,12 @@ export default class ConnectionManager {
         newDatabaseCredentials: IConnectionInfo,
     ): Promise<boolean> {
         const fileUri = this.vscodeWrapper.activeTextEditorUri;
+
         if (!this.isConnected(fileUri)) {
             this.vscodeWrapper.showWarningMessage(
                 LocalizedConstants.msgChooseDatabaseNotConnected,
             );
+
             return false;
         }
         await this.disconnect(fileUri);
@@ -927,6 +959,7 @@ export default class ConnectionManager {
                 fileUri,
             ),
         );
+
         return true;
     }
 
@@ -935,6 +968,7 @@ export default class ConnectionManager {
         isSqlCmd: boolean = false,
     ): Promise<boolean> {
         const fileUri = this._vscodeWrapper.activeTextEditorUri;
+
         if (fileUri && this._vscodeWrapper.isEditingSqlFile) {
             if (isSqlCmdMode) {
                 SqlToolsServerClient.instance.sendNotification(
@@ -946,9 +980,11 @@ export default class ConnectionManager {
                         flavor: "MSSQL",
                     },
                 );
+
                 return true;
             }
             const flavor = await this._connectionUI.promptLanguageFlavor();
+
             if (!flavor) {
                 return false;
             }
@@ -961,11 +997,13 @@ export default class ConnectionManager {
                     flavor: flavor,
                 },
             );
+
             return true;
         } else {
             await this._vscodeWrapper.showWarningMessage(
                 LocalizedConstants.msgOpenSqlFile,
             );
+
             return false;
         }
     }
@@ -985,6 +1023,7 @@ export default class ConnectionManager {
                     ConnectionContracts.DisconnectRequest.type,
                     disconnectParams,
                 );
+
             if (this.statusView) {
                 this.statusView.notConnected(fileUri);
             }
@@ -1000,10 +1039,12 @@ export default class ConnectionManager {
                 "mssql.connections",
                 this._connections,
             );
+
             return result;
         } else if (this.isConnecting(fileUri)) {
             // Prompt the user to cancel connecting
             await this.onCancelConnect();
+
             return true;
         } else {
             return true;
@@ -1018,6 +1059,7 @@ export default class ConnectionManager {
     ): Promise<IConnectionInfo> {
         // show connection picklist
         const connectionCreds = await this.connectionUI.promptForConnection();
+
         if (connectionCreds) {
             // close active connection
             await this.disconnect(fileUri);
@@ -1057,14 +1099,17 @@ export default class ConnectionManager {
         connectionCreds: IConnectionInfo,
     ): Promise<boolean> {
         let connection = this._connections[fileUri];
+
         if (!result && connection && connection.loginFailed) {
             const newConnection =
                 await this.connectionUI.createProfileWithDifferentCredentials(
                     connectionCreds,
                 );
+
             if (newConnection) {
                 const newResult = await this.connect(fileUri, newConnection);
                 connection = this._connections[fileUri];
+
                 if (!newResult && connection && connection.loginFailed) {
                     Utils.showErrorMsg(
                         LocalizedConstants.msgConnectionError(
@@ -1094,23 +1139,28 @@ export default class ConnectionManager {
     // let users pick from a picklist of connections
     public async onNewConnection(): Promise<IConnectionInfo> {
         const fileUri = this.vscodeWrapper.activeTextEditorUri;
+
         if (!fileUri) {
             // A text document needs to be open before we can connect
             this.vscodeWrapper.showWarningMessage(
                 LocalizedConstants.msgOpenSqlFile,
             );
+
             return undefined;
         } else if (!this.vscodeWrapper.isEditingSqlFile) {
             const result = await this.connectionUI.promptToChangeLanguageMode();
+
             if (result) {
                 const credentials =
                     await this.showConnectionsAndConnect(fileUri);
+
                 return credentials;
             } else {
                 return undefined;
             }
         }
         const creds = await this.showConnectionsAndConnect(fileUri);
+
         return creds;
     }
 
@@ -1142,7 +1192,9 @@ export default class ConnectionManager {
                         )
                     ) {
                         let account: IAccount;
+
                         let profile: ConnectionProfile;
+
                         if (connectionCreds.accountId) {
                             account = this.accountStore.getAccount(
                                 connectionCreds.accountId,
@@ -1158,6 +1210,7 @@ export default class ConnectionManager {
                             connectionCreds.email = account.displayInfo.email;
                             profile.user = account.displayInfo.displayName;
                             profile.email = account.displayInfo.email;
+
                             let azureAccountToken =
                                 await this.azureController.refreshAccessToken(
                                     account!,
@@ -1166,14 +1219,17 @@ export default class ConnectionManager {
                                     providerSettings.resources
                                         .databaseResource!,
                                 );
+
                             if (!azureAccountToken) {
                                 let errorMessage =
                                     LocalizedConstants.msgAccountRefreshFailed;
+
                                 let refreshResult =
                                     await this.vscodeWrapper.showErrorMessage(
                                         errorMessage,
                                         LocalizedConstants.refreshTokenLabel,
                                     );
+
                                 if (
                                     refreshResult ===
                                     LocalizedConstants.refreshTokenLabel
@@ -1270,6 +1326,7 @@ export default class ConnectionManager {
                             ConnectionCredentials.createConnectionDetails(
                                 connectionCreds,
                             );
+
                         let connectParams =
                             new ConnectionContracts.ConnectParams();
                         connectParams.ownerUri = fileUri;
@@ -1280,11 +1337,13 @@ export default class ConnectionManager {
                             connectParams.ownerUri,
                             promise!,
                         );
+
                         try {
                             const result = await this.client.sendRequest(
                                 ConnectionContracts.ConnectionRequest.type,
                                 connectParams,
                             );
+
                             if (!result) {
                                 // Failed to process connect request
                                 resolve(false);
@@ -1294,6 +1353,7 @@ export default class ConnectionManager {
                         }
                     },
                 );
+
                 return connectionPromise;
             },
         );
@@ -1315,7 +1375,9 @@ export default class ConnectionManager {
                 )
             ) {
                 let account: IAccount;
+
                 let profile: ConnectionProfile;
+
                 if (connectionCreds.accountId) {
                     account = this.accountStore.getAccount(
                         connectionCreds.accountId,
@@ -1330,6 +1392,7 @@ export default class ConnectionManager {
                     connectionCreds.email = account.displayInfo.email;
                     profile.user = account.displayInfo.displayName;
                     profile.email = account.displayInfo.email;
+
                     let azureAccountToken =
                         await this.azureController.refreshAccessToken(
                             account!,
@@ -1337,14 +1400,17 @@ export default class ConnectionManager {
                             profile.tenantId,
                             providerSettings.resources.databaseResource!,
                         );
+
                     if (!azureAccountToken) {
                         let errorMessage =
                             LocalizedConstants.msgAccountRefreshFailed;
+
                         let refreshResult =
                             await this.vscodeWrapper.showErrorMessage(
                                 errorMessage,
                                 LocalizedConstants.refreshTokenLabel,
                             );
+
                         if (
                             refreshResult ===
                             LocalizedConstants.refreshTokenLabel
@@ -1386,6 +1452,7 @@ export default class ConnectionManager {
         const uri = ObjectExplorerUtils.getNodeUriFromProfile(
             connectionCreds as IConnectionProfile,
         );
+
         let connectionInfo: ConnectionInfo = new ConnectionInfo();
         connectionInfo.credentials = connectionCreds;
         connectionInfo.connecting = true;
@@ -1412,6 +1479,7 @@ export default class ConnectionManager {
 
         const connectionDetails =
             ConnectionCredentials.createConnectionDetails(connectionCreds);
+
         let connectParams = new ConnectionContracts.ConnectParams();
         connectParams.ownerUri = uri;
         connectParams.connection = connectionDetails;
@@ -1428,6 +1496,7 @@ export default class ConnectionManager {
                 ConnectionContracts.ConnectionRequest.type,
                 connectParams,
             );
+
             if (!result) {
                 // Failed to process connect request
                 throw new Error("Failed to connect");
@@ -1441,6 +1510,7 @@ export default class ConnectionManager {
 
     public async onCancelConnect(): Promise<void> {
         const result = await this.connectionUI.promptToCancelConnection();
+
         if (result) {
             await this.cancelConnect();
         }
@@ -1448,6 +1518,7 @@ export default class ConnectionManager {
 
     public async cancelConnect(): Promise<void> {
         let fileUri = this.vscodeWrapper.activeTextEditorUri;
+
         if (!fileUri || Utils.isEmpty(fileUri)) {
             return;
         }
@@ -1460,6 +1531,7 @@ export default class ConnectionManager {
             ConnectionContracts.CancelConnectRequest.type,
             cancelParams,
         );
+
         if (result) {
             this.statusView.notConnected(fileUri);
         }
@@ -1482,9 +1554,11 @@ export default class ConnectionManager {
 
     public async onCreateProfile(): Promise<boolean> {
         let self = this;
+
         const profile = await self.connectionUI.createAndSaveProfile(
             self.vscodeWrapper.isEditingSqlFile,
         );
+
         return profile ? true : false;
     }
 
@@ -1508,6 +1582,7 @@ export default class ConnectionManager {
 
     public onDidOpenTextDocument(doc: vscode.TextDocument): void {
         let uri = doc.uri.toString(true);
+
         if (
             doc.languageId === "sql" &&
             typeof this._connections[uri] === "undefined"
@@ -1527,7 +1602,9 @@ export default class ConnectionManager {
 
         // Connect the saved uri and disconnect the untitled uri on successful connection
         let creds: IConnectionInfo = this._connections[oldFileUri].credentials;
+
         let result = await this.connect(newFileUri, creds);
+
         if (result) {
             await this.disconnect(oldFileUri);
         }
@@ -1535,26 +1612,32 @@ export default class ConnectionManager {
 
     public async refreshAzureAccountToken(uri: string): Promise<void> {
         const profile = this.getConnectionInfo(uri);
+
         if (!profile) {
             this.vscodeWrapper.logToOutputChannel(
                 LocalizedConstants.msgConnectionNotFound(uri),
             );
+
             return;
         }
 
         // Wait for the pending reconnction promise if any
         const previousReconnectPromise =
             this._uriToConnectionPromiseMap.get(uri);
+
         if (previousReconnectPromise) {
             this.vscodeWrapper.logToOutputChannel(
                 LocalizedConstants.msgFoundPendingReconnect(uri),
             );
+
             try {
                 const previousConnectionResult = await previousReconnectPromise;
+
                 if (previousConnectionResult) {
                     this.vscodeWrapper.logToOutputChannel(
                         LocalizedConstants.msgPendingReconnectSuccess(uri),
                     );
+
                     return;
                 }
                 this.vscodeWrapper.logToOutputChannel(
@@ -1568,6 +1651,7 @@ export default class ConnectionManager {
         }
 
         const expiry = profile.credentials.expiresOn;
+
         if (typeof expiry === "number" && !Number.isNaN(expiry)) {
             if (AzureController.isTokenExpired(expiry)) {
                 this.vscodeWrapper.logToOutputChannel(
@@ -1576,11 +1660,13 @@ export default class ConnectionManager {
                         uri,
                     ),
                 );
+
                 try {
                     let connectionResult = await this.connect(
                         uri,
                         profile.credentials,
                     );
+
                     if (!connectionResult) {
                         this.vscodeWrapper.showErrorMessage(
                             LocalizedConstants.msgRefreshConnection(
@@ -1588,6 +1674,7 @@ export default class ConnectionManager {
                                 uri,
                             ),
                         );
+
                         throw new Error("Unable to refresh connection");
                     }
                     this.vscodeWrapper.logToOutputChannel(
@@ -1597,6 +1684,7 @@ export default class ConnectionManager {
                             JSON.stringify(this.getConnectionInfo(uri)),
                         ),
                     );
+
                     return;
                 } catch {
                     this.vscodeWrapper.showInformationMessage(
@@ -1616,6 +1704,7 @@ export default class ConnectionManager {
 
     public async addAccount(): Promise<IAccount> {
         let account = await this.connectionUI.addNewAccount();
+
         if (account) {
             this.vscodeWrapper.showInformationMessage(
                 LocalizedConstants.accountAddedSuccessfully(
@@ -1633,6 +1722,7 @@ export default class ConnectionManager {
     public async removeAccount(prompter: IPrompter): Promise<void> {
         // list options for accounts to remove
         let questions: IQuestion[] = [];
+
         let azureAccountChoices = ConnectionProfile.getAccountChoices(
             this._accountStore,
         );

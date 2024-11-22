@@ -251,6 +251,7 @@ export interface IGridIcon {
     showCondition: () => boolean;
     icon: () => string;
     hoverText: () => string;
+
     functionality: (batchId: number, resultId: number, index: number) => void;
 }
 
@@ -301,12 +302,14 @@ export interface IColumnDefinition {
     cssClass?: string;
     focusable?: boolean;
     selectable?: boolean;
+
     asyncPostRender?: (
         cellRef: string,
         row: number,
         dataContext: JSON,
         colDef: any,
     ) => void;
+
     formatter?: (
         row: number,
         cell: any,

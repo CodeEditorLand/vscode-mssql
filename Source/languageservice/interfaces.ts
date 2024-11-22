@@ -16,13 +16,20 @@ export interface IStatusView {
 
 export interface IConfig {
     getSqlToolsServiceDownloadUrl(): string;
+
     getSqlToolsInstallDirectory(): string;
+
     getSqlToolsExecutableFiles(): string[];
+
     getSqlToolsPackageVersion(): string;
+
     getExtensionConfig(key: string, defaultValue?: any): any;
+
     getWorkspaceConfig(key: string, defaultValue?: any): any;
+
     getSqlToolsConfigValue(configKey: string): any;
     useServiceVersion(version: number): void;
+
     getServiceVersion(): number;
 }
 

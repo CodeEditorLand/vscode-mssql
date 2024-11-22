@@ -68,6 +68,7 @@ export default class ExtConfig implements IConfig {
                 `${Constants.sqlToolsServiceConfigKey}.${configKey}`,
             )
         );
+
         if (!configValue) {
             configValue = this._config.getSqlToolsConfigValue(configKey);
         }
@@ -76,6 +77,7 @@ export default class ExtConfig implements IConfig {
 
     public getExtensionConfig(key: string, defaultValue?: any): any {
         let configValue = this._extensionConfig.get(key);
+
         if (configValue === undefined) {
             configValue = defaultValue;
         }
@@ -84,6 +86,7 @@ export default class ExtConfig implements IConfig {
 
     public getWorkspaceConfig(key: string, defaultValue?: any): any {
         let configValue = this._workspaceConfig.get(key);
+
         if (configValue === undefined) {
             configValue = defaultValue;
         }

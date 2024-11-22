@@ -65,7 +65,9 @@ export abstract class ReactWebviewBaseController<State, Reducers>
                 TelemetryViews.WebviewController,
                 TelemetryActions.WebviewRequest,
             );
+
             const handler = this._webviewRequestHandlers[message.method];
+
             if (handler) {
                 try {
                     const result = await handler(message.params);
@@ -97,6 +99,7 @@ export abstract class ReactWebviewBaseController<State, Reducers>
                                     : undefined,
                         },
                     );
+
                     throw error;
                 }
             } else {
@@ -113,6 +116,7 @@ export abstract class ReactWebviewBaseController<State, Reducers>
                         method: message.method,
                     },
                 );
+
                 throw error;
             }
         }
@@ -152,6 +156,7 @@ export abstract class ReactWebviewBaseController<State, Reducers>
                 "assets",
             ),
         );
+
         const baseUrlString = baseUrl.toString() + "/";
 
         return `
@@ -204,6 +209,7 @@ export abstract class ReactWebviewBaseController<State, Reducers>
 
         this._webviewRequestHandlers["action"] = async (action) => {
             const reducer = this._reducers[action.type];
+
             if (reducer) {
                 this.state = await reducer(this.state, action.payload);
             } else {
@@ -219,7 +225,9 @@ export abstract class ReactWebviewBaseController<State, Reducers>
 
         this._webviewRequestHandlers["loadStats"] = (message) => {
             const timeStamp = message.loadCompleteTimeStamp;
+
             const timeToLoad = timeStamp - this._loadStartTime;
+
             if (this._isFirstLoad) {
                 console.log(
                     `Load stats for ${this._sourceFile}` +
@@ -264,7 +272,9 @@ export abstract class ReactWebviewBaseController<State, Reducers>
                 const file = await vscode.workspace.fs.readFile(
                     vscode.l10n.uri,
                 );
+
                 const fileContents = Buffer.from(file).toString();
+
                 return fileContents;
             } else {
                 return undefined;
@@ -274,9 +284,11 @@ export abstract class ReactWebviewBaseController<State, Reducers>
         this._webviewRequestHandlers["executeCommand"] = async (message) => {
             if (!message?.command) {
                 console.log("No command provided to execute");
+
                 return;
             }
             const args = message?.args ?? [];
+
             return await vscode.commands.executeCommand(
                 message.command,
                 ...args,

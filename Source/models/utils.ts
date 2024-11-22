@@ -22,12 +22,17 @@ import { IConnectionInfo } from "vscode-mssql";
 
 // CONSTANTS //////////////////////////////////////////////////////////////////////////////////////
 const msInH = 3.6e6;
+
 const msInM = 60000;
+
 const msInS = 1000;
 
 const configTracingLevel = "tracingLevel";
+
 const configPiiLogging = "piiLogging";
+
 const configLogRetentionMinutes = "logRetentionMinutes";
+
 const configLogFilesRemovalLimit = "logFilesRemovalLimit";
 
 // INTERFACES /////////////////////////////////////////////////////////////////////////////////////
@@ -63,6 +68,7 @@ export function generateGuid(): string {
     ];
     // c.f. rfc4122 (UUID version 4 = xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx)
     let oct = "";
+
     let tmp: number;
     /* tslint:disable:no-bitwise */
     for (let a = 0; a < 4; a++) {
@@ -80,6 +86,7 @@ export function generateGuid(): string {
 
     // 'Set the two most significant bits (bits 6 and 7) of the clock_seq_hi_and_reserved to zero and one, respectively'
     let clockSequenceHi: string = hexValues[(8 + Math.random() * 4) | 0];
+
     return (
         oct.substr(0, 8) +
         "-" +
@@ -120,7 +127,9 @@ export function generateUserId(): Promise<string> {
 // Return 'true' if the active editor window has a .sql file, false otherwise
 export function isEditingSqlFile(): boolean {
     let sqlFile = false;
+
     let editor = getActiveTextEditor();
+
     if (editor) {
         if (editor.document.languageId === Constants.languageId) {
             sqlFile = true;
@@ -132,6 +141,7 @@ export function isEditingSqlFile(): boolean {
 // Return the active text editor if there's one
 export function getActiveTextEditor(): vscode.TextEditor {
     let editor = undefined;
+
     if (vscode.window && vscode.window.activeTextEditor) {
         editor = vscode.window.activeTextEditor;
     }
@@ -154,9 +164,12 @@ export function logDebug(msg: any): void {
     let config = vscode.workspace.getConfiguration(
         Constants.extensionConfigSectionName,
     );
+
     let logDebugInfo = config.get(Constants.configLogDebugInfo);
+
     if (logDebugInfo === true) {
         let currentTime = new Date().toLocaleTimeString();
+
         let outputMsg = "[" + currentTime + "]: " + msg ? msg.toString() : "";
         console.log(outputMsg);
     }
@@ -204,11 +217,13 @@ export function formatString(str: string, ...args: any[]): string {
     // This is based on code originally from https://github.com/Microsoft/vscode/blob/master/src/vs/nls.js
     // License: https://github.com/Microsoft/vscode/blob/master/LICENSE.txt
     let result: string;
+
     if (args.length === 0) {
         result = str;
     } else {
         result = str.replace(/\{(\d+)\}/g, (match, rest) => {
             let index = rest[0];
+
             return typeof args[index] !== "undefined" ? args[index] : match;
         });
     }
@@ -356,6 +371,7 @@ export function isSameConnection(
 export function isFileExisting(filePath: string): boolean {
     try {
         fs.statSync(filePath);
+
         return true;
     } catch (err) {
         return false;
@@ -377,6 +393,7 @@ export class Timer {
             return -1;
         } else if (!this._endTime) {
             let endTime = process.hrtime(<any>this._startTime);
+
             return endTime[0] * 1000 + endTime[1] / 1000000;
         } else {
             return this._endTime[0] * 1000 + this._endTime[1] / 1000000;
@@ -415,7 +432,9 @@ export function parseTimeString(value: string): number | boolean {
     }
 
     let msString = tempVal[1];
+
     let msStringEnd = msString.length < 3 ? msString.length : 3;
+
     let ms = parseInt(tempVal[1].substring(0, msStringEnd), 10);
 
     tempVal = tempVal[0].split(":");
@@ -425,7 +444,9 @@ export function parseTimeString(value: string): number | boolean {
     }
 
     let h = parseInt(tempVal[0], 10);
+
     let m = parseInt(tempVal[1], 10);
+
     let s = parseInt(tempVal[2], 10);
 
     return ms + h * msInH + m * msInM + s * msInS;
@@ -442,16 +463,22 @@ export function isBoolean(obj: any): obj is boolean {
  */
 export function parseNumAsTimeString(value: number): string {
     let tempVal = value;
+
     let h = Math.floor(tempVal / msInH);
     tempVal %= msInH;
+
     let m = Math.floor(tempVal / msInM);
     tempVal %= msInM;
+
     let s = Math.floor(tempVal / msInS);
     tempVal %= msInS;
 
     let hs = h < 10 ? "0" + h : "" + h;
+
     let ms = m < 10 ? "0" + m : "" + m;
+
     let ss = s < 10 ? "0" + s : "" + s;
+
     let mss =
         tempVal < 10
             ? "00" + tempVal
@@ -472,6 +499,7 @@ function getConfiguration(): vscode.WorkspaceConfiguration {
 
 export function getConfigTracingLevel(): string {
     let config = getConfiguration();
+
     if (config) {
         return config.get(configTracingLevel);
     } else {
@@ -481,6 +509,7 @@ export function getConfigTracingLevel(): string {
 
 export function getConfigPiiLogging(): boolean {
     let config = getConfiguration();
+
     if (config) {
         return config.get(configPiiLogging);
     } else {
@@ -490,6 +519,7 @@ export function getConfigPiiLogging(): boolean {
 
 export function getConfigLogFilesRemovalLimit(): number {
     let config = getConfiguration();
+
     if (config) {
         return Number(config.get(configLogFilesRemovalLimit, 0).toFixed(0));
     } else {
@@ -499,6 +529,7 @@ export function getConfigLogFilesRemovalLimit(): number {
 
 export function getConfigLogRetentionSeconds(): number {
     let config = getConfiguration();
+
     if (config) {
         return Number(
             (config.get(configLogRetentionMinutes, 0) * 60).toFixed(0),
@@ -522,6 +553,7 @@ export function getCommonLaunchArgsAndCleanupOldLogFiles(
 ): string[] {
     let launchArgs = [];
     launchArgs.push("--log-file");
+
     let logFile = path.join(logPath, fileName);
     launchArgs.push(logFile);
 
@@ -536,6 +568,7 @@ export function getCommonLaunchArgsAndCleanupOldLogFiles(
     );
     launchArgs.push("--tracing-level");
     launchArgs.push(getConfigTracingLevel());
+
     if (getConfigPiiLogging()) {
         launchArgs.push("--pii-logging");
     }
@@ -551,16 +584,19 @@ export function getSignInQuickPickItems(): IAzureSignInQuickPickItem[] {
         description: LocalizedConstants.azureSignInDescription,
         command: Constants.cmdAzureSignIn,
     };
+
     let signInWithDeviceCode: IAzureSignInQuickPickItem = {
         label: LocalizedConstants.azureSignInWithDeviceCode,
         description: LocalizedConstants.azureSignInWithDeviceCodeDescription,
         command: Constants.cmdAzureSignInWithDeviceCode,
     };
+
     let signInAzureCloud: IAzureSignInQuickPickItem = {
         label: LocalizedConstants.azureSignInToAzureCloud,
         description: LocalizedConstants.azureSignInToAzureCloudDescription,
         command: Constants.cmdAzureSignInToCloud,
     };
+
     return [signInItem, signInWithDeviceCode, signInAzureCloud];
 }
 
@@ -614,6 +650,7 @@ export function deepClone<T>(obj: T): T {
             result[key] = (<any>obj)[key];
         }
     });
+
     return result;
 }
 

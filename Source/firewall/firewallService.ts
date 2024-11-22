@@ -24,6 +24,7 @@ export class FirewallService {
             CreateFirewallRuleRequest.type,
             params,
         );
+
         return result;
     }
 
@@ -36,10 +37,12 @@ export class FirewallService {
             errorMessage: errorMessage,
             connectionTypeId: Constants.mssqlProviderName,
         };
+
         let result = await this.accountService.client.sendResourceRequest(
             HandleFirewallRuleRequest.type,
             params,
         );
+
         return result;
     }
 }

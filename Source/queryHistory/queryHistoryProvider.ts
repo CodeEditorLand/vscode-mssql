@@ -51,13 +51,18 @@ export class QueryHistoryProvider implements vscode.TreeDataProvider<any> {
 
     refresh(ownerUri: string, timeStamp: Date, hasError): void {
         const timeStampString = timeStamp.toLocaleString();
+
         const historyNodeLabel = this.createHistoryNodeLabel(ownerUri);
+
         const tooltip = this.createHistoryNodeTooltip(
             ownerUri,
             timeStampString,
         );
+
         const queryString = this.getQueryString(ownerUri);
+
         const connectionLabel = this.getConnectionLabel(ownerUri);
+
         const node = new QueryHistoryNode(
             historyNodeLabel,
             tooltip,
@@ -67,6 +72,7 @@ export class QueryHistoryProvider implements vscode.TreeDataProvider<any> {
             connectionLabel,
             !hasError,
         );
+
         if (this._queryHistoryNodes.length === 1) {
             if (this._queryHistoryNodes[0] instanceof EmptyHistoryNode) {
                 this._queryHistoryNodes = [];
@@ -106,8 +112,10 @@ export class QueryHistoryProvider implements vscode.TreeDataProvider<any> {
         const options = this._queryHistoryNodes.map((node) =>
             this._queryHistoryUI.convertToQuickPickItem(node),
         );
+
         let queryHistoryQuickPickItem =
             await this._queryHistoryUI.showQueryHistoryCommandPalette(options);
+
         if (queryHistoryQuickPickItem) {
             await this.openQueryHistoryEntry(
                 queryHistoryQuickPickItem.node,
@@ -152,9 +160,13 @@ export class QueryHistoryProvider implements vscode.TreeDataProvider<any> {
         const editor = await this._untitledSqlDocumentService.newQuery(
             node.queryString,
         );
+
         let uri = editor.document.uri.toString(true);
+
         let title = path.basename(editor.document.fileName);
+
         const queryUriPromise = new Deferred<boolean>();
+
         let credentials = this._connectionManager.getConnectionInfo(
             node.ownerUri,
         ).credentials;
@@ -169,6 +181,7 @@ export class QueryHistoryProvider implements vscode.TreeDataProvider<any> {
             Constants.mssqlProviderName,
         );
         this._statusView.sqlCmdModeChanged(uri, false);
+
         if (isExecute) {
             const queryPromise = new Deferred<boolean>();
             await this._outputContentProvider.runQuery(
@@ -192,6 +205,7 @@ export class QueryHistoryProvider implements vscode.TreeDataProvider<any> {
     public deleteQueryHistoryEntry(node: QueryHistoryNode): void {
         let index = this._queryHistoryNodes.findIndex((n) => {
             let historyNode = n as QueryHistoryNode;
+
             return historyNode === node;
         });
         this._queryHistoryNodes.splice(index, 1);
@@ -212,9 +226,11 @@ export class QueryHistoryProvider implements vscode.TreeDataProvider<any> {
         const queryString = Utils.limitStringSize(
             this.getQueryString(ownerUri),
         ).trim();
+
         const connectionLabel = Utils.limitStringSize(
             this.getConnectionLabel(ownerUri),
         ).trim();
+
         return `${queryString} : ${connectionLabel}`;
     }
 
@@ -224,6 +240,7 @@ export class QueryHistoryProvider implements vscode.TreeDataProvider<any> {
     private getQueryString(ownerUri: string): string {
         const queryRunner =
             this._outputContentProvider.getQueryRunner(ownerUri);
+
         return queryRunner.getQueryString(ownerUri);
     }
 
@@ -232,8 +249,11 @@ export class QueryHistoryProvider implements vscode.TreeDataProvider<any> {
      */
     private getConnectionLabel(ownerUri: string): string {
         const connInfo = this._connectionManager.getConnectionInfo(ownerUri);
+
         const credentials = connInfo.credentials;
+
         let connString = `(${credentials.server}|${credentials.database})`;
+
         if (credentials.authenticationType === Constants.sqlAuthentication) {
             connString = `${connString} : ${credentials.user}`;
         }
@@ -248,7 +268,9 @@ export class QueryHistoryProvider implements vscode.TreeDataProvider<any> {
         timeStamp: string,
     ): string {
         const queryString = this.getQueryString(ownerUri);
+
         const connectionLabel = this.getConnectionLabel(ownerUri);
+
         return `${connectionLabel}${os.EOL}${os.EOL}${timeStamp}${os.EOL}${os.EOL}${queryString}`;
     }
 }

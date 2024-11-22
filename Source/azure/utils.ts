@@ -27,7 +27,9 @@ export async function getAllValues<T, TResult>(
     convertor: (input: T) => TResult | undefined,
 ): Promise<TResult[]> {
     let values: TResult[] = [];
+
     let newValue = await pages.next();
+
     while (!newValue.done) {
         values.push(convertor(newValue.value)!);
         newValue = await pages.next();
@@ -78,8 +80,10 @@ function getConfiguration(): vscode.WorkspaceConfiguration {
 
 export function getAzureActiveDirectoryConfig(): AzureAuthType {
     let config = getConfiguration();
+
     if (config) {
         const val: string | undefined = config.get(configAzureAD);
+
         if (val) {
             return AzureAuthType[val];
         }
@@ -90,10 +94,12 @@ export function getAzureActiveDirectoryConfig(): AzureAuthType {
 
 export function getEnableSqlAuthenticationProviderConfig(): boolean {
     const config = getConfiguration();
+
     if (config) {
         const val: boolean | undefined = config.get(
             Constants.sqlAuthProviderSection,
         );
+
         if (val !== undefined) {
             return val;
         }
@@ -103,10 +109,12 @@ export function getEnableSqlAuthenticationProviderConfig(): boolean {
 
 export function getEnableConnectionPoolingConfig(): boolean {
     const config = getConfiguration();
+
     if (config) {
         const val: boolean | undefined = config.get(
             Constants.enableConnectionPoolingSection,
         );
+
         if (val !== undefined) {
             return val;
         }
@@ -116,19 +124,23 @@ export function getEnableConnectionPoolingConfig(): boolean {
 
 export function getAppDataPath(): string {
     let platform = process.platform;
+
     switch (platform) {
         case "win32":
             return (
                 process.env["APPDATA"] ||
                 path.join(process.env["USERPROFILE"]!, "AppData", "Roaming")
             );
+
         case "darwin":
             return path.join(os.homedir(), "Library", "Application Support");
+
         case "linux":
             return (
                 process.env["XDG_CONFIG_HOME"] ||
                 path.join(os.homedir(), ".config")
             );
+
         default:
             throw new Error("Platform not supported");
     }

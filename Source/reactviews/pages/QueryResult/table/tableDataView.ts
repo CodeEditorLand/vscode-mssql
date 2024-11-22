@@ -38,13 +38,20 @@ export function defaultSort<T extends Slick.SlickData>(
         return data;
     }
     const field = args.sortCol.field;
+
     const sign = args.sortAsc ? 1 : -1;
+
     const comparer: (a: T, b: T) => number = (a: T, b: T) => {
         const value1 = cellValueGetter(a[field]);
+
         const value2 = cellValueGetter(b[field]);
+
         const num1 = Number(value1);
+
         const num2 = Number(value2);
+
         const isValue1Number = !isNaN(num1);
+
         const isValue2Number = !isNaN(num2);
         // Order: undefined -> number -> string
         if (value1 === undefined || value2 === undefined) {
@@ -78,6 +85,7 @@ export function defaultFilter<T extends Slick.SlickData>(
             });
         }
     });
+
     return filteredData;
 }
 
@@ -141,6 +149,7 @@ export class TableDataView<T extends Slick.SlickData>
         const distinctValues: Set<string> = new Set();
         this._data.forEach((items) => {
             const value = items[column.field!];
+
             const valueArr = value instanceof Array ? value : [value];
             valueArr.forEach((v) =>
                 distinctValues.add(this._cellValueGetter(v)),
@@ -161,6 +170,7 @@ export class TableDataView<T extends Slick.SlickData>
         }
         this._currentColumnFilters = columns!;
         this._data = this._filterFn!(this._allData, columns!);
+
         if (this._data.length === this._allData.length) {
             this.clearFilter();
         } else {
@@ -205,6 +215,7 @@ export class TableDataView<T extends Slick.SlickData>
     push(item: T): void;
     push(input: T | Array<T>): void {
         let inputArray = new Array();
+
         if (Array.isArray(input)) {
             inputArray.push(...input);
         } else {
@@ -213,10 +224,12 @@ export class TableDataView<T extends Slick.SlickData>
 
         if (this._filterEnabled) {
             this._allData.push(...inputArray);
+
             let filteredArray = this._filterFn!(
                 inputArray,
                 this._currentColumnFilters,
             );
+
             if (filteredArray.length !== 0) {
                 this._data.push(...filteredArray);
             }
@@ -229,6 +242,7 @@ export class TableDataView<T extends Slick.SlickData>
 
     clear() {
         this._data = new Array<T>();
+
         if (this._filterEnabled) {
             this._allData = new Array<T>();
         }
@@ -244,6 +258,7 @@ export class TableDataView<T extends Slick.SlickData>
         this._findIndex = 0;
         console.log(this._findArray.length);
         // this._onFindCountChange.fire(this._findArray.length);
+
         if (exp) {
             return new Promise<IFindPosition>(() => {
                 this._startSearch(exp, maxMatches);
@@ -256,20 +271,26 @@ export class TableDataView<T extends Slick.SlickData>
     private _startSearch(exp: string, maxMatches: number = 0): void {
         for (let i = 0; i < this._data.length; i++) {
             const item = this._data[i];
+
             const result = this._findFn!(item, exp);
+
             let breakout = false;
+
             if (result) {
                 for (let j = 0; j < result.length; j++) {
                     const pos = result[j];
+
                     const index = { col: pos, row: i };
                     this._findArray!.push(index);
                     console.log(this._findArray!.length);
                     // this._onFindCountChange.fire(this._findArray!.length);
+
                     if (
                         maxMatches > 0 &&
                         this._findArray!.length === maxMatches
                     ) {
                         breakout = true;
+
                         break;
                     }
                 }

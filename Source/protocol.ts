@@ -36,12 +36,16 @@ export interface IServerProxy extends Disposable {
         selection: ISlickRange[],
         includeHeaders?: boolean,
     ): void;
+
     getConfig(): Promise<IResultsConfig>;
+
     setEditorSelection(selectionData: ISelectionData): void;
     showWarning(message: string): void;
     showError(message: string): void;
+
     getLocalizedTexts(): Promise<{ [key: string]: any }>;
     sendReadyEvent(uri: string): Promise<boolean>;
+
     getNewColumnWidth(current: number): Promise<number | undefined>;
     sendActionEvent(
         view: TelemetryViews,
@@ -60,6 +64,7 @@ export class Deferred<T> {
     promise: Promise<T>;
     resolve: (value?: T | PromiseLike<T>) => void;
     reject: (reason?: any) => void;
+
     constructor() {
         this.promise = new Promise<T>((resolve, reject) => {
             this.resolve = resolve;
@@ -105,6 +110,7 @@ class MessageProxy implements Disposable {
         isClient: boolean = false,
     ) {
         const self = this;
+
         if (!isClient) {
             const first = self.protocol.onMessage((message) => {
                 // first message
@@ -132,23 +138,29 @@ class MessageProxy implements Disposable {
 
     public async sendRequest(methodName: string, args: any[]): Promise<any> {
         await this.ready;
+
         const messageId = this.messageid++;
+
         const deferred = new Deferred<any>();
         this.responseMap.set(messageId, deferred);
+
         const request: IRequest = {
             messageId: messageId,
             method: methodName,
             passArguments: args,
         };
         this.protocol.sendMessage(JSON.stringify(request));
+
         return deferred.promise;
     }
 
     private onReceive(val: string): void {
         const message: IResponse | IRequest = JSON.parse(val);
+
         if (isResponseMessage(message)) {
             // is a response
             const deferred = this.responseMap.get(message.originalMessageId);
+
             if (deferred) {
                 deferred.resolve(message.response);
             }
@@ -193,6 +205,7 @@ export function createProxy(
     isClient: boolean,
 ): Disposable {
     const messageProxy = new MessageProxy(protocol, handler, isClient);
+
     let proxy = {
         get: (target: any, name: string) => {
             if (!target[name]) {
@@ -206,5 +219,6 @@ export function createProxy(
             messageProxy.dispose();
         },
     };
+
     return new Proxy(Object.create(null), proxy);
 }

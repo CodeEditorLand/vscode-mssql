@@ -55,10 +55,15 @@ export class StubLogger implements ILogger {
 }
 
 const config = new Config();
+
 const logger = new StubLogger(console.log);
+
 const statusView = new StubStatusView(console.log);
+
 const httpClient = new HttpClient();
+
 const decompressProvider = new DecompressProvider();
+
 let downloadProvider = new ServiceDownloadProvider(
     config,
     logger,
@@ -66,6 +71,7 @@ let downloadProvider = new ServiceDownloadProvider(
     httpClient,
     decompressProvider,
 );
+
 let serverProvider = new ServerProvider(downloadProvider, config, statusView);
 
 /*
@@ -121,5 +127,6 @@ export function getServiceInstallDirectoryRoot(): string {
     let directoryPath: string = downloadProvider.getInstallDirectoryRoot();
     directoryPath = directoryPath.replace("\\{#version#}\\{#platform#}", "");
     directoryPath = directoryPath.replace("/{#version#}/{#platform#}", "");
+
     return directoryPath;
 }

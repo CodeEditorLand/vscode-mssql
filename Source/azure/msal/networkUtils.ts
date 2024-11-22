@@ -35,6 +35,7 @@ export class NetworkUtils {
             path: `${url.pathname || ""}${url.search || ""}`,
             href: url.href,
         };
+
         if (url.port !== "") {
             options.port = Number(url.port);
         }

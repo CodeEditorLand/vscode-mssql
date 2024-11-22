@@ -196,6 +196,7 @@ export function getColumnsTabComponents(
         designer.TableProperty.Columns,
         view.additionalComponents,
     );
+
     if (additionalComponents) {
         tabComponents.push(...additionalComponents);
     }
@@ -253,6 +254,7 @@ export function getPrimaryKeyTabComponents(
 
     const primaryKeyTableOptions =
         view.primaryKeyColumnSpecificationTableOptions;
+
     if (primaryKeyTableOptions) {
         tabComponents.push({
             componentType: "table",
@@ -289,6 +291,7 @@ export function getPrimaryKeyTabComponents(
         designer.TableProperty.PrimaryKey,
         view.additionalComponents,
     );
+
     if (additionalComponents) {
         tabComponents.push(...additionalComponents);
     }
@@ -302,7 +305,9 @@ export function getIndexesTabComponents(
         return [];
     }
     const indexTableOptions = view.indexTableOptions;
+
     const columnSpecTableOptions = view.indexColumnSpecificationTableOptions;
+
     const columnSpecProperties: designer.DesignerDataPropertyInfo[] = [
         {
             componentType: "dropdown",
@@ -314,6 +319,7 @@ export function getIndexesTabComponents(
             },
         },
     ];
+
     const indexProperties: designer.DesignerDataPropertyInfo[] = [
         {
             componentType: "input",
@@ -447,7 +453,9 @@ export function getForeignKeysTabComponents(
         return [];
     }
     const foreignKeyTableOptions = view.foreignKeyTableOptions;
+
     const columnMappingTableOptions = view!.foreignKeyColumnMappingTableOptions;
+
     const foreignKeyColumnMappingProperties: designer.DesignerDataPropertyInfo[] =
         [
             {
@@ -561,6 +569,7 @@ export function getForeignKeysTabComponents(
                 property.group = TableDesigner.AdvancedOptions;
             }
         });
+
         foreignKeyTableOptions.additionalProperties.forEach((property) => {
             if (!property.group) {
                 property.group = TableDesigner.AdvancedOptions;
@@ -599,6 +608,7 @@ export function getForeignKeysTabComponents(
         designer.TableProperty.ForeignKeys,
         view.additionalComponents,
     );
+
     if (additionalComponents) {
         tabComponents.push(...additionalComponents);
     }
@@ -612,7 +622,9 @@ export function getCheckConstraintsTabComponents(
         return [];
     }
     const checkConstraintTableOptions = view.checkConstraintTableOptions;
+
     const additionalcomponents = view.additionalComponents || [];
+
     const checkConstraintProperties: designer.DesignerDataPropertyInfo[] = [
         {
             componentType: "input",
@@ -685,6 +697,7 @@ export function getCheckConstraintsTabComponents(
         designer.TableProperty.CheckConstraints,
         additionalcomponents,
     );
+
     if (additionalComponents) {
         tabComponents.push(...additionalComponents);
     }

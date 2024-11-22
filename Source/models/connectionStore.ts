@@ -85,6 +85,7 @@ export class ConnectionStore {
             );
         }
         let itemTypeString: string = ConnectionStore.CRED_PROFILE_USER;
+
         if (itemType) {
             itemTypeString = CredentialsQuickPickItemType[itemType];
         }
@@ -119,6 +120,7 @@ export class ConnectionStore {
             );
         }
         let cred: string[] = [ConnectionStore.CRED_PREFIX];
+
         if (!itemType) {
             itemType = ConnectionStore.CRED_PROFILE_USER;
         }
@@ -143,6 +145,7 @@ export class ConnectionStore {
             ConnectionStore.CRED_USER_PREFIX,
             cred,
         );
+
         if (isConnectionString) {
             ConnectionStore.pushIfNonEmpty(
                 "true",
@@ -190,6 +193,7 @@ export class ConnectionStore {
             connectionCreds: undefined,
             quickPickItemType: CredentialsQuickPickItemType.NewConnection,
         });
+
         return pickListItems;
     }
 
@@ -209,6 +213,7 @@ export class ConnectionStore {
         credentialsItem: IConnectionCredentialsQuickPickItem,
     ): Promise<IConnectionCredentialsQuickPickItem> {
         let self = this;
+
         if (
             typeof credentialsItem.connectionCreds["savePassword"] ===
                 "undefined" ||
@@ -226,10 +231,13 @@ export class ConnectionStore {
                 credentialsItem.connectionCreds,
                 credentialsItem.quickPickItemType,
             );
+
             const savedCred =
                 await self._credentialStore.readCredential(credentialId);
+
             if (savedCred) {
                 credentialsItem.connectionCreds.password = savedCred.password;
+
                 return credentialsItem;
             } else {
                 throw new Error("No saved password found");
@@ -255,8 +263,10 @@ export class ConnectionStore {
             ConnectionStore.CRED_PROFILE_USER,
             isConnectionString,
         );
+
         const savedCredential =
             await this._credentialStore.readCredential(credentialId);
+
         if (savedCredential && savedCredential.password) {
             return savedCredential.password;
         } else {
@@ -299,6 +309,7 @@ export class ConnectionStore {
     ): Promise<IConnectionProfile> {
         // Add the profile to the saved list, taking care to clear out the password field if necessary
         let savedProfile: IConnectionProfile;
+
         if (
             profile.authenticationType ===
             Utils.authTypeToString(AuthenticationTypes.AzureMFA)
@@ -332,6 +343,7 @@ export class ConnectionStore {
         let configValues = this._context.globalState.get<IConnectionInfo[]>(
             Constants.configRecentConnections,
         );
+
         if (!configValues) {
             configValues = [];
         }
@@ -347,9 +359,11 @@ export class ConnectionStore {
      */
     public addRecentlyUsed(conn: IConnectionInfo): Promise<void> {
         const self = this;
+
         return new Promise<void>((resolve, reject) => {
             // Get all profiles
             let configValues = self.getRecentlyUsedConnections();
+
             let maxConnections = self.getMaxRecentConnectionsCount();
 
             // Remove the connection from the list if it already exists
@@ -400,7 +414,9 @@ export class ConnectionStore {
     public async clearRecentlyUsed(): Promise<boolean> {
         // Get all recent connection profiles and delete the associated credentials.
         const mruList = this.getRecentlyUsedConnections();
+
         let deleteCredentialSuccess = true;
+
         for (const connection of mruList) {
             const credentialId = ConnectionStore.formatCredentialId(
                 connection.server,
@@ -408,6 +424,7 @@ export class ConnectionStore {
                 connection.user,
                 ConnectionStore.CRED_MRU_USER,
             );
+
             try {
                 await this._credentialStore.deleteCredential(credentialId);
             } catch (err) {
@@ -424,6 +441,7 @@ export class ConnectionStore {
             Constants.configRecentConnections,
             [],
         );
+
         return deleteCredentialSuccess;
     }
 
@@ -437,6 +455,7 @@ export class ConnectionStore {
         keepCredentialStore: boolean = false,
     ): Promise<void> {
         const self = this;
+
         return new Promise<void>(async (resolve, reject) => {
             // Get all profiles
             let configValues = self.getRecentlyUsedConnections();
@@ -504,15 +523,18 @@ export class ConnectionStore {
         isConnectionString: boolean = false,
     ): Promise<boolean> {
         let self = this;
+
         let password = isConnectionString
             ? conn.connectionString
             : conn.password;
+
         return new Promise<boolean>(async (resolve, reject) => {
             if (Utils.isNotEmpty(password)) {
                 let credType: string =
                     type === CredentialsQuickPickItemType.Mru
                         ? ConnectionStore.CRED_MRU_USER
                         : ConnectionStore.CRED_PROFILE_USER;
+
                 let credentialId = ConnectionStore.formatCredentialId(
                     conn.server,
                     conn.database,
@@ -549,6 +571,7 @@ export class ConnectionStore {
     ): Promise<boolean> {
         let profileFound =
             await this._connectionConfig.removeConnection(profile);
+
         if (profileFound) {
             // Remove the profile from the recently used list if necessary
             await this.removeRecentlyUsed(profile, keepCredentialStore);
@@ -598,6 +621,7 @@ export class ConnectionStore {
             profile.user,
             ConnectionStore.CRED_PROFILE_USER,
         );
+
         return await this._credentialStore.deleteCredential(credentialId);
     }
 
@@ -621,6 +645,7 @@ export class ConnectionStore {
 
         // Read recently used items from a memento
         let recentConnections = [];
+
         if (addRecentConnections) {
             recentConnections = this.getConnectionsFromGlobalState(
                 Constants.configRecentConnections,
@@ -665,6 +690,7 @@ export class ConnectionStore {
             recentConnections,
             CredentialsQuickPickItemType.Mru,
         );
+
         for (let index of profilesInRecentConnectionsList) {
             recentConnectionsItems[index].quickPickItemType =
                 CredentialsQuickPickItemType.Profile;
@@ -689,6 +715,7 @@ export class ConnectionStore {
         // read from the global state
         let configValues = this._context.globalState.get<T[]>(configName);
         this.addConnections(connections, configValues);
+
         return connections;
     }
 
@@ -704,9 +731,11 @@ export class ConnectionStore {
     ): IConnectionCredentialsQuickPickItem[] {
         let connections: IConnectionProfile[] =
             this._connectionConfig.getConnections(loadWorkspaceProfiles);
+
         let quickPickItems = connections.map((c) =>
             this.createQuickPickItem(c, CredentialsQuickPickItemType.Profile),
         );
+
         return quickPickItems;
     }
 
@@ -717,6 +746,7 @@ export class ConnectionStore {
         if (configValues) {
             for (let index = 0; index < configValues.length; index++) {
                 let element = configValues[index];
+
                 if (
                     element.server &&
                     element.server.trim() &&
@@ -741,6 +771,7 @@ export class ConnectionStore {
 
         let maxConnections: number =
             config[Constants.configMaxRecentConnections];
+
         if (typeof maxConnections !== "number" || maxConnections <= 0) {
             maxConnections = 5;
         }

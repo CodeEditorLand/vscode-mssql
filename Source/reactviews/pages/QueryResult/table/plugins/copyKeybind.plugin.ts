@@ -51,7 +51,9 @@ export class CopyKeybind<T extends Slick.SlickData> implements Slick.Plugin<T> {
 
     private async handleKeyDown(e: KeyboardEvent): Promise<void> {
         let handled = false;
+
         let platform = await this.webViewState.extensionRpc.call("getPlatform");
+
         if (platform === "darwin") {
             // Cmd + C
             if (e.metaKey && e.keyCode === 67) {
@@ -90,6 +92,7 @@ export class CopyKeybind<T extends Slick.SlickData> implements Slick.Plugin<T> {
         resultSetSummary: ResultSetSummary,
     ) {
         let selectedRanges = grid.getSelectionModel().getSelectedRanges();
+
         let selection = tryCombineSelectionsForResults(selectedRanges);
 
         await webViewState.extensionRpc.call("copySelection", {

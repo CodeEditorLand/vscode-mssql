@@ -47,6 +47,7 @@ export async function promptForAzureSubscriptionFilter(
 
         if (!auth) {
             state.formError = l10n.t("Azure sign in failed.");
+
             return;
         }
 
@@ -71,6 +72,7 @@ export async function promptForAzureSubscriptionFilter(
     } catch (error) {
         state.formError = l10n.t("Error loading Azure subscriptions.");
         console.error(state.formError + "\n" + getErrorMessage(error));
+
         return;
     }
 }
@@ -109,12 +111,14 @@ export async function getQuickPickItems(
 }
 
 const serverResourceType = "Microsoft.Sql/servers";
+
 const databaseResourceType = "Microsoft.Sql/servers/databases";
 
 export async function fetchServersFromAzure(
     sub: AzureSubscription,
 ): Promise<AzureSqlServerInfo[]> {
     const result: AzureSqlServerInfo[] = [];
+
     const client = new ResourceManagementClient(
         sub.credential,
         sub.subscriptionId,
@@ -129,6 +133,7 @@ export async function fetchServersFromAzure(
     );
 
     const servers = resources.filter((r) => r.type === serverResourceType);
+
     const databases = resources.filter((r) => r.type === databaseResourceType);
 
     for (const server of servers) {
@@ -143,7 +148,9 @@ export async function fetchServersFromAzure(
 
     for (const database of databases) {
         const serverName = extractFromResourceId(database.id, "servers");
+
         const server = result.find((s) => s.server === serverName);
+
         if (server) {
             server.databases.push(
                 database.name.substring(serverName.length + 1),

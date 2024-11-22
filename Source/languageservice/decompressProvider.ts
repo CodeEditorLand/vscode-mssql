@@ -13,6 +13,7 @@ import { ILogger } from "../models/interfaces";
 export default class DecompressProvider implements IDecompressProvider {
     private decompressZip(pkg: IPackage, logger: ILogger): Promise<void> {
         const unzipper = new DecompressZip(pkg.tmpFile.name);
+
         return new Promise<void>((resolve, reject) => {
             let totalFiles = 0;
             unzipper.on("progress", async (index, fileCount) => {
@@ -32,6 +33,7 @@ export default class DecompressProvider implements IDecompressProvider {
 
     private decompressTar(pkg: IPackage, logger: ILogger): Promise<void> {
         let totalFiles = 0;
+
         return DecompressTar.extract(
             {
                 file: pkg.tmpFile.name,

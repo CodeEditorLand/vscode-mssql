@@ -50,7 +50,9 @@ export class ContextMenu<T extends Slick.SlickData> {
 
     private handleContextMenu(e: Event): void {
         e.preventDefault();
+
         let mouseEvent = e as MouseEvent;
+
         const $contextMenu = jQuery(
             `<ul id="contextMenu">` +
                 `<li data-action="select-all" class="contextMenu">${locConstants.queryResult.selectAll}</li>` +
@@ -85,11 +87,15 @@ export class ContextMenu<T extends Slick.SlickData> {
 
     private async handleMenuAction(action: string): Promise<void> {
         let selectedRanges = this.grid.getSelectionModel().getSelectedRanges();
+
         let selection = tryCombineSelectionsForResults(selectedRanges);
+
         switch (action) {
             case "select-all":
                 console.log("Select All action triggered");
+
                 const data = this.grid.getData() as HybridDataProvider<T>;
+
                 let selectionModel = this.grid.getSelectionModel();
                 selectionModel.setSelectedRanges([
                     new Slick.Range(
@@ -99,7 +105,9 @@ export class ContextMenu<T extends Slick.SlickData> {
                         this.grid.getColumns().length - 1,
                     ),
                 ]);
+
                 break;
+
             case "copy":
                 await this.webViewState.extensionRpc.call("copySelection", {
                     uri: this.uri,
@@ -109,7 +117,9 @@ export class ContextMenu<T extends Slick.SlickData> {
                 });
 
                 console.log("Copy action triggered");
+
                 break;
+
             case "copy-with-headers":
                 await this.webViewState.extensionRpc.call("copyWithHeaders", {
                     uri: this.uri,
@@ -119,7 +129,9 @@ export class ContextMenu<T extends Slick.SlickData> {
                 });
 
                 console.log("Copy with Headers action triggered");
+
                 break;
+
             case "copy-headers":
                 await this.webViewState.extensionRpc.call("copyHeaders", {
                     uri: this.uri,
@@ -128,7 +140,9 @@ export class ContextMenu<T extends Slick.SlickData> {
                     selection: selection,
                 });
                 console.log("Copy Headers action triggered");
+
                 break;
+
             default:
                 console.warn("Unknown action:", action);
         }

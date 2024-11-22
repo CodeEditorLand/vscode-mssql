@@ -133,6 +133,7 @@ export class ConnectionUI {
 
     public promptLanguageFlavor(): Promise<string> {
         const self = this;
+
         return new Promise<string>((resolve, reject) => {
             let picklist: ISqlProviderItem[] = [
                 {
@@ -174,6 +175,7 @@ export class ConnectionUI {
             matchOptions: options,
             choices: choices,
         };
+
         return this._prompter.promptSingle(
             question,
             question.matchOptions.ignoreFocusOut,
@@ -205,6 +207,7 @@ export class ConnectionUI {
      */
     private waitForLanguageModeToBeSql(): Promise<boolean> {
         const self = this;
+
         return new Promise((resolve, reject) => {
             let timer: Timer = new Timer();
             timer.start();
@@ -217,6 +220,7 @@ export class ConnectionUI {
      */
     public promptToCancelConnection(): Promise<boolean> {
         const self = this;
+
         return new Promise<boolean>((resolve, reject) => {
             let question: IQuestion = {
                 type: QuestionTypes.confirm,
@@ -239,6 +243,7 @@ export class ConnectionUI {
      */
     public promptForPassword(): Promise<string> {
         const self = this;
+
         return new Promise<string>((resolve, reject) => {
             let question: IQuestion = {
                 type: QuestionTypes.password,
@@ -263,6 +268,7 @@ export class ConnectionUI {
      */
     public promptToChangeLanguageMode(): Promise<boolean> {
         const self = this;
+
         return new Promise<boolean>((resolve, reject) => {
             let question: IQuestion = {
                 type: QuestionTypes.confirm,
@@ -300,6 +306,7 @@ export class ConnectionUI {
         databaseNames: Array<string>,
     ): Promise<IConnectionInfo> {
         const self = this;
+
         return new Promise<IConnectionInfo>((resolve, reject) => {
             const pickListItems: vscode.QuickPickItem[] = databaseNames.map(
                 (name) => {
@@ -308,6 +315,7 @@ export class ConnectionUI {
                         newCredentials,
                         currentCredentials,
                     );
+
                     if (newCredentials["profileName"]) {
                         delete newCredentials["profileName"];
                     }
@@ -360,6 +368,7 @@ export class ConnectionUI {
 
     private handleDisconnectChoice(): Promise<void> {
         const self = this;
+
         return new Promise<void>((resolve, reject) => {
             let question: IQuestion = {
                 type: QuestionTypes.confirm,
@@ -428,6 +437,7 @@ export class ConnectionUI {
         return new Promise<IConnectionInfo>((resolve, reject) => {
             if (selection !== undefined) {
                 let connectFunc: Promise<IConnectionInfo>;
+
                 if (
                     selection.quickPickItemType ===
                     CredentialsQuickPickItemType.NewConnection
@@ -458,6 +468,7 @@ export class ConnectionUI {
 
     private promptToClearRecentConnectionsList(): Promise<boolean> {
         const self = this;
+
         return new Promise<boolean>((resolve, reject) => {
             let question: IQuestion = {
                 type: QuestionTypes.confirm,
@@ -477,6 +488,7 @@ export class ConnectionUI {
 
     public promptToManageProfiles(): Promise<boolean> {
         const self = this;
+
         return new Promise<boolean>((resolve, reject) => {
             // Create profile, clear recent connections, edit profiles, or remove profile?
             let choices: INameValueChoice[] = [
@@ -511,7 +523,9 @@ export class ConnectionUI {
                                 .then((result) => {
                                     resolve(result);
                                 });
+
                             break;
+
                         case ManageProfileTask.ClearRecentlyUsed:
                             self.promptToClearRecentConnectionsList().then(
                                 (result) => {
@@ -535,7 +549,9 @@ export class ConnectionUI {
                                     }
                                 },
                             );
+
                             break;
+
                         case ManageProfileTask.Edit:
                             self.vscodeWrapper
                                 .executeCommand(
@@ -544,16 +560,21 @@ export class ConnectionUI {
                                 .then(() => {
                                     resolve(true);
                                 });
+
                             break;
+
                         case ManageProfileTask.Remove:
                             self.connectionManager
                                 .onRemoveProfile()
                                 .then((result) => {
                                     resolve(result);
                                 });
+
                             break;
+
                         default:
                             resolve(false);
+
                             break;
                     }
                 },
@@ -572,10 +593,12 @@ export class ConnectionUI {
         validate: boolean = true,
     ): Promise<IConnectionProfile | undefined> {
         let profile = await this.promptForCreateProfile();
+
         if (profile) {
             let savedProfile = validate
                 ? await this.validateAndSaveProfile(profile)
                 : await this.saveProfile(profile);
+
             if (savedProfile) {
                 if (validate) {
                     this.vscodeWrapper.showInformationMessage(
@@ -598,6 +621,7 @@ export class ConnectionUI {
         profile: IConnectionProfile,
     ): Promise<IConnectionProfile | undefined> {
         let uri = this.vscodeWrapper.activeTextEditorUri;
+
         if (!uri || !this.vscodeWrapper.isEditingSqlFile) {
             uri = ObjectExplorerUtils.getNodeUriFromProfile(profile);
         }
@@ -613,6 +637,7 @@ export class ConnectionUI {
                         this.connectionManager.failedUriToFirewallIpMap.has(uri)
                     ) {
                         let success = await this.addFirewallRule(uri, profile);
+
                         if (success) {
                             return await this.validateAndSaveProfile(profile);
                         }
@@ -626,6 +651,7 @@ export class ConnectionUI {
                                 uri,
                                 profile,
                             );
+
                         if (updatedConn) {
                             return await this.validateAndSaveProfile(
                                 updatedConn as IConnectionProfile,
@@ -647,6 +673,7 @@ export class ConnectionUI {
         profile: IConnectionProfile,
     ): Promise<ConnectionCompleteParams> {
         const result = await this.connectionManager.connectDialog(profile);
+
         return result;
     }
 
@@ -658,15 +685,18 @@ export class ConnectionUI {
             // Firewall rule error
             const clientIp =
                 this.connectionManager.failedUriToFirewallIpMap.get(uri);
+
             let success = await this.handleFirewallError(
                 uri,
                 profile,
                 clientIp,
             );
+
             if (success) {
                 // Retry creating the profile if firewall rule
                 // was successful
                 this.connectionManager.failedUriToFirewallIpMap.delete(uri);
+
                 return true;
             }
         }
@@ -694,6 +724,7 @@ export class ConnectionUI {
                 LocalizedConstants.msgPromptRetryFirewallRuleNotSignedIn,
                 LocalizedConstants.azureAddAccount,
             );
+
             if (selection === LocalizedConstants.azureAddAccount) {
                 profile =
                     await this.connectionManager.azureController.populateAccountProperties(
@@ -706,6 +737,7 @@ export class ConnectionUI {
             this.connectionManager.accountService.setAccount(account!);
         }
         let success = await this.createFirewallRule(profile.server, ipAddress);
+
         return success;
     }
 
@@ -736,6 +768,7 @@ export class ConnectionUI {
             profile,
             isFirewallError,
         );
+
         if (updatedProfile) {
             return await this.validateAndSaveProfile(updatedProfile);
         } else {
@@ -751,10 +784,12 @@ export class ConnectionUI {
         let errorMessage = isFirewallError
             ? LocalizedConstants.msgPromptRetryFirewallRuleAdded
             : LocalizedConstants.msgPromptRetryCreateProfile;
+
         let result = await this._vscodeWrapper.showErrorMessage(
             errorMessage,
             LocalizedConstants.retryLabel,
         );
+
         if (result === LocalizedConstants.retryLabel) {
             return await ConnectionProfile.createProfile(
                 this._prompter,
@@ -797,11 +832,15 @@ export class ConnectionUI {
 
         let azureAccountChoices: INameValueChoice[] =
             ConnectionProfile.getAccountChoices(this._accountStore);
+
         let tenantChoices: INameValueChoice[] = [];
+
         let defaultFirewallRuleName = `ClientIPAddress_${formatDate(new Date())}`;
 
         let accountAnswer: IAccount;
+
         let tenantIdAnswer: string;
+
         let firewallRuleNameAnswer: string;
 
         let questions: IQuestion[] = [
@@ -857,6 +896,7 @@ export class ConnectionUI {
                 choices: azureAccountChoices,
                 onAnswered: async (value: IAccount) => {
                     accountAnswer = value;
+
                     let account = value;
                     tenantChoices.push(
                         ...account?.properties?.tenants!.map((t) => ({
@@ -864,6 +904,7 @@ export class ConnectionUI {
                             value: t,
                         })),
                     );
+
                     if (tenantChoices.length === 1) {
                         tenantIdAnswer = tenantChoices[0].value.id;
                     }
@@ -883,6 +924,7 @@ export class ConnectionUI {
 
         // Prompt and return the value if the user confirmed
         let answers = await this._prompter.prompt(questions);
+
         if (answers) {
             let result: ICreateFirewallRuleParams = {
                 account: accountAnswer,
@@ -902,6 +944,7 @@ export class ConnectionUI {
                         tenantIdAnswer,
                     ),
             };
+
             return result;
         } else {
             return undefined;
@@ -919,22 +962,28 @@ export class ConnectionUI {
             ),
             LocalizedConstants.createFirewallRuleLabel,
         );
+
         if (result === LocalizedConstants.createFirewallRuleLabel) {
             const firewallService = this.connectionManager.firewallService;
+
             let params = await this.promptForFirewallRuleCreation(
                 ipAddress,
                 serverName,
             );
+
             if (params) {
                 let firewallResult =
                     await firewallService.createFirewallRule(params);
+
                 if (firewallResult.result) {
                     this._vscodeWrapper.showInformationMessage(
                         LocalizedConstants.msgPromptFirewallRuleCreated,
                     );
+
                     return true;
                 } else {
                     Utils.showErrorMsg(firewallResult.errorMessage);
+
                     return false;
                 }
             } else {
@@ -974,6 +1023,7 @@ export class ConnectionUI {
         const passwordEmptyInConfigFile: boolean = Utils.isEmpty(
             selection.connectionCreds.password,
         );
+
         return this._connectionStore.addSavedPassword(selection).then((sel) => {
             return ConnectionCredentials.ensureRequiredPropertiesSet(
                 sel.connectionCreds,
@@ -999,7 +1049,9 @@ export class ConnectionUI {
 
         // Flow: Select profile to remove, confirm removal, remove, notify
         let profiles = self._connectionStore.getProfilePickListItems(false);
+
         let profile = await self.selectProfileForRemoval(profiles);
+
         let profileRemoved = profile
             ? await self._connectionStore.removeProfile(profile)
             : false;
@@ -1017,17 +1069,21 @@ export class ConnectionUI {
         profiles: IConnectionCredentialsQuickPickItem[],
     ): Promise<IConnectionProfile> {
         let self = this;
+
         if (!profiles || profiles.length === 0) {
             // Inform the user we have no profiles available for deletion
             // TODO: consider moving to prompter if we separate all UI logic from workflows in the future
             this._vscodeWrapper.showErrorMessage(
                 LocalizedConstants.msgNoProfilesSaved,
             );
+
             return Promise.resolve(undefined);
         }
 
         let chooseProfile = "ChooseProfile";
+
         let confirm = "ConfirmRemoval";
+
         let questions: IQuestion[] = [
             {
                 // 1: what profile should we remove?
@@ -1051,6 +1107,7 @@ export class ConnectionUI {
                 let profilePickItem = <IConnectionCredentialsQuickPickItem>(
                     answers[chooseProfile]
                 );
+
                 return <IConnectionProfile>profilePickItem.connectionCreds;
             } else {
                 return undefined;

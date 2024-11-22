@@ -71,6 +71,7 @@ export class HeaderFilter<T extends Slick.SlickData> {
         args: Slick.OnHeaderCellRenderedEventArgs<T>,
     ) {
         const column = args.column as FilterableColumn<T>;
+
         if ((<FilterableColumn<T>>column).filterable === false) {
             return;
         }
@@ -88,11 +89,13 @@ export class HeaderFilter<T extends Slick.SlickData> {
         }
 
         args.node.classList.add("slick-header-with-filter");
+
         const $el = jQuery(
             `<button tabindex="-1" id="anchor-btn" aria-label="${ShowFilterText}" title="${ShowFilterText}"></button>`,
         )
             .addClass("slick-header-menubutton")
             .data("column", column);
+
         if (column.filterValues?.length) {
             this.setButtonImage($el, column.filterValues?.length > 0);
         }
@@ -111,7 +114,9 @@ export class HeaderFilter<T extends Slick.SlickData> {
 
     private showFilter(filterButton: HTMLElement) {
         let $menuButton;
+
         const target = withNullAsUndefined(filterButton);
+
         if (target) {
             $menuButton = jQuery(target);
             this.columnDef = $menuButton.data("column");
@@ -124,6 +129,7 @@ export class HeaderFilter<T extends Slick.SlickData> {
             // close the popup and reset activePopup
             this.activePopup.fadeOut();
             this.activePopup = null;
+
             if (isSameButton) {
                 return; // Exit since we're just closing the popup for the same button
             }
@@ -131,6 +137,7 @@ export class HeaderFilter<T extends Slick.SlickData> {
 
         // Proceed to open the new popup for the clicked column
         const offset = jQuery(filterButton).offset();
+
         const $popup = jQuery(
             '<div id="popup-menu">' +
                 `<button id="sort-ascending" type="button" icon="slick-header-menuicon.ascending" class="sort-btn">${locConstants.queryResult.sortAscending}</button>` +
@@ -211,6 +218,7 @@ export class HeaderFilter<T extends Slick.SlickData> {
         columnDef: Slick.Column<T>,
     ) {
         const dataView = this.grid.getData();
+
         if (command === "sort-asc" || command === "sort-desc") {
             this.grid.setSortColumn(
                 columnDef.id as string,
@@ -253,6 +261,7 @@ export class HeaderFilter<T extends Slick.SlickData> {
             const column = this.grid
                 .getColumns()
                 .findIndex((col) => col.id === columnDef.id);
+
             if (column >= 0) {
                 this.grid.setActiveCell(0, column);
             }
@@ -261,11 +270,13 @@ export class HeaderFilter<T extends Slick.SlickData> {
 
     private setButtonImage($el: JQuery<HTMLElement>, filtered: boolean) {
         const element: HTMLElement | undefined = $el.get(0);
+
         if (element) {
             if (filtered) {
                 element.className += " filtered";
             } else {
                 const classList = element.classList;
+
                 if (classList.contains("filtered")) {
                     classList.remove("filtered");
                 }

@@ -29,9 +29,11 @@ export class SimpleWebServer {
         this.autoShutoff();
         this.server = http.createServer((req, res) => {
             this.bumpLastUsed();
+
             const reqUrl = url.parse(req.url!, /* parseQueryString */ true);
 
             const handler = this.pathMappings.get(reqUrl.pathname);
+
             if (handler) {
                 return handler(req, reqUrl, res);
             }
@@ -47,6 +49,7 @@ export class SimpleWebServer {
 
     public async shutdown(): Promise<void> {
         clearInterval(this.shutoffInterval);
+
         return new Promise<void>((resolve, reject) => {
             this.server.close((error) => {
                 if (error) {
@@ -63,7 +66,9 @@ export class SimpleWebServer {
             throw new AlreadyRunningError();
         }
         this.hasStarted = true;
+
         let portTimeout: NodeJS.Timeout;
+
         const portPromise = new Promise<string>((resolve, reject) => {
             portTimeout = setTimeout(() => {
                 reject(new Error("Timed out waiting for the server to start"));
@@ -72,6 +77,7 @@ export class SimpleWebServer {
             this.server.on("listening", () => {
                 // TODO: What are string addresses?
                 const address = this.server.address() as AddressInfo;
+
                 if (address!.port === undefined) {
                     reject(new Error("Port was not defined"));
                 }

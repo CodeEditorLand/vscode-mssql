@@ -75,10 +75,14 @@ export function hyperLinkFormatter(
     _dataContext: any | undefined,
 ): string {
     let cellClasses = "grid-cell-value-container";
+
     let valueToDisplay = "";
+
     let isHyperlink = false;
+
     if (DBCellValue.isDBCellValue(value)) {
         valueToDisplay = "NULL";
+
         if (!value.isNull) {
             valueToDisplay = getCellDisplayValue(value.displayValue);
             isHyperlink = true;
@@ -109,11 +113,16 @@ export function textFormatter(
     addClasses?: string,
 ): string | { text: string; addClasses: string } {
     let cellClasses = "grid-cell-value-container";
+
     let valueToDisplay = "";
+
     let titleValue = "";
+
     let cellStyle = "";
+
     if (DBCellValue.isDBCellValue(value)) {
         valueToDisplay = "NULL";
+
         if (!value.isNull) {
             valueToDisplay = getCellDisplayValue(value.displayValue);
             titleValue = valueToDisplay;
@@ -123,6 +132,7 @@ export function textFormatter(
     } else if (typeof value === "string" || (value && value.text)) {
         if (value.text) {
             valueToDisplay = value.text;
+
             if (value.style) {
                 cellStyle = value.style;
             }
@@ -157,6 +167,7 @@ export function getCellDisplayValue(cellValue: string): string {
         cellValue.length > 250 ? cellValue.slice(0, 250) + "..." : cellValue;
     // allow-any-unicode-next-line
     valueToDisplay = valueToDisplay.replace(/(\r\n|\n|\r)/g, "↵");
+
     return escape(valueToDisplay);
 }
 
@@ -191,6 +202,7 @@ export function slickGridDataItemColumnValueExtractor(
     columnDef: any,
 ): TextCellValue | HyperlinkCellValue {
     let fieldValue = value[columnDef.field];
+
     if (columnDef.type === "hyperlink") {
         return <HyperlinkCellValue>{
             displayText: fieldValue.displayText,
@@ -214,6 +226,7 @@ export function slickGridDataItemColumnValueWithNoData(
     columnDef: any,
 ): { text: string; ariaLabel: string } | CssIconCellValue {
     let displayValue = value[columnDef.field];
+
     if (typeof displayValue === "number") {
         displayValue = displayValue.toString();
     }
@@ -244,14 +257,19 @@ export function escape(html: string): string {
         switch (match) {
             case "<":
                 return "&lt;";
+
             case ">":
                 return "&gt;";
+
             case "&":
                 return "&amp;";
+
             case '"':
                 return "&quot;";
+
             case "'":
                 return "&#39;";
+
             default:
                 return match;
         }
@@ -266,17 +284,21 @@ export function escape(html: string): string {
 
 export const hyperLinkFormatter: Slick.Formatter<any> = (row, cell, value, columnDef, dataContext): string => {
 	let classes: Array<string> = ['grid-cell-value-container'];
+
 	let displayValue = '';
 
 	if (DBCellValue.isDBCellValue(value)) {
 		if (!value.isNull) {
 			displayValue = value.displayValue;
+
 			classes.push('queryLink');
+
 			let linkContainer = $('a', {
 				class: classes.join(' '),
 				title: displayValue
 			});
 			linkContainer.innerText = displayValue;
+
 			return linkContainer.outerHTML;
 		} else {
 			classes.push('missing-value');
@@ -285,11 +307,13 @@ export const hyperLinkFormatter: Slick.Formatter<any> = (row, cell, value, colum
 
 	let cellContainer = $('span', { class: classes.join(' '), title: displayValue });
 	cellContainer.innerText = displayValue;
+
 	return cellContainer.outerHTML;
 };
 
 export const textFormatter: Slick.Formatter<any> = (row, cell, value, columnDef, dataContext): string => {
 	let displayValue = '';
+
 	let classes: Array<string> = ['grid-cell-value-container'];
 
 	if (DBCellValue.isDBCellValue(value)) {

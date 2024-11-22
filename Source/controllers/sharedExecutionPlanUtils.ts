@@ -94,12 +94,14 @@ export async function createExecutionPlanGraphs(
     let newState = {
         ...state.executionPlanState,
     };
+
     const startTime = performance.now(); // timer for telemetry
     for (const plan of xmlPlans) {
         const planFile: ExecutionPlanGraphInfo = {
             graphFileContent: plan,
             graphFileType: `.${sqlPlanLanguageId}`,
         };
+
         try {
             newState.executionPlanGraphs = newState.executionPlanGraphs.concat(
                 (await executionPlanService.getExecutionPlan(planFile)).graphs,
@@ -133,10 +135,12 @@ export function calculateTotalCost(
 ): number {
     if (!state.executionPlanState.executionPlanGraphs) {
         state.executionPlanState.loadState = ApiStatus.Error;
+
         return 0;
     }
 
     let sum = 0;
+
     for (const graph of state.executionPlanState.executionPlanGraphs) {
         sum += graph.root.cost + graph.root.subTreeCost;
     }
@@ -146,15 +150,18 @@ export function calculateTotalCost(
 export function formatXml(xmlContents: string): string {
     try {
         let formattedXml = "";
+
         let currentLevel = 0;
 
         const elements = xmlContents.match(/<[^>]*>/g);
+
         for (const element of elements) {
             if (element.startsWith("</")) {
                 // Closing tag: decrement the level
                 currentLevel--;
             }
             formattedXml += "\t".repeat(currentLevel) + element + "\n";
+
             if (
                 element.startsWith("<") &&
                 !element.startsWith("</") &&

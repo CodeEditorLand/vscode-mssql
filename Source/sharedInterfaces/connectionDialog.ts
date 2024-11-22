@@ -80,6 +80,7 @@ export class ConnectionDialogWebviewState
         savedConnections: IConnectionDialogProfile[];
         recentConnections: IConnectionDialogProfile[];
         connectionStatus: ApiStatus;
+
         formError: string;
         loadingAzureSubscriptionsStatus: ApiStatus;
         loadingAzureServersStatus: ApiStatus;
@@ -143,6 +144,7 @@ export interface ConnectionDialogContextProps
         IConnectionDialogProfile
     > {
     loadConnection: (connection: IConnectionDialogProfile) => void;
+
     setConnectionInputType: (inputType: ConnectionInputMode) => void;
     connect: () => void;
     loadAzureServers: (subscriptionId: string) => void;
@@ -163,6 +165,7 @@ export interface ConnectionDialogReducers {
     setConnectionInputType: {
         inputMode: ConnectionInputMode;
     };
+
     formAction: {
         event: FormEvent<IConnectionDialogProfile>;
     };

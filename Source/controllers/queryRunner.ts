@@ -160,10 +160,12 @@ export default class QueryRunner {
     public async cancel(): Promise<QueryCancelResult> {
         // Make the request to cancel the query
         let cancelParams: QueryCancelParams = { ownerUri: this._ownerUri };
+
         let queryCancelResult = await this._client.sendRequest(
             QueryCancelRequest.type,
             cancelParams,
         );
+
         return queryCancelResult;
     }
 
@@ -212,7 +214,9 @@ export default class QueryRunner {
             const doc = await this._vscodeWrapper.openTextDocument(
                 this._vscodeWrapper.parseUri(this._ownerUri),
             );
+
             let queryString: string;
+
             if (selection) {
                 let range = this._vscodeWrapper.range(
                     this._vscodeWrapper.position(
@@ -270,6 +274,7 @@ export default class QueryRunner {
             this.eventEmitter.emit("start", this.uri);
             this._notificationHandler.registerRunner(this, this._ownerUri);
         };
+
         let onError = (error) => {
             this._statusView.executedQuery(this.uri);
             this._isExecuting = false;
@@ -321,6 +326,7 @@ export default class QueryRunner {
 
         // We're done with this query so shut down any waiting mechanisms
         const promise = this._uriToQueryPromiseMap.get(result.ownerUri);
+
         if (promise) {
             promise.resolve();
             this._uriToQueryPromiseMap.delete(result.ownerUri);
@@ -330,6 +336,7 @@ export default class QueryRunner {
             result.ownerUri,
             Utils.parseNumAsTimeString(this._totalElapsedMilliseconds),
         );
+
         let hasError = this._batchSets.some((batch) => batch.hasError === true);
         this.removeRunningQuery();
         this.eventEmitter.emit(
@@ -386,10 +393,12 @@ export default class QueryRunner {
 
         // Store the batch again to get the rest of the data
         this._batchSets[batch.id] = batch;
+
         let executionTime = <number>(
             (Utils.parseTimeString(batch.executionElapsed) || 0)
         );
         this._totalElapsedMilliseconds += executionTime;
+
         if (executionTime > 0) {
             // send a time message in the format used for query complete
             this.sendBatchTimeMessage(
@@ -406,12 +415,15 @@ export default class QueryRunner {
     public async refreshQueryTab(uri: string): Promise<boolean> {
         this._isExecuting = true;
         this._hasCompleted = false;
+
         for (let batchId = 0; batchId < this.batchSets.length; batchId++) {
             const batchSet = this.batchSets[batchId];
             this.eventEmitter.emit("batchStart", batchSet);
+
             let executionTime = <number>(
                 (Utils.parseTimeString(batchSet.executionElapsed) || 0)
             );
+
             if (executionTime > 0) {
                 // send a time message in the format used for query complete
                 this.sendBatchTimeMessage(
@@ -422,6 +434,7 @@ export default class QueryRunner {
 
             // replay the messages for the current batch
             const messages = this._batchSetMessages[batchId];
+
             if (messages !== undefined) {
                 for (
                     let messageId = 0;
@@ -434,6 +447,7 @@ export default class QueryRunner {
             }
 
             this.eventEmitter.emit("batchComplete", batchSet);
+
             for (
                 let resultSetId = 0;
                 resultSetId < batchSet.resultSetSummaries.length;
@@ -453,6 +467,7 @@ export default class QueryRunner {
             true,
             true,
         );
+
         return true;
     }
 
@@ -460,6 +475,7 @@ export default class QueryRunner {
         result: QueryExecuteResultSetCompleteNotificationParams,
     ): void {
         let resultSet = result.resultSetSummary;
+
         let batchSet = this._batchSets[resultSet.batchId];
 
         // Store the result set in the batch and emit that a result set has completed
@@ -505,11 +521,13 @@ export default class QueryRunner {
         queryDetails.rowsCount = numberOfRows;
         queryDetails.rowsStartIndex = rowStart;
         queryDetails.batchIndex = batchIndex;
+
         try {
             const queryExecuteSubsetResult = await this._client.sendRequest(
                 QueryExecuteSubsetRequest.type,
                 queryDetails,
             );
+
             if (queryExecuteSubsetResult) {
                 return queryExecuteSubsetResult;
             }
@@ -529,6 +547,7 @@ export default class QueryRunner {
     public async dispose(): Promise<void> {
         let disposeDetails = new QueryDisposeParams();
         disposeDetails.ownerUri = this.uri;
+
         try {
             await this._client.sendRequest(
                 QueryDisposeRequest.type,
@@ -549,7 +568,9 @@ export default class QueryRunner {
         range: ISlickRange,
     ): string[] {
         let headers: string[] = undefined;
+
         let batchSummary: BatchSummary = this.batchSets[batchId];
+
         if (batchSummary !== undefined) {
             let resultSetSummary = batchSummary.resultSetSummaries[resultId];
             headers = resultSetSummary.columnInfo
@@ -567,8 +588,11 @@ export default class QueryRunner {
         selection: ISlickRange[],
     ): Promise<void> {
         let copyString = "";
+
         let firstCol: number;
+
         let lastCol: number;
+
         for (let range of selection) {
             if (firstCol === undefined || range.fromCell < firstCol) {
                 firstCol = range.fromCell;
@@ -583,6 +607,7 @@ export default class QueryRunner {
             fromRow: undefined,
             toRow: undefined,
         };
+
         let columnHeaders = this.getColumnHeaders(
             batchId,
             resultId,
@@ -591,11 +616,13 @@ export default class QueryRunner {
         copyString += columnHeaders.join("\t");
 
         let oldLang: string;
+
         if (process.platform === "darwin") {
             oldLang = process.env["LANG"];
             process.env["LANG"] = "en_US.UTF-8";
         }
         await this._vscodeWrapper.clipboardWriteText(copyString);
+
         if (process.platform === "darwin") {
             process.env["LANG"] = oldLang;
         }
@@ -619,7 +646,9 @@ export default class QueryRunner {
         // add the column headers
         if (this.shouldIncludeHeaders(includeHeaders)) {
             let firstCol: number;
+
             let lastCol: number;
+
             for (let range of selection) {
                 if (firstCol === undefined || range.fromCell < firstCol) {
                     firstCol = range.fromCell;
@@ -634,6 +663,7 @@ export default class QueryRunner {
                 fromRow: undefined,
                 toRow: undefined,
             };
+
             let columnHeaders = this.getColumnHeaders(
                 batchId,
                 resultId,
@@ -648,6 +678,7 @@ export default class QueryRunner {
 
         // create a mapping of rows to selections
         let rowIdToSelectionMap = new Map<number, ISlickRange[]>();
+
         let rowIdToRowMap = new Map<number, DbCellValue[]>();
 
         // create a mapping of the ranges to get promises
@@ -659,8 +690,10 @@ export default class QueryRunner {
                     batchId,
                     resultId,
                 );
+
                 for (let row of result.resultSubset.rows) {
                     let rowNumber = row[0].rowId + range.fromRow;
+
                     if (rowIdToSelectionMap.has(rowNumber)) {
                         let rowSelection = rowIdToSelectionMap.get(rowNumber);
                         rowSelection.push(range);
@@ -674,6 +707,7 @@ export default class QueryRunner {
 
         // get all the rows
         let p = tasks[0]();
+
         for (let i = 1; i < tasks.length; i++) {
             p = p.then(tasks[i]);
         }
@@ -681,14 +715,19 @@ export default class QueryRunner {
 
         // Go through all rows and get selections for them
         let allRowIds = rowIdToRowMap.keys();
+
         const endColumns = this.getSelectionEndColumns(
             rowIdToRowMap,
             rowIdToSelectionMap,
         );
+
         const firstColumn = endColumns[0];
+
         const lastColumn = endColumns[1];
+
         for (let rowId of allRowIds) {
             let row = rowIdToRowMap.get(rowId);
+
             const rowSelections = rowIdToSelectionMap.get(rowId);
 
             // sort selections by column to go from left to right
@@ -737,11 +776,13 @@ export default class QueryRunner {
         }
 
         let oldLang: string;
+
         if (process.platform === "darwin") {
             oldLang = process.env["LANG"];
             process.env["LANG"] = "en_US.UTF-8";
         }
         await this._vscodeWrapper.clipboardWriteText(copyString);
+
         if (process.platform === "darwin") {
             process.env["LANG"] = oldLang;
         }
@@ -750,6 +791,7 @@ export default class QueryRunner {
     public async toggleSqlCmd(): Promise<boolean> {
         const queryExecuteOptions: QueryExecutionOptions = { options: {} };
         queryExecuteOptions.options["isSqlCmdMode"] = !this.isSqlCmd;
+
         const queryExecuteOptionsParams: QueryExecutionOptionsParams = {
             ownerUri: this.uri,
             options: queryExecuteOptions,
@@ -759,6 +801,7 @@ export default class QueryRunner {
             queryExecuteOptionsParams,
         );
         this._isSqlCmd = !this._isSqlCmd;
+
         return true;
     }
 
@@ -773,6 +816,7 @@ export default class QueryRunner {
             this.uri,
         );
         includeHeaders = config.get(Constants.copyIncludeHeaders);
+
         return !!includeHeaders;
     }
 
@@ -782,9 +826,11 @@ export default class QueryRunner {
             Constants.extensionConfigSectionName,
             this.uri,
         );
+
         let removeNewLines: boolean = config.get(
             Constants.configCopyRemoveNewLine,
         );
+
         return removeNewLines;
     }
 
@@ -794,6 +840,7 @@ export default class QueryRunner {
         // Linux(LF)/Modern MacOS: \n
         // Old MacOs: \r
         let outputString: string = inputString.replace(/(\r\n|\n|\r)/gm, "");
+
         return outputString;
     }
 
@@ -803,7 +850,9 @@ export default class QueryRunner {
             Constants.extensionConfigSectionName,
             this.uri,
         );
+
         let showBatchTime: boolean = config.get(Constants.configShowBatchTime);
+
         if (showBatchTime) {
             let message: IResultMessage = {
                 batchId: batchId,
@@ -824,10 +873,14 @@ export default class QueryRunner {
         rowIdToSelectionMap: Map<number, ISlickRange[]>,
     ): number[] {
         let allRowIds = rowIdToRowMap.keys();
+
         let firstColumn = -1;
+
         let lastColumn = -1;
+
         for (let rowId of allRowIds) {
             const rowSelections = rowIdToSelectionMap.get(rowId);
+
             for (let i = 0; i < rowSelections.length; i++) {
                 if (
                     firstColumn === -1 ||
@@ -851,12 +904,16 @@ export default class QueryRunner {
         const docExists = this._vscodeWrapper.textDocuments.find(
             (textDoc) => textDoc.uri.toString(true) === this.uri,
         );
+
         if (docExists) {
             let column = vscode.ViewColumn.One;
+
             const doc = await this._vscodeWrapper.openTextDocument(
                 this._vscodeWrapper.parseUri(this.uri),
             );
+
             const activeTextEditor = this._vscodeWrapper.activeTextEditor;
+
             if (activeTextEditor) {
                 column = activeTextEditor.viewColumn;
             }
@@ -865,6 +922,7 @@ export default class QueryRunner {
                 preserveFocus: false,
                 preview: false,
             });
+
             let querySelection = new vscode.Selection(
                 selection.startLine,
                 selection.startColumn,
@@ -872,6 +930,7 @@ export default class QueryRunner {
                 selection.endColumn,
             );
             editor.selection = querySelection;
+
             return;
         }
     }

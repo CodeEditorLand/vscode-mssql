@@ -12,6 +12,7 @@ export interface FormState<T> {
 export interface FormContextProps<TState extends FormState<TForm>, TForm> {
     state: TState;
     themeKind: ColorThemeKind;
+
     formAction: (event: FormEvent<TForm>) => void;
 }
 

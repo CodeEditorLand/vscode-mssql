@@ -116,6 +116,7 @@ function _$<T extends Element>(
     }
 
     const tagName = match[1] || "div";
+
     let result: T;
 
     if (namespace !== Namespace.HTML) {
@@ -172,6 +173,7 @@ export function append<T extends Node>(
     ...children: (T | string)[]
 ): T | void {
     parent.append(...children);
+
     if (children.length === 1 && typeof children[0] !== "string") {
         return <T>children[0];
     }
@@ -186,6 +188,7 @@ export function createStyleSheet(
     style.media = "screen";
     beforeAppend?.(style);
     container.appendChild(style);
+
     return style;
 }
 

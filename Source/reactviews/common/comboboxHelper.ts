@@ -39,11 +39,15 @@ export function updateComboboxSelection(
                 case DefaultSelectionMode.SelectFirstIfAny:
                     optionToSelect =
                         optionList.length > 0 ? optionList[0] : undefined;
+
                     break;
+
                 case DefaultSelectionMode.SelectOnlyOrNone:
                     optionToSelect =
                         optionList.length === 1 ? optionList[0] : undefined;
+
                     break;
+
                 case DefaultSelectionMode.AlwaysSelectNone:
                 default:
                     optionToSelect = undefined;

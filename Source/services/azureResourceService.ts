@@ -28,6 +28,7 @@ export class AzureResourceService implements mssql.IAzureResourceService {
             session,
             this._accountStore,
         );
+
         return await this._azureResourceController.getLocations(session);
     }
 
@@ -41,6 +42,7 @@ export class AzureResourceService implements mssql.IAzureResourceService {
             session,
             this._accountStore,
         );
+
         return await this._azureResourceController.getResourceGroups(session);
     }
 
@@ -57,6 +59,7 @@ export class AzureResourceService implements mssql.IAzureResourceService {
             session,
             this._accountStore,
         );
+
         return await this._azureResourceController.createOrUpdateServer(
             session.subscription.subscriptionId,
             resourceGroupName,

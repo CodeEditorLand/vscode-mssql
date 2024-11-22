@@ -64,8 +64,10 @@ export abstract class MsalAzureAuth {
 
     public async startLogin(): Promise<IAccount | IPromptFailedResult> {
         let loginComplete: IDeferred<void, Error> | undefined = undefined;
+
         try {
             this.logger.verbose("Starting login");
+
             if (!this.providerSettings.resources.windowsManagementResource) {
                 throw new Error(
                     LocalizedConstants.azureNoMicrosoftResource(
@@ -75,8 +77,10 @@ export abstract class MsalAzureAuth {
             }
             const result = await this.login(Constants.organizationTenant);
             loginComplete = result.authComplete;
+
             if (!result?.response || !result.response?.account) {
                 this.logger.error(`Authentication failed: ${loginComplete}`);
+
                 return {
                     canceled: false,
                 };
@@ -86,12 +90,16 @@ export abstract class MsalAzureAuth {
                 key: result.response.account.homeAccountId,
                 tokenType: result.response.tokenType,
             };
+
             const tokenClaims = <ITokenClaims>result.response.idTokenClaims;
+
             const account = await this.hydrateAccount(token, tokenClaims);
             loginComplete?.resolve();
+
             return account;
         } catch (ex) {
             this.logger.error(`Login failed: ${ex}`);
+
             if (ex instanceof AzureAuthError) {
                 if (loginComplete) {
                     loginComplete.reject(ex);
@@ -114,7 +122,9 @@ export abstract class MsalAzureAuth {
         tokenClaims: ITokenClaims,
     ): Promise<IAccount> {
         const tenants = await this.getTenants(token.token);
+
         let account = this.createAccount(tokenClaims, token.key, tenants);
+
         return account;
     }
 
@@ -136,6 +146,7 @@ export abstract class MsalAzureAuth {
         settings: IAADResource,
     ): Promise<AuthenticationResult | null> {
         let accountInfo: AccountInfo | null;
+
         try {
             accountInfo = await this.getAccountFromMsalCache(account.key.id);
         } catch (e) {
@@ -147,6 +158,7 @@ export abstract class MsalAzureAuth {
                 id: tenantId,
                 displayName: "",
             };
+
             return this.handleInteractionRequired(tenant, settings, false);
         }
         // Resource endpoint must end with '/' to form a valid scope for MSAL token request.
@@ -156,6 +168,7 @@ export abstract class MsalAzureAuth {
 
         if (!account) {
             this.logger.error("Error: Account not received.");
+
             return null;
         }
 
@@ -164,6 +177,7 @@ export abstract class MsalAzureAuth {
         }
 
         let newScope: string[];
+
         if (
             settings.id ===
             this.providerSettings.resources.windowsManagementResource.id
@@ -185,18 +199,21 @@ export abstract class MsalAzureAuth {
             scopes: newScope,
             forceRefresh: true,
         };
+
         try {
             return await this.clientApplication.acquireTokenSilent(
                 tokenRequest,
             );
         } catch (e) {
             this.logger.error("Failed to acquireTokenSilent", e);
+
             if (e instanceof AuthError && this.accountNeedsRefresh(e)) {
                 // build refresh token request
                 const tenant: ITenant = {
                     id: tenantId,
                     displayName: "",
                 };
+
                 return this.handleInteractionRequired(tenant, settings);
             } else if (e.name === "ClientAuthError") {
                 this.logger.verbose(
@@ -207,6 +224,7 @@ export abstract class MsalAzureAuth {
             this.logger.error(
                 `Failed to silently acquire token, not InteractionRequiredAuthError: ${e.message}`,
             );
+
             throw e;
         }
     }
@@ -237,16 +255,20 @@ export abstract class MsalAzureAuth {
                     tenantId,
                     settings,
                 );
+
                 if (!tokenResult) {
                     account.isStale = true;
+
                     return account;
                 }
 
                 const tokenClaims = this.getTokenClaims(
                     tokenResult.accessToken,
                 );
+
                 if (!tokenClaims) {
                     account.isStale = true;
+
                     return account;
                 }
 
@@ -260,12 +282,14 @@ export abstract class MsalAzureAuth {
                 return await this.hydrateAccount(token, tokenClaims);
             } catch (ex) {
                 account.isStale = true;
+
                 throw ex;
             }
         } else {
             this.logger.error(
                 `refreshAccessToken: Account not received for refreshing access token.`,
             );
+
             throw Error(LocalizedConstants.msgAccountNotFound);
         }
     }
@@ -279,8 +303,10 @@ export abstract class MsalAzureAuth {
         accountId: string,
     ): Promise<AccountInfo | null> {
         const cache = this.clientApplication.getTokenCache();
+
         if (!cache) {
             this.logger.error("Error: Could not fetch token cache.");
+
             return null;
         }
 
@@ -302,19 +328,25 @@ export abstract class MsalAzureAuth {
             this.providerSettings.resources.azureManagementResource.endpoint,
             "tenants?api-version=2019-11-01",
         );
+
         try {
             this.logger.verbose("Fetching tenants with uri {0}", tenantUri);
+
             let tenantList: string[] = [];
+
             const tenantResponse =
                 await this.makeGetRequest<GetTenantsResponseData>(
                     tenantUri,
                     token,
                 );
+
             const data = tenantResponse.data;
+
             if (this.isErrorResponseBodyWithError(data)) {
                 this.logger.error(
                     `Error fetching tenants :${data.error.code} - ${data.error.message}`,
                 );
+
                 throw new Error(`${data.error.code} - ${data.error.message}`);
             }
             const tenants: ITenant[] = data.value.map(
@@ -339,6 +371,7 @@ export abstract class MsalAzureAuth {
                 },
             );
             this.logger.verbose(`Tenants: ${tenantList}`);
+
             const homeTenantIndex = tenants.findIndex(
                 (tenant) => tenant.tenantCategory === Constants.homeCategory,
             );
@@ -348,9 +381,11 @@ export abstract class MsalAzureAuth {
                 tenants.unshift(homeTenant[0]);
             }
             this.logger.verbose(`Filtered Tenants: ${tenantList}`);
+
             return tenants;
         } catch (ex) {
             this.logger.error(`Error fetching tenants :${ex}`);
+
             throw ex;
         }
     }
@@ -387,6 +422,7 @@ export abstract class MsalAzureAuth {
             [],
             uri,
         );
+
         return response;
     }
 
@@ -397,16 +433,20 @@ export abstract class MsalAzureAuth {
         promptUser: boolean = true,
     ): Promise<AuthenticationResult | null> {
         let shouldOpen: boolean;
+
         if (promptUser) {
             shouldOpen = await this.askUserForInteraction(tenant, settings);
+
             if (shouldOpen) {
                 const result = await this.login(tenant);
                 result?.authComplete?.resolve();
+
                 return result?.response;
             }
         } else {
             const result = await this.login(tenant);
             result?.authComplete?.resolve();
+
             return result?.response;
         }
 
@@ -445,6 +485,7 @@ export abstract class MsalAzureAuth {
         const messageBody = LocalizedConstants.azureConsentDialogBodyAccount(
             settings.id,
         );
+
         const result = await vscode.window.showInformationMessage(
             messageBody,
             { modal: true },
@@ -496,6 +537,7 @@ export abstract class MsalAzureAuth {
             tokenClaims.preferred_username ??
             tokenClaims.email ??
             tokenClaims.unique_name;
+
         const email =
             tokenClaims.preferred_username ??
             tokenClaims.email ??
@@ -516,20 +558,26 @@ export abstract class MsalAzureAuth {
         }
 
         let displayName = name;
+
         if (email) {
             displayName = `${displayName} - ${email}`;
         }
 
         let contextualDisplayName: string;
+
         switch (accountIssuer) {
             case Constants.AccountIssuer.Corp:
                 contextualDisplayName =
                     LocalizedConstants.azureMicrosoftCorpAccount;
+
                 break;
+
             case Constants.AccountIssuer.Msft:
                 contextualDisplayName =
                     LocalizedConstants.azureMicrosoftAccount;
+
                 break;
+
             default:
                 contextualDisplayName = displayName;
         }
@@ -572,6 +620,7 @@ export abstract class MsalAzureAuth {
     protected getTokenClaims(accessToken: string): ITokenClaims {
         try {
             const split = accessToken.split(".");
+
             return JSON.parse(Buffer.from(split[1], "base64").toString("utf8"));
         } catch (ex) {
             throw new Error(
@@ -590,6 +639,7 @@ export abstract class MsalAzureAuth {
     public async clearCredentials(account: IAccount): Promise<void> {
         try {
             const tokenCache = this.clientApplication.getTokenCache();
+
             let accountInfo: AccountInfo | null =
                 await this.getAccountFromMsalCache(account.key.id);
             await tokenCache.removeAccount(accountInfo!);

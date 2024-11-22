@@ -44,13 +44,18 @@ export class MsalAzureController extends AzureController {
                 switch (level) {
                     case MsalLogLevel.Error:
                         this.logger.error(message);
+
                         break;
+
                     case MsalLogLevel.Info:
                         this.logger.info(message);
+
                         break;
+
                     case MsalLogLevel.Verbose:
                     default:
                         this.logger.verbose(message);
+
                         break;
                 }
             } else {
@@ -68,6 +73,7 @@ export class MsalAzureController extends AzureController {
 
     public async loadTokenCache(): Promise<void> {
         let authType = getAzureActiveDirectoryConfig();
+
         if (!this._authMappings.has(authType)) {
             await this.handleAuthMapping();
         }
@@ -93,6 +99,7 @@ export class MsalAzureController extends AzureController {
             await this.findOrMakeStoragePath(),
             AzureConstants.oldMsalCacheFileName,
         );
+
         try {
             await fsPromises.access(filePath);
             await fsPromises.rm(filePath);
@@ -108,17 +115,22 @@ export class MsalAzureController extends AzureController {
 
     public async login(authType: AzureAuthType): Promise<IAccount | undefined> {
         let azureAuth = await this.getAzureAuthInstance(authType);
+
         let response = await azureAuth!.startLogin();
+
         return response ? (response as IAccount) : undefined;
     }
 
     public async isAccountInCache(account: IAccount): Promise<boolean> {
         let authType = getAzureActiveDirectoryConfig();
+
         let azureAuth = await this.getAzureAuthInstance(authType!);
         await this.clearOldCacheIfExists();
+
         let accountInfo = await azureAuth.getAccountFromMsalCache(
             account.key.id,
         );
+
         return accountInfo !== undefined;
     }
 
@@ -139,6 +151,7 @@ export class MsalAzureController extends AzureController {
         let azureAuth = await this.getAzureAuthInstance(
             getAzureActiveDirectoryConfig(),
         );
+
         if (azureAuth) {
             this.logger.piiSanitized(
                 `Getting account security token for ${JSON.stringify(account?.key)} (tenant ${tenantId}). Auth Method = ${AzureAuthType[account?.properties.azureAuthType]}`,
@@ -146,9 +159,12 @@ export class MsalAzureController extends AzureController {
                 [],
             );
             tenantId = tenantId || account.properties.owningTenant.id;
+
             let result = await azureAuth.getToken(account, tenantId, settings);
+
             if (!result || !result.account || !result.account.idTokenClaims) {
                 this.logger.error(`MSAL: getToken call failed`);
+
                 throw Error("Failed to get token");
             } else {
                 const token: IToken = {
@@ -157,6 +173,7 @@ export class MsalAzureController extends AzureController {
                     tokenType: result.tokenType,
                     expiresOn: result.account.idTokenClaims.exp,
                 };
+
                 return token;
             }
         } else {
@@ -165,11 +182,13 @@ export class MsalAzureController extends AzureController {
                 this.logger.error(
                     `_getAccountSecurityToken: Authentication method not found for account ${account.displayInfo.displayName}`,
                 );
+
                 throw Error(LocalizedConstants.msgAuthTypeNotFound);
             } else {
                 this.logger.error(
                     `_getAccountSecurityToken: Authentication method not found as account not available.`,
                 );
+
                 throw Error(LocalizedConstants.msgAccountNotFound);
             }
         }
@@ -182,6 +201,7 @@ export class MsalAzureController extends AzureController {
         settings: IAADResource,
     ): Promise<IToken | undefined> {
         let newAccount: IAccount;
+
         try {
             let azureAuth = await this.getAzureAuthInstance(
                 getAzureActiveDirectoryConfig(),
@@ -197,6 +217,7 @@ export class MsalAzureController extends AzureController {
             }
 
             await accountStore.addAccount(newAccount!);
+
             return await this.getAccountSecurityToken(
                 account,
                 tenantId ?? account.properties.owningTenant.id,
@@ -212,10 +233,12 @@ export class MsalAzureController extends AzureController {
                     newAccount = await this.login(
                         account.properties.azureAuthType,
                     );
+
                     if (newAccount!.isStale === true) {
                         return undefined;
                     }
                     await accountStore.addAccount(newAccount!);
+
                     return await this.getAccountSecurityToken(
                         account,
                         tenantId ?? account.properties.owningTenant.id,
@@ -288,6 +311,7 @@ export class MsalAzureController extends AzureController {
                 this.logger,
                 this._credentialStore,
             );
+
             const msalConfiguration: Configuration = {
                 auth: {
                     clientId: this._providerSettings.clientId,

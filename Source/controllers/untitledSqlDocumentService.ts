@@ -25,6 +25,7 @@ export default class UntitledSqlDocumentService {
             preserveFocus: false,
             preview: false,
         });
+
         return editor;
     }
 }

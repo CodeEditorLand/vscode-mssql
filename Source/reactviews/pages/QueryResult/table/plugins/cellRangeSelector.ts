@@ -93,6 +93,7 @@ export class CellRangeSelector<T extends Slick.SlickData>
 
     private handleDragStart(e: MouseEvent, dd: Slick.OnDragStartEventArgs<T>) {
         let cell = this.grid.getCellFromEvent(e);
+
         if (this.onBeforeCellRangeSelected.notify(cell) !== false) {
             if (this.grid.canCellBeSelected(cell.row, cell.cell)) {
                 this.dragging = true;
@@ -114,6 +115,7 @@ export class CellRangeSelector<T extends Slick.SlickData>
 
         dd.range = { start: start, end: undefined };
         this.currentlySelectedRange = dd.range;
+
         return this.decorator.show(new Slick.Range(start.row, start.cell));
     }
 

@@ -75,6 +75,7 @@ export class TableDesignerWebviewController extends ReactWebviewPanelController<
             await vscode.window.showErrorMessage(
                 "Unable to find object explorer node",
             );
+
             return;
         }
 
@@ -97,6 +98,7 @@ export class TableDesignerWebviewController extends ReactWebviewPanelController<
             await this._connectionManager.createConnectionDetails(
                 connectionInfo,
             );
+
         const connectionString =
             await this._connectionManager.getConnectionString(
                 connectionDetails,
@@ -108,6 +110,7 @@ export class TableDesignerWebviewController extends ReactWebviewPanelController<
             await vscode.window.showErrorMessage(
                 "Unable to find connection string for the connection",
             );
+
             return;
         }
 
@@ -123,6 +126,7 @@ export class TableDesignerWebviewController extends ReactWebviewPanelController<
 
         try {
             let tableInfo: designer.TableInfo;
+
             if (this._isEdit) {
                 tableInfo = {
                     id: randomUUID(),
@@ -147,6 +151,7 @@ export class TableDesignerWebviewController extends ReactWebviewPanelController<
                 };
             }
             this.panel.title = tableInfo.title;
+
             const initializeResult =
                 await this._tableDesignerService.initializeTableDesigner(
                     tableInfo,
@@ -190,6 +195,7 @@ export class TableDesignerWebviewController extends ReactWebviewPanelController<
 
     public override dispose() {
         this._tableDesignerService.disposeTableDesigner(this.state.tableInfo);
+
         super.dispose();
         sendActionEvent(TelemetryViews.TableDesigner, TelemetryActions.Close, {
             correlationId: this._correlationId,
@@ -212,6 +218,7 @@ export class TableDesignerWebviewController extends ReactWebviewPanelController<
                     correlationId: this._correlationId,
                 },
             );
+
             if (editResponse.issues?.length === 0) {
                 state.tabStates.resultPaneTab =
                     designer.DesignerResultPaneTabs.Script;
@@ -235,6 +242,7 @@ export class TableDesignerWebviewController extends ReactWebviewPanelController<
                     editState: designer.LoadState.Loaded,
                 },
             };
+
             return afterEditState;
         });
 
@@ -254,6 +262,7 @@ export class TableDesignerWebviewController extends ReactWebviewPanelController<
                     publishState: designer.LoadState.Loading,
                 },
             };
+
             try {
                 const publishResponse =
                     await this._tableDesignerService.publishChanges(
@@ -310,6 +319,7 @@ export class TableDesignerWebviewController extends ReactWebviewPanelController<
                     generateScriptState: designer.LoadState.Loading,
                 },
             };
+
             const script = await this._tableDesignerService.generateScript(
                 payload.table,
             );
@@ -329,6 +339,7 @@ export class TableDesignerWebviewController extends ReactWebviewPanelController<
             };
             await this._untitledSqlDocumentService.newQuery(script);
             await UserSurvey.getInstance().promptUserForNPSFeedback();
+
             return state;
         });
 
@@ -344,6 +355,7 @@ export class TableDesignerWebviewController extends ReactWebviewPanelController<
                     },
                     publishingError: undefined,
                 };
+
                 const previewReport =
                     await this._tableDesignerService.generatePreviewReport(
                         payload.table,
@@ -364,12 +376,14 @@ export class TableDesignerWebviewController extends ReactWebviewPanelController<
                     },
                     generatePreviewReportResult: previewReport,
                 };
+
                 return state;
             },
         );
 
         this.registerReducer("initializeTableDesigner", async (state) => {
             await this.initialize();
+
             return state;
         });
 
@@ -378,6 +392,7 @@ export class TableDesignerWebviewController extends ReactWebviewPanelController<
                 (state.model["script"] as designer.InputBoxProperties).value ??
                     "",
             );
+
             return state;
         });
 
@@ -387,11 +402,13 @@ export class TableDesignerWebviewController extends ReactWebviewPanelController<
                     "",
             );
             await vscode.window.showInformationMessage(scriptCopiedToClipboard);
+
             return state;
         });
 
         this.registerReducer("setTab", async (state, payload) => {
             state.tabStates.mainPaneTab = payload.tabId;
+
             return state;
         });
 
@@ -399,12 +416,14 @@ export class TableDesignerWebviewController extends ReactWebviewPanelController<
             "setPropertiesComponents",
             async (state, payload) => {
                 state.propertiesPaneData = payload.components;
+
                 return state;
             },
         );
 
         this.registerReducer("setResultTab", async (state, payload) => {
             state.tabStates.resultPaneTab = payload.tabId;
+
             return state;
         });
 
@@ -417,6 +436,7 @@ export class TableDesignerWebviewController extends ReactWebviewPanelController<
                 },
             );
             this.panel.dispose();
+
             return state;
         });
 
@@ -429,11 +449,13 @@ export class TableDesignerWebviewController extends ReactWebviewPanelController<
                     correlationId: this._correlationId,
                 },
             );
+
             return state;
         });
         this.registerReducer("copyPublishErrorToClipboard", async (state) => {
             await vscode.env.clipboard.writeText(state.publishingError ?? "");
             void vscode.window.showInformationMessage(copied);
+
             return state;
         });
     }

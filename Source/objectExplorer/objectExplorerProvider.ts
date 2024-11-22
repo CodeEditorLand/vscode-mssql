@@ -40,6 +40,7 @@ export class ObjectExplorerProvider implements vscode.TreeDataProvider<any> {
 
     async getChildren(element?: TreeNodeInfo): Promise<vscode.TreeItem[]> {
         const children = await this._objectExplorerService.getChildren(element);
+
         if (children) {
             return children;
         }

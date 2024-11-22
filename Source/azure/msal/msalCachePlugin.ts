@@ -54,16 +54,20 @@ export class MsalCachePluginProvider {
 
     public getCachePlugin(): ICachePlugin {
         const lockFilePath = this.getLockfilePath();
+
         const beforeCacheAccess = async (
             cacheContext: TokenCacheContext,
         ): Promise<void> => {
             await this.waitAndLock(lockFilePath);
+
             try {
                 const cache = await fsPromises.readFile(this._msalFilePath, {
                     encoding: "utf8",
                 });
+
                 const decryptedCache =
                     await this._fileEncryptionHelper.fileOpener(cache);
+
                 try {
                     cacheContext.tokenCache.deserialize(decryptedCache);
                 } catch (e) {
@@ -100,8 +104,10 @@ export class MsalCachePluginProvider {
         ): Promise<void> => {
             if (cacheContext.cacheHasChanged) {
                 await this.waitAndLock(lockFilePath);
+
                 try {
                     const cache = cacheContext.tokenCache.serialize();
+
                     const encryptedCache =
                         await this._fileEncryptionHelper.fileSaver(cache);
                     await fsPromises.writeFile(
@@ -118,6 +124,7 @@ export class MsalCachePluginProvider {
                     this._logger.error(
                         `MsalCachePlugin: Failed to write to cache file. ${e}`,
                     );
+
                     throw e;
                 } finally {
                     lockFile.unlockSync(lockFilePath);
@@ -140,6 +147,7 @@ export class MsalCachePluginProvider {
     private async waitAndLock(lockFilePath: string): Promise<void> {
         // Make 500 retry attempts with 100ms wait time between each attempt to allow enough time for the lock to be released.
         const retries = 500;
+
         const retryWait = 100;
 
         // We cannot rely on lockfile.lockSync() to clear stale lockfile,
@@ -152,18 +160,21 @@ export class MsalCachePluginProvider {
         }
 
         let retryAttempt = 0;
+
         while (retryAttempt <= retries) {
             try {
                 // Use lockfile.lockSync() to ensure only one process is accessing the cache at a time.
                 // lockfile.lock() does not wait for async callback promise to resolve.
                 lockFile.lockSync(lockFilePath);
                 this._lockTaken = true;
+
                 break;
             } catch (e) {
                 if (retryAttempt === retries) {
                     this._logger.error(
                         `MsalCachePlugin: Failed to acquire lock on cache file after ${retries} attempts.`,
                     );
+
                     throw new Error(
                         `Failed to acquire lock on cache file after ${retries} attempts. Please try clearing Access token cache.`,
                     );

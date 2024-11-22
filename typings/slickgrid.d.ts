@@ -1583,8 +1583,11 @@ declare namespace Slick {
 
 	export module Formatters {
 		let PercentComplete: Formatter<Slick.SlickData>;
+
 		let PercentCompleteBar: Formatter<Slick.SlickData>;
+
 		let YesNo: Formatter<Slick.SlickData>;
+
 		let Checkmark: Formatter<Slick.SlickData>;
 	}
 
@@ -1680,6 +1683,7 @@ declare namespace Slick {
 
 		export interface GroupingOptions<T> {
 			getter?: ((item?: T) => any) | string;
+
 			formatter?: (item?: T) => string;
 			comparer?: (a: Group<T>, b: Group<T>) => number;
 			predefinedValues?: any[];	// todo

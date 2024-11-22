@@ -86,6 +86,7 @@ export class Table<T extends Slick.SlickData> implements IThemable {
             },
             webViewState,
         );
+
         if (
             !configuration ||
             !configuration.dataProvider ||
@@ -132,8 +133,10 @@ export class Table<T extends Slick.SlickData> implements IThemable {
         this._tableContainer = document.createElement("div");
         // this._tableContainer.className = //TODO: class name for styles
         let gridParent = gridParentRef?.current;
+
         if (gridParent) {
             this._tableContainer.style.width = `${(gridParent?.clientWidth - ACTIONBAR_WIDTH_PX).toString()}px`;
+
             const height = gridParent?.clientHeight;
             this._tableContainer.style.height = `${height.toString()}px`;
         }
@@ -161,6 +164,7 @@ export class Table<T extends Slick.SlickData> implements IThemable {
 
         this.idPrefix = this._tableContainer.classList[0];
         this._container.classList.add(this.idPrefix);
+
         if (configuration && configuration.sorter) {
             this._sorter = configuration.sorter;
             this._grid.onSort.subscribe((_e, args) => {
@@ -192,7 +196,9 @@ export class Table<T extends Slick.SlickData> implements IThemable {
     private mapMouseEvent(slickEvent: Slick.Event<any>) {
         slickEvent.subscribe((e: Slick.EventData) => {
             const originalEvent = (e as JQuery.TriggeredEvent).originalEvent;
+
             const cell = this._grid.getCellFromEvent(originalEvent!);
+
             const anchor =
                 originalEvent instanceof MouseEvent
                     ? { x: originalEvent.x, y: originalEvent.y }
@@ -206,6 +212,7 @@ export class Table<T extends Slick.SlickData> implements IThemable {
 
     private handleLinkClick(cell: Slick.Cell): void {
         const columnInfo = this.resultSetSummary.columnInfo[cell.cell - 1];
+
         if (columnInfo.isXml || columnInfo.isJson) {
             this.linkHandler(
                 this.getCellValue(cell.row, cell.cell),
@@ -216,7 +223,9 @@ export class Table<T extends Slick.SlickData> implements IThemable {
 
     public getCellValue(row: number, column: number): string {
         const rowRef = this._grid.getDataItem(row);
+
         const col = this._grid.getColumns()[column].field!;
+
         return rowRef[col].displayValue;
     }
 
@@ -232,6 +241,7 @@ export class Table<T extends Slick.SlickData> implements IThemable {
     public updateRowCount() {
         this._grid.updateRowCount();
         this._grid.render();
+
         if (this._autoscroll) {
             this._grid.scrollRowIntoView(this._data.getLength() - 1, false);
         }
@@ -248,7 +258,9 @@ export class Table<T extends Slick.SlickData> implements IThemable {
     }
 
     setData(data: Array<T>): void;
+
     setData(data: TableDataView<T>): void;
+
     setData(data: Array<T> | TableDataView<T>): void {
         if (data instanceof TableDataView) {
             this._data = data;
@@ -289,6 +301,7 @@ export class Table<T extends Slick.SlickData> implements IThemable {
     onSelectedRowsChanged(fn: any): void {
         this._grid.onSelectedRowsChanged.subscribe(fn);
         console.log("onselectedrowschanged");
+
         return;
     }
 
@@ -302,6 +315,7 @@ export class Table<T extends Slick.SlickData> implements IThemable {
 
     getSelectedRanges(): Slick.Range[] {
         let selectionModel = this._grid.getSelectionModel();
+
         if (selectionModel && selectionModel.getSelectedRanges) {
             return selectionModel.getSelectedRanges();
         }

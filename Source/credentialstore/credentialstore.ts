@@ -36,8 +36,10 @@ export class CredentialStore implements ICredentialStore {
     ): Promise<Contracts.Credential> {
         let cred: Contracts.Credential = new Contracts.Credential();
         cred.credentialId = credentialId;
+
         if (Utils.isLinux) {
             cred.password = await this._secretStorage.get(credentialId);
+
             return cred;
         }
         return await this._client!.sendRequest(
@@ -63,12 +65,14 @@ export class CredentialStore implements ICredentialStore {
             Contracts.SaveCredentialRequest.type,
             cred,
         );
+
         return success;
     }
 
     public async deleteCredential(credentialId: string): Promise<boolean> {
         let cred: Contracts.Credential = new Contracts.Credential();
         cred.credentialId = credentialId;
+
         if (Utils.isLinux) {
             await this._secretStorage.delete(credentialId);
         }
@@ -76,6 +80,7 @@ export class CredentialStore implements ICredentialStore {
             Contracts.DeleteCredentialRequest.type,
             cred,
         );
+
         return success;
     }
 }

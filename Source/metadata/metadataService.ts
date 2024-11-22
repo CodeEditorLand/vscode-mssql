@@ -20,10 +20,12 @@ export class MetadataService {
 
     public async getMetadata(uri: string): Promise<ObjectMetadata[]> {
         const metadataParams: MetadataQueryParams = { ownerUri: uri };
+
         const { metadata } = await this._client.sendRequest(
             MetadataQueryRequest.type,
             metadataParams,
         );
+
         return metadata;
     }
 }

@@ -60,6 +60,7 @@ export class QueryResultWebviewPanelController extends ReactWebviewPanelControll
         );
 
         void this.initialize();
+
         if (!this._vscodeWrapper) {
             this._vscodeWrapper = new VscodeWrapper();
         }

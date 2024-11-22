@@ -54,6 +54,7 @@ export class ExecutionPlanView {
         diagramNode.metrics = this.populateProperties(node.properties);
 
         diagramNode.badges = [];
+
         for (let i = 0; node.badges && i < node.badges.length; i++) {
             diagramNode.badges.push(
                 this.getBadgeTypeString(
@@ -65,23 +66,27 @@ export class ExecutionPlanView {
         diagramNode.edges = this.populateEdges(node.edges);
 
         diagramNode.children = [];
+
         for (let i = 0; node.children && i < node.children.length; ++i) {
             diagramNode.children.push(this.populate(node.children[i]));
         }
 
         diagramNode.description = node.description;
         diagramNode.cost = node.cost;
+
         if (node.cost) {
             this.expensiveMetricTypes.add(ep.ExpensiveMetricType.Cost);
         }
 
         diagramNode.subTreeCost = node.subTreeCost;
+
         if (node.subTreeCost) {
             this.expensiveMetricTypes.add(ep.ExpensiveMetricType.SubtreeCost);
         }
 
         diagramNode.relativeCost = node.relativeCost;
         diagramNode.elapsedTimeInMs = node.elapsedTimeInMs;
+
         if (node.elapsedTimeInMs) {
             this.expensiveMetricTypes.add(
                 ep.ExpensiveMetricType.ActualElapsedTime,
@@ -89,6 +94,7 @@ export class ExecutionPlanView {
         }
 
         let costMetrics = [];
+
         for (let i = 0; node.costMetrics && i < node.costMetrics.length; ++i) {
             costMetrics.push(node.costMetrics[i]);
 
@@ -136,16 +142,19 @@ export class ExecutionPlanView {
                     type: "warning",
                     tooltip: "",
                 };
+
             case ep.BadgeType.CriticalWarning:
                 return {
                     type: "criticalWarning",
                     tooltip: "",
                 };
+
             case ep.BadgeType.Parallelism:
                 return {
                     type: "parallelism",
                     tooltip: "",
                 };
+
             default:
                 return undefined;
         }
@@ -185,6 +194,7 @@ export class ExecutionPlanView {
 
         return edges.map((e) => {
             e.id = this.createGraphElementId();
+
             return {
                 id: e.id,
                 metrics: this.populateProperties(e.properties),
@@ -214,6 +224,7 @@ export class ExecutionPlanView {
      */
     public toggleTooltip(): boolean {
         this._diagram.showTooltip(!this._diagram.graph.showTooltip);
+
         return this._diagram.graph.showTooltip;
     }
 
@@ -241,6 +252,7 @@ export class ExecutionPlanView {
      */
     public getSelectedElement(): ep.InternalExecutionPlanElement | undefined {
         const cell = this._diagram.graph.getSelectionCell();
+
         if (cell?.id) {
             return this.getElementById(cell.id);
         }
@@ -267,6 +279,7 @@ export class ExecutionPlanView {
      */
     public zoomToFit(): void {
         this._diagram.zoomToFit();
+
         if (this.getZoomLevel() > 200) {
             this.setZoomLevel(200);
         }
@@ -306,6 +319,7 @@ export class ExecutionPlanView {
             const matchingProp = currentNode.properties.find(
                 (e) => e.name === searchQuery.propertyName,
             );
+
             let matchFound = false;
             // Searching only properties with string value.
             if (typeof matchingProp?.value === "string") {
@@ -313,28 +327,41 @@ export class ExecutionPlanView {
                 switch (searchQuery.searchType) {
                     case ep.SearchType.Equals:
                         matchFound = matchingProp.value === searchQuery.value;
+
                         break;
+
                     case ep.SearchType.Contains:
                         matchFound = matchingProp.value.includes(
                             searchQuery.value,
                         );
+
                         break;
+
                     case ep.SearchType.GreaterThan:
                         matchFound = matchingProp.value > searchQuery.value;
+
                         break;
+
                     case ep.SearchType.LesserThan:
                         matchFound = matchingProp.value < searchQuery.value;
+
                         break;
+
                     case ep.SearchType.GreaterThanEqualTo:
                         matchFound = matchingProp.value >= searchQuery.value;
+
                         break;
+
                     case ep.SearchType.LesserThanEqualTo:
                         matchFound = matchingProp.value <= searchQuery.value;
+
                         break;
+
                     case ep.SearchType.LesserAndGreaterThan:
                         matchFound =
                             matchingProp.value < searchQuery.value ||
                             matchingProp.value > searchQuery.value;
+
                         break;
                 }
 
@@ -374,6 +401,7 @@ export class ExecutionPlanView {
             return;
         }
         const cell = this._diagram.graph.model.getCell(node.id);
+
         if (!cell) {
             return;
         }
@@ -416,6 +444,7 @@ export class ExecutionPlanView {
         bringToCenter: boolean = false,
     ): void {
         let cell;
+
         if (element) {
             cell = this._diagram.graph.model.getCell(element.id);
         } else {
@@ -453,6 +482,7 @@ export class ExecutionPlanView {
 
         while (nodeStack.length !== 0) {
             const currentNode = nodeStack.pop()!;
+
             if (currentNode.id === id) {
                 return currentNode;
             }

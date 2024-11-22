@@ -62,6 +62,7 @@ export abstract class AzureController {
             const impactsProvider = changeEvent.affectsConfiguration(
                 AzureConstants.accountsAzureAuthSection,
             );
+
             if (impactsProvider === true) {
                 this.handleAuthMapping();
             }
@@ -111,9 +112,11 @@ export abstract class AzureController {
         accountStore: AccountStore,
     ): Promise<IAccount | undefined> {
         let config = azureUtils.getAzureActiveDirectoryConfig();
+
         let account = await this.login(config!);
         await accountStore.addAccount(account!);
         this.logger.verbose("Account added successfully.");
+
         return account;
     }
 
@@ -124,24 +127,29 @@ export abstract class AzureController {
         settings: IAADResource,
     ): Promise<ConnectionProfile | undefined> {
         let account = accountStore.getAccount(accountAnswer.key.id);
+
         if (!account) {
             await this._vscodeWrapper.showErrorMessage(
                 LocalizedConstants.msgAccountNotFound,
             );
+
             throw new Error(LocalizedConstants.msgAccountNotFound);
         }
         if (!this._isSqlAuthProviderEnabled) {
             this.logger.verbose(
                 `Account found, refreshing access token for tenant ${profile.tenantId}`,
             );
+
             let azureAccountToken = await this.refreshAccessToken(
                 account,
                 accountStore,
                 profile.tenantId,
                 settings,
             );
+
             if (!azureAccountToken) {
                 let errorMessage = LocalizedConstants.msgAccountRefreshFailed;
+
                 return this._vscodeWrapper
                     .showErrorMessage(
                         errorMessage,
@@ -155,6 +163,7 @@ export abstract class AzureController {
                                     accountStore,
                                     settings,
                                 );
+
                             return refreshedProfile;
                         } else {
                             return undefined;
@@ -181,16 +190,22 @@ export abstract class AzureController {
         account: IAccount,
     ): Promise<IAzureAccountSession[]> {
         const sessions: IAzureAccountSession[] = [];
+
         const tenants = <ITenant[]>account.properties.tenants;
+
         for (const tenant of tenants) {
             const tenantId = tenant.id;
+
             const token = await this.getAccountSecurityToken(
                 account,
                 tenantId,
                 providerSettings.resources.azureManagementResource,
             );
+
             const subClient = this._subscriptionClientFactory(token!);
+
             const newSubPages = await subClient.subscriptions.list();
+
             const array = await azureUtils.getAllValues<
                 Subscription,
                 IAzureAccountSession
@@ -262,6 +277,7 @@ export abstract class AzureController {
             return true;
         }
         const currentTime = Date.now() / 1000;
+
         const maxTolerance = 2 * 60; // two minutes
         return expiresOn - currentTime < maxTolerance;
     }
@@ -273,8 +289,10 @@ export abstract class AzureController {
         let tenantChoices: INameValueChoice[] = account.properties.tenants?.map(
             (t) => ({ name: t.displayName, value: t }),
         );
+
         if (tenantChoices && tenantChoices.length === 1) {
             profile.tenantId = tenantChoices[0].value.id;
+
             return;
         }
         let tenantQuestion: IQuestion = {
@@ -294,6 +312,7 @@ export abstract class AzureController {
     // Generates storage path for Azure Account cache, e.g C:\users\<>\AppData\Roaming\Code\Azure Accounts\
     protected async findOrMakeStoragePath(): Promise<string | undefined> {
         let defaultOutputLocation = this.getDefaultOutputLocation();
+
         let storagePath = path.join(
             defaultOutputLocation,
             AzureConstants.azureAccountDirectory,
@@ -304,6 +323,7 @@ export abstract class AzureController {
         } catch (e) {
             if (e.code !== "EEXIST") {
                 this.logger.error(`Creating the base directory failed... ${e}`);
+
                 return undefined;
             }
         }
@@ -316,11 +336,13 @@ export abstract class AzureController {
                     `Initialization of vscode-mssql storage failed: ${e}`,
                 );
                 this.logger.error("Azure accounts will not be available");
+
                 return undefined;
             }
         }
 
         this.logger.log("Initialized vscode-mssql storage.");
+
         return storagePath;
     }
 

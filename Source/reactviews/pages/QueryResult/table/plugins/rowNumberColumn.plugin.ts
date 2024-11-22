@@ -54,6 +54,7 @@ export class RowNumberColumn<T extends Slick.SlickData>
             this.options?.autoCellSelection
         ) {
             this.grid.setActiveCell(args.row, 1);
+
             if (this.grid.getSelectionModel()) {
                 this.grid.setSelectedRows([args.row]);
             }
@@ -66,7 +67,9 @@ export class RowNumberColumn<T extends Slick.SlickData>
     ): void {
         if (args.column.id === "rowNumber" && this.options?.autoCellSelection) {
             this.grid.setActiveCell(this.grid.getViewport()?.top ?? 0, 1);
+
             let selectionModel = this.grid.getSelectionModel();
+
             if (selectionModel) {
                 selectionModel.setSelectedRanges([
                     new Slick.Range(

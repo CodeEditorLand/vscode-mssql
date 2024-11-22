@@ -57,6 +57,7 @@ export function tryCombineSelections(selections: ISlickRange[]): ISlickRange[] {
             );
         });
     });
+
     for (
         let row = unifiedSelection.fromRow;
         row <= unifiedSelection.toRow;

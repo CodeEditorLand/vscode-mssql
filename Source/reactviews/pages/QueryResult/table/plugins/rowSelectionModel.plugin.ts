@@ -49,6 +49,7 @@ export class RowSelectionModel<T extends Slick.SlickData>
 
     private rangesToRows(ranges: Slick.Range[]): number[] {
         const rows: Array<number> = [];
+
         for (let i = 0; i < ranges.length; i++) {
             for (let j = ranges[i].fromRow; j <= ranges[i].toRow; j++) {
                 rows.push(j);
@@ -59,7 +60,9 @@ export class RowSelectionModel<T extends Slick.SlickData>
 
     private rowsToRanges(rows: number[]): Slick.Range[] {
         const ranges: Array<Slick.Range> = [];
+
         const lastCell = this._grid.getColumns().length - 1;
+
         for (let i = 0; i < rows.length; i++) {
             ranges.push(new Slick.Range(rows[i], 0, rows[i], lastCell));
         }
@@ -150,6 +153,7 @@ export class RowSelectionModel<T extends Slick.SlickData>
 
     private handleClick(e: MouseEvent): boolean {
         const cell = this._grid.getCellFromEvent(e);
+
         if (!cell || !this._grid.canCellBeActive(cell.row, cell.cell)) {
             return false;
         }
@@ -162,6 +166,7 @@ export class RowSelectionModel<T extends Slick.SlickData>
         }
 
         let selection = this.rangesToRows(this._ranges);
+
         const idx = jQuery.inArray(cell.row, selection);
 
         if (idx === -1 && (e.ctrlKey || e.metaKey)) {
@@ -172,10 +177,13 @@ export class RowSelectionModel<T extends Slick.SlickData>
             this._grid.setActiveCell(cell.row, cell.cell);
         } else if (selection.length && e.shiftKey) {
             const last = selection.pop();
+
             if (last) {
                 const from = Math.min(cell.row, last);
+
                 const to = Math.max(cell.row, last);
                 selection = [];
+
                 for (let i = from; i <= to; i++) {
                     if (i !== last) {
                         selection.push(i);

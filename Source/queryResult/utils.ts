@@ -32,21 +32,27 @@ export function getNewResultPaneViewColumn(
         Constants.extensionConfigSectionName,
         uri,
     );
+
     let splitPaneSelection = config[Constants.configSplitPaneSelection];
+
     let viewColumn: vscode.ViewColumn;
 
     switch (splitPaneSelection) {
         case "current":
             viewColumn = vscodeWrapper.activeTextEditor.viewColumn;
+
             break;
+
         case "end":
             viewColumn = vscode.ViewColumn.Three;
+
             break;
         // default case where splitPaneSelection is next or anything else
         default:
             // if there's an active text editor
             if (vscodeWrapper.isEditingSqlFile) {
                 viewColumn = vscodeWrapper.activeTextEditor.viewColumn;
+
                 if (viewColumn === vscode.ViewColumn.One) {
                     viewColumn = vscode.ViewColumn.Two;
                 } else {
@@ -81,9 +87,11 @@ export function registerCommonRequestHandlers(
                 message.rowStart,
                 message.numberOfRows,
             );
+
         let currentState = webviewViewController.getQueryResultState(
             message.uri,
         );
+
         if (
             currentState.isExecutionPlan &&
             currentState.resultSetSummaries[message.batchId] &&
@@ -114,6 +122,7 @@ export function registerCommonRequestHandlers(
             currentState.actualPlanEnabled = false;
         }
         webviewViewController.setQueryResultState(message.uri, currentState);
+
         return result;
     });
     webviewController.registerRequestHandler(
@@ -138,6 +147,7 @@ export function registerCommonRequestHandlers(
                 origin: message.origin,
             },
         );
+
         return await webviewViewController
             .getSqlOutputContentProvider()
             .saveResultsRequestHandler(
@@ -158,6 +168,7 @@ export function registerCommonRequestHandlers(
                     correlationId: correlationId,
                 },
             );
+
             return await webviewViewController
                 .getSqlOutputContentProvider()
                 .copyRequestHandler(
@@ -182,6 +193,7 @@ export function registerCommonRequestHandlers(
                     origin: undefined,
                 },
             );
+
             return await webviewViewController
                 .getSqlOutputContentProvider()
                 .copyRequestHandler(
@@ -201,6 +213,7 @@ export function registerCommonRequestHandlers(
                 correlationId: correlationId,
             },
         );
+
         return await webviewViewController
             .getSqlOutputContentProvider()
             .copyHeadersRequestHandler(
@@ -214,6 +227,7 @@ export function registerCommonRequestHandlers(
         "setResultTab",
         async (state, payload) => {
             state.tabStates.resultPaneTab = payload.tabId;
+
             return state;
         },
     );

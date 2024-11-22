@@ -55,8 +55,10 @@ import {
 
 function getParentNode(node: TreeNodeType): TreeNodeInfo {
     node = node.parentNode;
+
     if (!(node instanceof TreeNodeInfo)) {
         vscode.window.showErrorMessage(LocalizedConstants.nodeErrorMessage);
+
         throw new Error(`Parent node was not TreeNodeInfo.`);
     }
     return node;
@@ -118,6 +120,7 @@ export class ObjectExplorerService {
 
     private handleSessionCreatedNotification(): NotificationHandler<SessionCreatedParameters> {
         const self = this;
+
         const handler = async (result: SessionCreatedParameters) => {
             if (self._currentNode instanceof ConnectTreeNode) {
                 self.currentNode = getParentNode(self.currentNode);
@@ -130,10 +133,12 @@ export class ObjectExplorerService {
                 // in case this call came from new query
                 let savedConnections =
                     this._connectionManager.connectionStore.loadAllConnections();
+
                 let nodeConnection =
                     this._sessionIdToConnectionCredentialsMap.get(
                         result.sessionId,
                     );
+
                 for (let connection of savedConnections) {
                     if (
                         Utils.isSameConnection(
@@ -186,6 +191,7 @@ export class ObjectExplorerService {
                 }
                 // make a connection if not connected already
                 const nodeUri = ObjectExplorerUtils.getNodeUri(node);
+
                 if (
                     !this._connectionManager.isConnected(nodeUri) &&
                     !this._connectionManager.isConnecting(nodeUri)
@@ -196,6 +202,7 @@ export class ObjectExplorerService {
 
                 self.updateNode(node);
                 self._objectExplorerProvider.objectExplorerExists = true;
+
                 const promise = self._sessionIdToPromiseMap.get(
                     result.sessionId,
                 );
@@ -210,7 +217,9 @@ export class ObjectExplorerService {
                     self._currentNode.connectionInfo.password = "";
                 }
                 let error = LocalizedConstants.connectErrorLabel;
+
                 let errorNumber: number;
+
                 if (result.errorNumber) {
                     errorNumber = result.errorNumber;
                 }
@@ -240,6 +249,7 @@ export class ObjectExplorerService {
                             Constants.errorFirewallRule,
                             result.errorMessage,
                         );
+
                     if (
                         handleFirewallResult.result &&
                         handleFirewallResult.ipAddress
@@ -247,6 +257,7 @@ export class ObjectExplorerService {
                         const nodeUri = ObjectExplorerUtils.getNodeUri(
                             self._currentNode,
                         );
+
                         const profile = <IConnectionProfile>(
                             self._currentNode.connectionInfo
                         );
@@ -266,6 +277,7 @@ export class ObjectExplorerService {
                     )
                 ) {
                     let profile = self._currentNode.connectionInfo;
+
                     let account =
                         this._connectionManager.accountStore.getAccount(
                             profile.accountId,
@@ -288,6 +300,7 @@ export class ObjectExplorerService {
                 }
             }
         };
+
         return handler;
     }
 
@@ -297,13 +310,16 @@ export class ObjectExplorerService {
     ): Promise<void> {
         node.connectionInfo = profile;
         this.updateNode(node);
+
         let fileUri = ObjectExplorerUtils.getNodeUri(node);
+
         if (
             await this._connectionManager.connectionStore.saveProfile(
                 profile as IConnectionProfile,
             )
         ) {
             const res = await this._connectionManager.connect(fileUri, profile);
+
             if (
                 await this._connectionManager.handleConnectionResult(
                     res,
@@ -327,6 +343,7 @@ export class ObjectExplorerService {
         let email = username?.includes(" - ")
             ? username.substring(username.indexOf("-") + 2)
             : username;
+
         return (
             result.errorMessage.includes(AzureConstants.AADSTS70043) ||
             result.errorMessage.includes(AzureConstants.AADSTS50173) ||
@@ -359,17 +376,21 @@ export class ObjectExplorerService {
 
     private handleExpandSessionNotification(): NotificationHandler<ExpandResponse> {
         const self = this;
+
         const handler = (result: ExpandResponse) => {
             if (result && result.nodes) {
                 const credentials =
                     self._sessionIdToConnectionCredentialsMap.get(
                         result.sessionId,
                     );
+
                 const expandParams: ExpandParams = {
                     sessionId: result.sessionId,
                     nodePath: result.nodePath,
                 };
+
                 const parentNode = self.getParentFromExpandParams(expandParams);
+
                 const children = result.nodes.map((node) =>
                     TreeNodeInfo.fromNodeInfo(
                         node,
@@ -379,6 +400,7 @@ export class ObjectExplorerService {
                     ),
                 );
                 self._treeNodeToChildrenMap.set(parentNode, children);
+
                 for (let key of self._expandParamsToPromiseMap.keys()) {
                     if (
                         key.sessionId === expandParams.sessionId &&
@@ -388,6 +410,7 @@ export class ObjectExplorerService {
                         promise.resolve(children);
                         self._expandParamsToPromiseMap.delete(key);
                         self._expandParamsToTreeNodeInfoMap.delete(key);
+
                         return;
                     }
                 }
@@ -404,6 +427,7 @@ export class ObjectExplorerService {
                 );
             }
         };
+
         return handler;
     }
 
@@ -419,11 +443,13 @@ export class ObjectExplorerService {
         };
         this._expandParamsToPromiseMap.set(expandParams, promise);
         this._expandParamsToTreeNodeInfoMap.set(expandParams, node);
+
         const response: boolean =
             await this._connectionManager.client.sendRequest(
                 ExpandRequest.type,
                 expandParams,
             );
+
         if (response) {
             return response;
         } else {
@@ -433,6 +459,7 @@ export class ObjectExplorerService {
             this._expandParamsToPromiseMap.delete(expandParams);
             this._expandParamsToTreeNodeInfoMap.delete(expandParams);
             promise.resolve(undefined);
+
             return undefined;
         }
     }
@@ -452,6 +479,7 @@ export class ObjectExplorerService {
                 const index = this._rootTreeNodeArray.indexOf(rootTreeNode);
                 delete this._rootTreeNodeArray[index];
                 this._rootTreeNodeArray[index] = node;
+
                 return;
             }
         }
@@ -465,8 +493,10 @@ export class ObjectExplorerService {
     private cleanNodeChildren(node: vscode.TreeItem): void {
         if (this._treeNodeToChildrenMap.has(node)) {
             let stack = this._treeNodeToChildrenMap.get(node);
+
             while (stack.length > 0) {
                 let child = stack.pop();
+
                 if (this._treeNodeToChildrenMap.has(child)) {
                     stack.concat(this._treeNodeToChildrenMap.get(child));
                 }
@@ -485,10 +515,13 @@ export class ObjectExplorerService {
         const sortedNodeArray = array.sort((a, b) => {
             const labelA =
                 typeof a.label === "string" ? a.label : a.label.label;
+
             const labelB =
                 typeof b.label === "string" ? b.label : b.label.label;
+
             return labelA.toLowerCase().localeCompare(labelB.toLowerCase());
         });
+
         return sortedNodeArray;
     }
 
@@ -498,6 +531,7 @@ export class ObjectExplorerService {
     private getSavedConnections(): void {
         let savedConnections =
             this._connectionManager.connectionStore.loadAllConnections();
+
         for (const conn of savedConnections) {
             let nodeLabel =
                 conn.label === conn.connectionCreds.server
@@ -507,6 +541,7 @@ export class ObjectExplorerService {
                 conn.connectionCreds.server,
                 nodeLabel,
             );
+
             let node = new TreeNodeInfo(
                 nodeLabel,
                 {
@@ -550,6 +585,7 @@ export class ObjectExplorerService {
     private getAddConnectionNode(): AddConnectionTreeNode[] {
         this._rootTreeNodeArray = [];
         this._objectExplorerProvider.objectExplorerExists = true;
+
         return [new AddConnectionTreeNode()];
     }
 
@@ -560,6 +596,7 @@ export class ObjectExplorerService {
     private createSignInNode(element: TreeNodeInfo): AccountSignInTreeNode[] {
         const signInNode = new AccountSignInTreeNode(element);
         this._treeNodeToChildrenMap.set(element, [signInNode]);
+
         return [signInNode];
     }
 
@@ -570,6 +607,7 @@ export class ObjectExplorerService {
     private createConnectTreeNode(element: TreeNodeInfo): ConnectTreeNode[] {
         const connectNode = new ConnectTreeNode(element);
         this._treeNodeToChildrenMap.set(element, [connectNode]);
+
         return [connectNode];
     }
 
@@ -591,10 +629,13 @@ export class ObjectExplorerService {
                     // node expansion
                     let promise = new Deferred<TreeNodeInfo[]>();
                     await this.expandNode(element, element.sessionId, promise);
+
                     let children = await promise;
+
                     if (children) {
                         // clean expand session promise
                         this.cleanExpansionPromise(element);
+
                         return children;
                     } else {
                         return undefined;
@@ -602,20 +643,24 @@ export class ObjectExplorerService {
                 } else {
                     // start node session
                     let promise = new Deferred<TreeNodeInfo>();
+
                     const sessionId = await this.createSession(
                         promise,
                         element.connectionInfo,
                     );
+
                     if (sessionId) {
                         let node = await promise;
                         // if the server was found but connection failed
                         if (!node) {
                             let profile =
                                 element.connectionInfo as IConnectionProfile;
+
                             let password =
                                 await this._connectionManager.connectionStore.lookupPassword(
                                     profile,
                                 );
+
                             if (password) {
                                 return this.createSignInNode(element);
                             } else {
@@ -648,6 +693,7 @@ export class ObjectExplorerService {
                 this._rootTreeNodeArray = [];
                 this.getSavedConnections();
                 this._objectExplorerProvider.objectExplorerExists = true;
+
                 return this.sortByServerName(this._rootTreeNodeArray);
             } else {
                 // otherwise returned the cached nodes
@@ -701,6 +747,7 @@ export class ObjectExplorerService {
                 ) {
                     // show password prompt if SQL Login and password isn't saved
                     let password = connectionCredentials.password;
+
                     if (Utils.isEmpty(password)) {
                         // if password isn't saved
                         if (
@@ -710,8 +757,10 @@ export class ObjectExplorerService {
                             // prompt for password
                             password =
                                 await this._connectionManager.connectionUI.promptForPassword();
+
                             if (!password) {
                                 promise.resolve(undefined);
+
                                 return undefined;
                             }
                         } else {
@@ -720,6 +769,7 @@ export class ObjectExplorerService {
                                 await this._connectionManager.connectionStore.lookupPassword(
                                     connectionCredentials,
                                 );
+
                             if (
                                 connectionCredentials.authenticationType !==
                                 Constants.azureMfa
@@ -741,11 +791,14 @@ export class ObjectExplorerService {
                 ) {
                     let azureController =
                         this._connectionManager.azureController;
+
                     let account =
                         this._connectionManager.accountStore.getAccount(
                             connectionCredentials.accountId,
                         );
+
                     let needsRefresh = false;
+
                     if (!account) {
                         needsRefresh = true;
                     } else if (azureController.isSqlAuthProviderEnabled()) {
@@ -756,6 +809,7 @@ export class ObjectExplorerService {
                         await this._connectionManager.connectionUI.saveProfile(
                             connectionCredentials as IConnectionProfile,
                         );
+
                         if (!azureController.isAccountInCache(account)) {
                             needsRefresh = true;
                         }
@@ -792,12 +846,14 @@ export class ObjectExplorerService {
                     CreateSessionRequest.type,
                     connectionDetails,
                 );
+
             if (response) {
                 this._sessionIdToConnectionCredentialsMap.set(
                     response.sessionId,
                     connectionCredentials,
                 );
                 this._sessionIdToPromiseMap.set(response.sessionId, promise);
+
                 return response.sessionId;
             } else {
                 this._client.logger.error(
@@ -810,6 +866,7 @@ export class ObjectExplorerService {
             );
             // no connection was made
             promise.resolve(undefined);
+
             return undefined;
         }
     }
@@ -819,17 +876,21 @@ export class ObjectExplorerService {
         connectionCredentials: ConnectionCredentials,
     ): Promise<void> {
         let azureController = this._connectionManager.azureController;
+
         let profile = new ConnectionProfile(connectionCredentials);
+
         let azureAccountToken = await azureController.refreshAccessToken(
             account,
             this._connectionManager.accountStore,
             connectionCredentials.tenantId,
             providerSettings.resources.databaseResource,
         );
+
         if (!azureAccountToken) {
             this._client.logger.verbose(
                 "Access token could not be refreshed for connection profile.",
             );
+
             let errorMessage = LocalizedConstants.msgAccountRefreshFailed;
             await this._connectionManager.vscodeWrapper
                 .showErrorMessage(
@@ -852,6 +913,7 @@ export class ObjectExplorerService {
                         this._client.logger.error(
                             "Credentials not refreshed by user.",
                         );
+
                         return undefined;
                     }
                 });
@@ -872,10 +934,13 @@ export class ObjectExplorerService {
         isDisconnect: boolean = false,
     ): Promise<void> {
         await this.closeSession(node);
+
         const nodeUri = ObjectExplorerUtils.getNodeUri(node);
         await this._connectionManager.disconnect(nodeUri);
+
         if (!isDisconnect) {
             const index = this._rootTreeNodeArray.indexOf(node, 0);
+
             if (index > -1) {
                 this._rootTreeNodeArray.splice(index, 1);
             }
@@ -888,6 +953,7 @@ export class ObjectExplorerService {
                 subType: "",
             };
             node.sessionId = undefined;
+
             if (!(<IConnectionProfile>node.connectionInfo).savePassword) {
                 node.connectionInfo.password = "";
             }
@@ -952,10 +1018,12 @@ export class ObjectExplorerService {
             nodePath: node.nodePath,
             filters: node.filters,
         };
+
         let response = await this._connectionManager.client.sendRequest(
             RefreshRequest.type,
             refreshParams,
         );
+
         if (response) {
             this._treeNodeToChildrenMap.delete(node);
         }
@@ -970,6 +1038,7 @@ export class ObjectExplorerService {
             node.connectionInfo as IConnectionProfile,
             this._connectionManager.getServerInfo(node.connectionInfo),
         );
+
         return this._objectExplorerProvider.refresh(node);
     }
 
@@ -983,6 +1052,7 @@ export class ObjectExplorerService {
         const label = (<IConnectionProfile>connectionCredentials).profileName
             ? (<IConnectionProfile>connectionCredentials).profileName
             : getConnectionDisplayName(connectionCredentials);
+
         const node = new TreeNodeInfo(
             label,
             {
@@ -1012,21 +1082,25 @@ export class ObjectExplorerService {
             const closeSessionParams: CloseSessionParams = {
                 sessionId: node.sessionId,
             };
+
             const response: CloseSessionResponse =
                 await this._connectionManager.client.sendRequest(
                     CloseSessionRequest.type,
                     closeSessionParams,
                 );
+
             if (response && response.success) {
                 this._sessionIdToConnectionCredentialsMap.delete(
                     response.sessionId,
                 );
+
                 if (this._sessionIdToPromiseMap.has(node.sessionId)) {
                     this._sessionIdToPromiseMap.delete(node.sessionId);
                 }
                 const nodeUri = ObjectExplorerUtils.getNodeUri(node);
                 await this._connectionManager.disconnect(nodeUri);
                 this.cleanNodeChildren(node);
+
                 return;
             }
         }
@@ -1046,6 +1120,7 @@ export class ObjectExplorerService {
         const connections = this._rootTreeNodeArray.map(
             (node) => node.connectionInfo,
         );
+
         return connections;
     }
 

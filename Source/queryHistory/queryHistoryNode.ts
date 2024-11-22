@@ -59,6 +59,7 @@ export class QueryHistoryNode extends vscode.TreeItem {
         this._isSuccess = isSuccess;
         this._connectionLabel = connectionLabel;
         this.iconPath = this._isSuccess ? this.successIcon : this.failureIcon;
+
         const queryStatusLabel = this._isSuccess
             ? LocalizedConstants.querySuccess
             : LocalizedConstants.queryFailed;
@@ -70,6 +71,7 @@ export class QueryHistoryNode extends vscode.TreeItem {
     public get historyNodeLabel(): string {
         const label =
             typeof this.label === "string" ? this.label : this.label.label;
+
         return label;
     }
 

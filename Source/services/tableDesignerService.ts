@@ -26,6 +26,7 @@ export class TableDesignerService implements designer.ITableDesignerService {
             );
         } catch (e) {
             this._sqlToolsClient.logger.error(e);
+
             throw e;
         }
     }
@@ -40,6 +41,7 @@ export class TableDesignerService implements designer.ITableDesignerService {
             );
         } catch (e) {
             this._sqlToolsClient.logger.error(e);
+
             throw e;
         }
     }
@@ -53,6 +55,7 @@ export class TableDesignerService implements designer.ITableDesignerService {
             );
         } catch (e) {
             this._sqlToolsClient.logger.error(e);
+
             throw e;
         }
     }
@@ -64,6 +67,7 @@ export class TableDesignerService implements designer.ITableDesignerService {
             );
         } catch (e) {
             this._sqlToolsClient.logger.error(e);
+
             throw e;
         }
     }
@@ -77,6 +81,7 @@ export class TableDesignerService implements designer.ITableDesignerService {
             );
         } catch (e) {
             this._sqlToolsClient.logger.error(e);
+
             throw e;
         }
     }
@@ -88,6 +93,7 @@ export class TableDesignerService implements designer.ITableDesignerService {
             );
         } catch (e) {
             this._sqlToolsClient.logger.error(e);
+
             throw e;
         }
     }

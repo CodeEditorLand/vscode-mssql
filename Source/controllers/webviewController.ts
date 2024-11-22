@@ -49,8 +49,10 @@ export class WebviewPanelController implements vscode.Disposable {
             Constants.extensionConfigSectionName,
             this._vscodeWrapper.parseUri(this.uri),
         );
+
         const retainContextWhenHidden =
             config[Constants.configPersistQueryResultTabs];
+
         const column = this.newResultPaneViewColumn(this.uri);
         this._disposables.push(
             (this._panel = vscode.window.createWebviewPanel(
@@ -76,12 +78,14 @@ export class WebviewPanelController implements vscode.Disposable {
                 if (p.webviewPanel.active && p.webviewPanel.visible) {
                     this.statusView.showRowCount(this.uri);
                     this._isActive = true;
+
                     return;
                 }
                 // occurs when we switch the current tab
                 if (!p.webviewPanel.active && !p.webviewPanel.visible) {
                     this._isActive = false;
                     this.statusView.hideRowCount(this.uri);
+
                     return;
                 }
             }),
@@ -103,15 +107,20 @@ export class WebviewPanelController implements vscode.Disposable {
             Constants.extensionConfigSectionName,
             queryUri,
         );
+
         let splitPaneSelection = config[Constants.configSplitPaneSelection];
+
         let viewColumn: vscode.ViewColumn;
 
         switch (splitPaneSelection) {
             case "current":
                 viewColumn = this._vscodeWrapper.activeTextEditor.viewColumn;
+
                 break;
+
             case "end":
                 viewColumn = vscode.ViewColumn.Three;
+
                 break;
             // default case where splitPaneSelection is next or anything else
             default:
@@ -119,6 +128,7 @@ export class WebviewPanelController implements vscode.Disposable {
                 if (this._vscodeWrapper.isEditingSqlFile) {
                     viewColumn =
                         this._vscodeWrapper.activeTextEditor.viewColumn;
+
                     if (viewColumn === vscode.ViewColumn.One) {
                         viewColumn = vscode.ViewColumn.Two;
                     } else {
@@ -134,11 +144,15 @@ export class WebviewPanelController implements vscode.Disposable {
 
     public async init(): Promise<void> {
         const sqlOutputPath = path.resolve(__dirname);
+
         const fileContent = await readFile(
             path.join(sqlOutputPath, "sqlOutput.ejs"),
         );
+
         const htmlViewPath = ["out", "src"];
+
         const baseUri = `${this._panel.webview.asWebviewUri(vscode.Uri.file(path.join(this.baseUri, ...htmlViewPath)))}/`;
+
         const formattedHTML = ejs.render(fileContent.toString(), {
             basehref: baseUri,
             prod: false,

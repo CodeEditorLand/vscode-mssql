@@ -41,6 +41,7 @@ export class FileEncryptionHelper {
 
     public async init(): Promise<void> {
         const iv = await this.readEncryptionKey(this.ivCredId);
+
         const key = await this.readEncryptionKey(this.keyCredId);
 
         if (!iv || !key) {
@@ -87,7 +88,9 @@ export class FileEncryptionHelper {
             this._keyBuffer!,
             this._ivBuffer!,
         );
+
         let cipherText = `${cipherIv.update(content, "utf8", this._binaryEncoding)}${cipherIv.final(this._binaryEncoding)}`;
+
         return cipherText;
     };
 
@@ -100,16 +103,19 @@ export class FileEncryptionHelper {
                 await this.init();
             }
             let plaintext = content;
+
             const decipherIv = crypto.createDecipheriv(
                 this._algorithm,
                 this._keyBuffer!,
                 this._ivBuffer!,
             );
+
             return `${decipherIv.update(plaintext, this._binaryEncoding, "utf8")}${decipherIv.final("utf8")}`;
         } catch (ex) {
             this._logger.error(
                 `FileEncryptionHelper: Error occurred when decrypting data, IV/KEY will be reset: ${ex}`,
             );
+
             if (resetOnError) {
                 // Reset IV/Keys if crypto cannot encrypt/decrypt data.
                 // This could be a possible case of corruption of expected iv/key combination
@@ -146,13 +152,16 @@ export class FileEncryptionHelper {
         password: string,
     ): Promise<boolean> {
         let status = false;
+
         let prefixedCredentialId = this.getPrefixedCredentialId(credentialId);
+
         try {
             await this._credentialStore
                 .saveCredential(prefixedCredentialId, password)
                 .then(
                     (result) => {
                         status = result;
+
                         if (result) {
                             this._logger.info(
                                 `FileEncryptionHelper: Successfully saved encryption key ${prefixedCredentialId} for persistent cache encryption in system credential store.`,
@@ -172,6 +181,7 @@ export class FileEncryptionHelper {
                 );
             }
             this._logger.error(ex);
+
             throw ex;
         }
         return status;

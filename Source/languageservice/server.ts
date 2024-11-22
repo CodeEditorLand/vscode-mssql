@@ -33,8 +33,10 @@ export default class ServerProvider {
         if (this._config !== undefined) {
             let executableFiles: string[] =
                 this._config.getSqlToolsExecutableFiles();
+
             for (const executableFile of executableFiles) {
                 const executablePath = path.join(filePath, executableFile);
+
                 try {
                     if (await fs.stat(executablePath)) {
                         return executablePath;
@@ -56,6 +58,7 @@ export default class ServerProvider {
         // If SQL tools service can't be found, download it.
 
         const serverPath = await this.getServerPath(runtime);
+
         if (serverPath === undefined) {
             return this.downloadServerFiles(runtime);
         } else {
@@ -69,6 +72,7 @@ export default class ServerProvider {
     public async getServerPath(runtime: Runtime): Promise<string | undefined> {
         const installDirectory =
             await this._downloadProvider.getOrMakeInstallDirectory(runtime);
+
         return this.findServerPath(installDirectory);
     }
 
@@ -78,11 +82,14 @@ export default class ServerProvider {
     public async downloadServerFiles(runtime: Runtime): Promise<string> {
         const installDirectory =
             await this._downloadProvider.getOrMakeInstallDirectory(runtime);
+
         try {
             await this._downloadProvider.installSQLToolsService(runtime);
+
             return this.findServerPath(installDirectory);
         } catch (err) {
             this._statusView.serviceInstallationFailed();
+
             throw err;
         }
     }

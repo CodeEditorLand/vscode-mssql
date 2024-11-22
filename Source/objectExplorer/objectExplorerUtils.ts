@@ -32,6 +32,7 @@ export class ObjectExplorerUtils {
 
     public static getNodeUri(node: TreeNodeType): string {
         let profile: IConnectionProfile;
+
         if (node instanceof TreeNodeInfo) {
             profile = <IConnectionProfile>node.connectionInfo;
         } else {
@@ -42,11 +43,13 @@ export class ObjectExplorerUtils {
 
     public static getNodeUriFromProfile(profile: IConnectionProfile): string {
         let uri: string;
+
         if (profile.connectionString) {
             let fields = profile.connectionString
                 .split(";")
                 .filter((s) => !s.toLowerCase().includes("password"));
             uri = fields.join(";");
+
             return uri;
         }
         if (profile.authenticationType === Constants.sqlAuthentication) {

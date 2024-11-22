@@ -47,6 +47,7 @@ export class Logger implements ILogger {
     public static create(channel: OutputChannel) {
         const logLevel: LogLevel =
             LogLevel[Utils.getConfigTracingLevel() as keyof typeof LogLevel];
+
         const pii = Utils.getConfigPiiLogging();
 
         return new Logger((text) => channel.append(text), logLevel, pii);
@@ -190,6 +191,7 @@ function sanitizeImpl(obj: any): string {
     shortenIfExists(obj, "access_token");
     shortenIfExists(obj, "code");
     shortenIfExists(obj, "id_token");
+
     return JSON.stringify(obj);
 }
 

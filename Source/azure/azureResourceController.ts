@@ -25,14 +25,17 @@ export class AzureResourceController {
         session: mssql.IAzureAccountSession,
     ): Promise<Location[]> {
         const subClient = this._subscriptionClientFactory(session.token!);
+
         if (session.subscription?.subscriptionId) {
             const locationsPages = await subClient.subscriptions.listLocations(
                 session.subscription.subscriptionId,
             );
+
             let locations = await azureUtils.getAllValues(
                 locationsPages,
                 (v) => v,
             );
+
             return locations.sort((a, b) =>
                 (a.name || "").localeCompare(b.name || ""),
             );
@@ -61,6 +64,7 @@ export class AzureResourceController {
                 token,
                 subscriptionId,
             );
+
             if (sqlClient) {
                 const result =
                     await sqlClient.servers.beginCreateOrUpdateAndWait(
@@ -88,12 +92,15 @@ export class AzureResourceController {
                 session.token!,
                 session.subscription.subscriptionId,
             );
+
             const newGroupsPages =
                 await resourceGroupClient.resourceGroups.list();
+
             let groups = await azureUtils.getAllValues(
                 newGroupsPages,
                 (v) => v,
             );
+
             return groups.sort((a, b) =>
                 (a.name || "").localeCompare(b.name || ""),
             );

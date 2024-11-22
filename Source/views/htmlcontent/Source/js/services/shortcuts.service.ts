@@ -13,6 +13,7 @@ const keycodes = {
 	'39': 'right',
 	'40': 'down'
 };
+
 const displayCodes = {
 	'mac': {
 		'ctrl': '⌘',
@@ -53,6 +54,7 @@ export class ShortcutService {
 	 */
 	stringCodeFor(eventString: string): Promise<string> {
 		const self = this;
+
 		if (this.shortcuts) {
 			return Promise.resolve(this.stringCodeForInternal(eventString));
 		} else {
@@ -66,6 +68,7 @@ export class ShortcutService {
 
 	private stringCodeForInternal(eventString: string): string {
 		let keyString = this.shortcuts[eventString];
+
 		if (keyString) {
 			let platString = this.window.navigator.platform;
 
@@ -99,6 +102,7 @@ export class ShortcutService {
 			return this.getEventInternal(shortcut);
 		} else {
 			await this.waitPromise;
+
 			return this.getEventInternal(shortcut);
 		}
 	}
@@ -124,6 +128,7 @@ export class ShortcutService {
 		resString += e.altKey ? 'alt+' : '';
 		resString += e.shiftKey ? 'shift+' : '';
 		resString += e.which >= 65 && e.which <= 90 ? String.fromCharCode(e.which) : keycodes[e.which];
+
 		return resString;
 	}
 }

@@ -49,10 +49,12 @@ export class AccountService {
             id: azureSession.tenantId,
             userId: azureSession.userId,
         };
+
         let key: IAccountKey = {
             providerId: Constants.resourceProviderId,
             id: azureSession.userId,
         };
+
         let account: IAccount = {
             key: key,
             displayInfo: {
@@ -71,6 +73,7 @@ export class AccountService {
             isStale: this._isStale,
             isSignedIn: false,
         };
+
         return account;
     }
 
@@ -89,6 +92,7 @@ export class AccountService {
         mapping[tenantId] = {
             token: (await this.refreshToken(account, tenantId)).token,
         };
+
         return mapping;
     }
 

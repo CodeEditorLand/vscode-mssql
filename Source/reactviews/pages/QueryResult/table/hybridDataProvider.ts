@@ -75,6 +75,7 @@ export class HybridDataProvider<T extends Slick.SlickData>
 
     public async getColumnValues(column: Slick.Column<T>): Promise<string[]> {
         await this.initializeCacheIfNeeded();
+
         return this.provider.getColumnValues(column);
     }
 

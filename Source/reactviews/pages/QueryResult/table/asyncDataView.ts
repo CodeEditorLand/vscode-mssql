@@ -9,10 +9,13 @@ import { IDisposableDataProvider } from "./dataProvider";
 export interface IObservableCollection<T> {
     getLength(): number;
     at(index: number): T;
+
     getRange(start: number, end: number): T[];
+
     setCollectionChangedCallback(
         callback: (startIndex: number, count: number) => void,
     ): void;
+
     setLength(length: number): void;
 }
 
@@ -168,6 +171,7 @@ export class VirtualizedCollection<T extends Slick.SlickData>
             this._bufferWindowAfter = this._window;
             this._window = this._bufferWindowBefore;
             this._bufferWindowBefore = windowToRecycle;
+
             let newWindowOffset = Math.max(
                 0,
                 this._window.getStartIndex() - this.windowSize,
@@ -183,10 +187,12 @@ export class VirtualizedCollection<T extends Slick.SlickData>
             this._bufferWindowBefore = this._window;
             this._window = this._bufferWindowAfter;
             this._bufferWindowAfter = windowToRecycle;
+
             let newWindowOffset = Math.min(
                 this._window.getStartIndex() + this.windowSize,
                 this.length,
             );
+
             let newWindowLength = Math.min(
                 this.length - newWindowOffset,
                 this.windowSize,
@@ -203,6 +209,7 @@ export class VirtualizedCollection<T extends Slick.SlickData>
 
     private getRangeFromCurrent(start: number, end: number): T[] {
         const currentData: Array<T> = [];
+
         for (let i = 0; i < end - start; i++) {
             currentData.push(this.getDataFromCurrent(start + i));
         }
@@ -227,6 +234,7 @@ export class VirtualizedCollection<T extends Slick.SlickData>
             0,
             index - this.windowSize * 1.5,
         );
+
         let bufferWindowBeforeEnd = Math.max(0, index - this.windowSize / 2);
         this._bufferWindowBefore.positionWindow(
             bufferWindowBeforeStart,
@@ -234,6 +242,7 @@ export class VirtualizedCollection<T extends Slick.SlickData>
         );
 
         let mainWindowStart = bufferWindowBeforeEnd;
+
         let mainWindowEnd = Math.min(
             mainWindowStart + this.windowSize,
             this.length,
@@ -244,6 +253,7 @@ export class VirtualizedCollection<T extends Slick.SlickData>
         );
 
         let bufferWindowAfterStart = mainWindowEnd;
+
         let bufferWindowAfterEnd = Math.min(
             bufferWindowAfterStart + this.windowSize,
             this.length,

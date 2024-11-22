@@ -58,6 +58,7 @@ export class CellSelectionModel<T extends Slick.SlickData>
     ) {
         this.webViewState = webViewState;
         this.options = mixin(this.options, defaults, false);
+
         if (this.options.cellRangeSelector) {
             this.selector = this.options.cellRangeSelector;
         } else {
@@ -118,6 +119,7 @@ export class CellSelectionModel<T extends Slick.SlickData>
 
         for (let i = 0; i < ranges.length; i++) {
             let r = ranges[i];
+
             if (
                 this.grid.canCellBeSelected(r.fromRow, r.fromCell) &&
                 this.grid.canCellBeSelected(r.toRow, r.toCell)
@@ -170,6 +172,7 @@ export class CellSelectionModel<T extends Slick.SlickData>
     private handleBeforeCellRangeSelected(e: Event, _args: Slick.Cell) {
         if (this.grid.getEditorLock().isActive()) {
             e.stopPropagation();
+
             return false;
         }
         return true;
@@ -213,10 +216,15 @@ export class CellSelectionModel<T extends Slick.SlickData>
         }
         if (!isUndefinedOrNull(args.column)) {
             const columnIndex = this.grid.getColumnIndex(args.column.id!);
+
             const rowCount = this.grid.getDataLength();
+
             const columnCount = this.grid.getColumns().length;
+
             const currentActiveCell = this.grid.getActiveCell();
+
             let newActiveCell: Slick.Cell | undefined = undefined;
+
             if (this.options.hasRowSelector && columnIndex === 0) {
                 // When the row selector's header is clicked, all cells should be selected
                 this.setSelectedRanges([
@@ -248,6 +256,7 @@ export class CellSelectionModel<T extends Slick.SlickData>
                 const rangesToBeMerged: Slick.Range[] = this.isMultiSelection(e)
                     ? this.getSelectedRanges()
                     : [];
+
                 const result = this.insertIntoSelections(
                     rangesToBeMerged,
                     newlySelectedRange,
@@ -279,10 +288,12 @@ export class CellSelectionModel<T extends Slick.SlickData>
 
         // Have we handled this value
         let handled = false;
+
         for (let current of ranges) {
             // We've already processed everything. Add everything left back to the list.
             if (handled) {
                 newRanges.push(current);
+
                 continue;
             }
             let newRange: Slick.Range | undefined = undefined;
@@ -310,12 +321,14 @@ export class CellSelectionModel<T extends Slick.SlickData>
                     range.fromCell - 1 === current.toCell
                 ) {
                     handled = true;
+
                     let fromCell = Math.min(
                         range.fromCell,
                         current.fromCell,
                         range.toCell,
                         current.toCell,
                     );
+
                     let toCell = Math.max(
                         range.fromCell,
                         current.fromCell,
@@ -340,12 +353,14 @@ export class CellSelectionModel<T extends Slick.SlickData>
                     range.fromRow - 1 === current.toRow
                 ) {
                     handled = true;
+
                     let fromRow = Math.min(
                         range.fromRow,
                         current.fromRow,
                         range.fromRow,
                         current.fromRow,
                     );
+
                     let toRow = Math.max(
                         range.toRow,
                         current.toRow,
@@ -383,20 +398,25 @@ export class CellSelectionModel<T extends Slick.SlickData>
         range: Slick.Range,
     ): Array<Slick.Range> {
         let result = this.mergeSelections(ranges, range);
+
         let newRanges = result.newRanges;
 
         // Keep merging the rows until we stop having changes
         let i = 0;
+
         while (true) {
             if (i++ > 10000) {
                 throw new Error("InsertIntoSelection infinite loop");
             }
             let shouldContinue = false;
+
             for (let current of newRanges) {
                 result = this.mergeSelections(newRanges, current);
+
                 if (result.handled) {
                     shouldContinue = true;
                     newRanges = result.newRanges;
+
                     break;
                 }
             }
@@ -412,7 +432,9 @@ export class CellSelectionModel<T extends Slick.SlickData>
 
     private handleCellClick(e: MouseEvent, args: Slick.OnClickEventArgs<T>) {
         const activeCell = this.grid.getActiveCell();
+
         const columns = this.grid.getColumns();
+
         const isRowSelectorClicked: boolean | undefined =
             this.options.hasRowSelector && args.cell === 0;
 
@@ -446,6 +468,7 @@ export class CellSelectionModel<T extends Slick.SlickData>
         const rangesToBeMerged: Slick.Range[] = this.isMultiSelection(e)
             ? this.getSelectedRanges()
             : [];
+
         const result = this.insertIntoSelections(
             rangesToBeMerged,
             newlySelectedRange,
@@ -519,6 +542,7 @@ export class CellSelectionModel<T extends Slick.SlickData>
 
     private handleAfterKeyboardNavigationEvent(): void {
         const activeCell = this.grid.getActiveCell();
+
         if (activeCell) {
             this.setSelectedRanges([
                 new Slick.Range(activeCell.row, activeCell.cell),

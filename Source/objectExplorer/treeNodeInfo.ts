@@ -86,6 +86,7 @@ export class TreeNodeInfo extends vscode.TreeItem implements ITreeNodeInfo {
             nodeInfo.filterableProperties,
             nodeInfo.metadata,
         );
+
         return treeNodeInfo;
     }
 
@@ -210,6 +211,7 @@ export class TreeNodeInfo extends vscode.TreeItem implements ITreeNodeInfo {
         contextValue: string,
     ): vscodeMssql.TreeNodeContextValue {
         let contextArray = contextValue.split(",");
+
         let context: vscodeMssql.TreeNodeContextValue = {
             filterable: false,
             hasFilters: false,
@@ -220,6 +222,7 @@ export class TreeNodeInfo extends vscode.TreeItem implements ITreeNodeInfo {
             let keyValuePair = element.split("=");
             context[keyValuePair[0]] = keyValuePair[1];
         });
+
         return context;
     }
 
@@ -234,6 +237,7 @@ export class TreeNodeInfo extends vscode.TreeItem implements ITreeNodeInfo {
         Object.keys(context).forEach((key) => {
             contextValue += key + "=" + context[key] + ",";
         });
+
         return contextValue;
     }
 }

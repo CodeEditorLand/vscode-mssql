@@ -9,11 +9,13 @@ export function formatString(str: string, ...args: any[]): string {
 	// This is based on code originally from https://github.com/Microsoft/vscode/blob/master/src/vs/nls.js
 	// License: https://github.com/Microsoft/vscode/blob/master/LICENSE.txt
 	let result: string;
+
 	if (args.length === 0) {
 		result = str;
 	} else {
 		result = str.replace(/\{(\d+)\}/g, (match, rest) => {
 			let index = rest[0];
+
 			return typeof args[index] !== 'undefined' ? args[index] : match;
 		});
 	}
@@ -36,6 +38,7 @@ export function htmlEntities(str: string): string {
 
 	let newStr = str.replace(/[\u00A0-\u9999<>\&"']/gim, (i) => { return `&#${i.charCodeAt(0)};`; });
 	newStr = newStr.replace(/\s/g, '&nbsp;');
+
 	return newStr;
 }
 

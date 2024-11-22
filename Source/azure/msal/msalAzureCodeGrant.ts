@@ -68,20 +68,26 @@ export class MsalAzureCodeGrant extends MsalAzureAuth {
         authComplete: IDeferred<void, Error>;
     }> {
         let authCompleteDeferred: IDeferred<void, Error>;
+
         let authCompletePromise = new Promise<void>(
             (resolve, reject) => (authCompleteDeferred = { resolve, reject }),
         );
+
         let serverPort: string;
+
         const server = new SimpleWebServer();
 
         try {
             serverPort = await server.startup();
         } catch (ex) {
             const msg = LocalizedConstants.azureServerCouldNotStart;
+
             throw new AzureAuthError(msg, "Server could not start", ex);
         }
         await this.createCryptoValuesMsal();
+
         const state = `${serverPort},${this.pkceCodes.nonce}`;
+
         let authCodeRequest: AuthorizationCodeRequest;
 
         let authority = this.loginEndpointUrl + tenant.id;
@@ -113,6 +119,7 @@ export class MsalAzureCodeGrant extends MsalAzureAuth {
                     `http://localhost:${serverPort}/signin?nonce=${encodeURIComponent(this.pkceCodes.nonce)}`,
                 ),
             );
+
             const authCode = await this.addServerListeners(
                 server,
                 this.pkceCodes.nonce,
@@ -122,16 +129,19 @@ export class MsalAzureCodeGrant extends MsalAzureAuth {
             authCodeRequest.code = authCode;
         } catch (e) {
             this.logger.error("MSAL: Error requesting auth code", e);
+
             throw new AzureAuthError("error", "Error requesting auth code", e);
         }
 
         let result =
             await this.clientApplication.acquireTokenByCode(authCodeRequest);
+
         if (!result) {
             this.logger.error("Failed to acquireTokenByCode");
             this.logger.error(
                 `Auth Code Request: ${JSON.stringify(authCodeRequest)}`,
             );
+
             throw Error("Failed to fetch token using auth code");
         } else {
             return {
@@ -156,12 +166,14 @@ export class MsalAzureCodeGrant extends MsalAzureAuth {
             contentType: string,
         ): Promise<void> => {
             let fileContents;
+
             try {
                 fileContents = await fs.readFile(filePath);
             } catch (ex) {
                 this.logger.error(ex);
                 res.writeHead(400);
                 res.end();
+
                 return;
             }
 
@@ -198,6 +210,7 @@ export class MsalAzureCodeGrant extends MsalAzureAuth {
                 res.write(LocalizedConstants.azureAuthNonceError);
                 res.end();
                 this.logger.error("nonce no match", receivedNonce, nonce);
+
                 return;
             }
             res.writeHead(302, { Location: loginUrl });
@@ -207,12 +220,15 @@ export class MsalAzureCodeGrant extends MsalAzureAuth {
         return new Promise<string>((resolve, reject) => {
             server.on("/redirect", (req, reqUrl, res) => {
                 const state = (reqUrl.query.state as string) ?? "";
+
                 const split = state.split(",");
+
                 if (split.length !== 2) {
                     res.writeHead(400, { "content-type": "text/html" });
                     res.write(LocalizedConstants.azureAuthStateError);
                     res.end();
                     reject(new Error("State mismatch"));
+
                     return;
                 }
                 const port = split[0];
@@ -224,14 +240,17 @@ export class MsalAzureCodeGrant extends MsalAzureAuth {
 
             server.on("/callback", (req, reqUrl, res) => {
                 const state = (reqUrl.query.state as string) ?? "";
+
                 const code = (reqUrl.query.code as string) ?? "";
 
                 const stateSplit = state.split(",");
+
                 if (stateSplit.length !== 2) {
                     res.writeHead(400, { "content-type": "text/html" });
                     res.write(LocalizedConstants.azureAuthStateError);
                     res.end();
                     reject(new Error("State mismatch"));
+
                     return;
                 }
 
@@ -240,6 +259,7 @@ export class MsalAzureCodeGrant extends MsalAzureAuth {
                     res.write(LocalizedConstants.azureAuthNonceError);
                     res.end();
                     reject(new Error("Nonce mismatch"));
+
                     return;
                 }
 
@@ -265,6 +285,7 @@ export class MsalAzureCodeGrant extends MsalAzureAuth {
 
     private async createCryptoValuesMsal(): Promise<void> {
         this.pkceCodes.nonce = this.cryptoProvider.createNewGuid();
+
         const { verifier, challenge } =
             await this.cryptoProvider.generatePkceCodes();
         this.pkceCodes.codeVerifier = verifier;

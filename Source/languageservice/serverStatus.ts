@@ -88,15 +88,18 @@ export class ServerStatusView implements IStatusView, vscode.Disposable {
 
     private showProgress(statusText: string): void {
         let index = 0;
+
         let progressTicks = ["|", "/", "-", "\\"];
 
         setInterval(() => {
             index++;
+
             if (index > 3) {
                 index = 0;
             }
 
             let progressTick = progressTicks[index];
+
             if (this._statusBarItem.text !== Constants.serviceInstalled) {
                 this._statusBarItem.text = statusText + " " + progressTick;
                 this._statusBarItem.show();

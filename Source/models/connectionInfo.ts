@@ -74,7 +74,9 @@ export function updateEncrypt(connection: IConnectionInfo): {
     updateStatus: boolean;
 } {
     let updatePerformed = true;
+
     let resultConnection = Object.assign({}, connection);
+
     if (connection.encrypt === true) {
         resultConnection.encrypt = EncryptOptions.Mandatory;
     } else if (connection.encrypt === false) {
@@ -122,6 +124,7 @@ export function getPicklistLabel(
  */
 export function getPicklistDescription(connCreds: IConnectionInfo): string {
     let desc = `[${getConnectionDisplayString(connCreds)}]`;
+
     return desc;
 }
 
@@ -148,6 +151,7 @@ export function getPicklistDetails(connCreds: IConnectionInfo): string {
 export function getConnectionDisplayString(creds: IConnectionInfo): string {
     // Update the connection text
     let text: string = creds.server;
+
     if (creds.database !== "") {
         text = appendIfNotEmpty(text, creds.database);
     } else {
@@ -239,20 +243,28 @@ export function getEncryptionMode(
     encryption: string | boolean | undefined,
 ): EncryptOptions {
     let encryptionMode = EncryptOptions.Mandatory;
+
     if (encryption !== undefined) {
         let encrypt = encryption.toString().toLowerCase();
+
         switch (encrypt) {
             case "true":
             case EncryptOptions.Mandatory.toLowerCase():
                 encryptionMode = EncryptOptions.Mandatory;
+
                 break;
+
             case "false":
             case EncryptOptions.Optional.toLowerCase():
                 encryptionMode = EncryptOptions.Optional;
+
                 break;
+
             case EncryptOptions.Strict.toLowerCase():
                 encryptionMode = EncryptOptions.Strict;
+
                 break;
+
             default:
                 break;
         }
@@ -262,9 +274,13 @@ export function getEncryptionMode(
 
 export function getConnectionDisplayName(credentials: IConnectionInfo): string {
     let database = credentials.database;
+
     const server = credentials.server;
+
     const authType = credentials.authenticationType;
+
     let userOrAuthType = authType;
+
     if (authType === Constants.sqlAuthentication) {
         userOrAuthType = credentials.user;
     }

@@ -73,11 +73,13 @@ export class ReactWebviewPanelController<
         this.registerDisposable(
             this._panel.onDidDispose(async () => {
                 let prompt;
+
                 if (this._options.showRestorePromptAfterClose) {
                     prompt = await this.showRestorePrompt();
                 }
                 if (prompt) {
                     await prompt.run();
+
                     return;
                 }
                 this.dispose();

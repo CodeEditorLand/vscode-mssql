@@ -36,6 +36,7 @@ const MESSAGE_INTERVAL_IN_MS = 300;
 export class QueryRunnerState {
     timeout: NodeJS.Timer;
     flaggedForDeletion: boolean;
+
     constructor(public queryRunner: QueryRunner) {
         this.flaggedForDeletion = false;
     }
@@ -93,11 +94,14 @@ export class SqlOutputContentProvider {
         uri: string,
     ): Promise<Interfaces.IResultsConfig> {
         let queryUri = this._queryResultsMap.get(uri).queryRunner.uri;
+
         let extConfig = this._vscodeWrapper.getConfiguration(
             Constants.extensionConfigSectionName,
             queryUri,
         );
+
         let config = new ResultsConfig();
+
         for (let key of Constants.extConfigResultKeys) {
             config[key] = extConfig[key];
         }
@@ -267,14 +271,17 @@ export class SqlOutputContentProvider {
             uri,
             title,
         );
+
         if (this.shouldUseOldResultPane) {
             if (this._panels.has(uri)) {
                 let panelController = this._panels.get(uri);
+
                 if (panelController.isDisposed) {
                     this._panels.delete(uri);
                     await this.createWebviewController(uri, title, queryRunner);
                 } else {
                     queryCallback(queryRunner);
+
                     return;
                 }
             } else {
@@ -371,6 +378,7 @@ export class SqlOutputContentProvider {
                         return undefined;
                     },
                 });
+
                 return val === undefined ? undefined : parseInt(val, 10);
             },
             sendActionEvent: (
@@ -382,6 +390,7 @@ export class SqlOutputContentProvider {
                 sendActionEvent(view, action, properties, measurement);
             },
         };
+
         const controller = new WebviewPanelController(
             this._vscodeWrapper,
             uri,
@@ -411,6 +420,7 @@ export class SqlOutputContentProvider {
                 this._vscodeWrapper.showInformationMessage(
                     LocalizedConstants.msgRunQueryInProgress,
                 );
+
                 return;
             }
 
@@ -444,12 +454,14 @@ export class SqlOutputContentProvider {
                     this._queryResultWebviewController.getQueryResultState(
                         uri,
                     ).tabStates.resultPaneTab = QueryResultPaneTabs.Messages;
+
                     if (this.isOpenQueryResultsInTabByDefaultEnabled) {
                         await this._queryResultWebviewController.createPanelController(
                             uri,
                         );
                     }
                     this._queryResultWebviewController.updatePanelState(uri);
+
                     if (!this._queryResultWebviewController.hasPanel(uri)) {
                         await vscode.commands.executeCommand(
                             "queryResult.focus",
@@ -487,6 +499,7 @@ export class SqlOutputContentProvider {
             );
             queryRunner.eventEmitter.on("batchStart", (batch) => {
                 let time = new Date().toLocaleTimeString();
+
                 if (batch.executionElapsed && batch.executionEnd) {
                     time = new Date(batch.executionStart).toLocaleTimeString();
                 }
@@ -504,6 +517,7 @@ export class SqlOutputContentProvider {
                         ),
                     },
                 };
+
                 if (this.shouldUseOldResultPane) {
                     this._panels.get(uri).proxy.sendEvent("message", message);
                 } else {
@@ -518,6 +532,7 @@ export class SqlOutputContentProvider {
                             uri,
                         );
                     this._queryResultWebviewController.updatePanelState(uri);
+
                     if (!this._queryResultWebviewController.hasPanel(uri)) {
                         vscode.commands.executeCommand("queryResult.focus");
                     }
@@ -547,6 +562,7 @@ export class SqlOutputContentProvider {
                         this._queryResultWebviewController.updatePanelState(
                             uri,
                         );
+
                         if (!this._queryResultWebviewController.hasPanel(uri)) {
                             vscode.commands.executeCommand("queryResult.focus");
                         }
@@ -579,6 +595,7 @@ export class SqlOutputContentProvider {
                                     ),
                                 isError: hasError,
                             });
+
                         const tabState =
                             Object.keys(
                                 this._queryResultWebviewController.getQueryResultState(
@@ -597,6 +614,7 @@ export class SqlOutputContentProvider {
                         this._queryResultWebviewController.updatePanelState(
                             uri,
                         );
+
                         if (!this._queryResultWebviewController.hasPanel(uri)) {
                             vscode.commands.executeCommand("queryResult.focus");
                         }
@@ -611,6 +629,7 @@ export class SqlOutputContentProvider {
 
     public cancelQuery(input: QueryRunner | string): void {
         let self = this;
+
         let queryRunner: QueryRunner;
 
         if (typeof input === "string") {
@@ -626,6 +645,7 @@ export class SqlOutputContentProvider {
             self._vscodeWrapper.showInformationMessage(
                 LocalizedConstants.msgCancelQueryNotRunning,
             );
+
             return;
         }
 
@@ -654,6 +674,7 @@ export class SqlOutputContentProvider {
     public onUntitledFileSaved(untitledUri: string, savedUri: string): void {
         // If we don't have any query runners mapped to this uri, don't do anything
         let untitledResultsUri = decodeURIComponent(untitledUri);
+
         if (!this._queryResultsMap.has(untitledResultsUri)) {
             return;
         }
@@ -696,6 +717,7 @@ export class SqlOutputContentProvider {
      */
     private async sendReadyEvent(uri: string): Promise<boolean> {
         const panelController = this._panels.get(uri);
+
         const queryRunner = this.getQueryRunner(uri);
         // in case of a tab switch
         // and if it has rendered before
@@ -714,8 +736,10 @@ export class SqlOutputContentProvider {
 
     private setRunnerDeletionTimeout(uri: string): NodeJS.Timer {
         const self = this;
+
         return setTimeout(() => {
             let queryRunnerState = self._queryResultsMap.get(uri);
+
             if (queryRunnerState.flaggedForDeletion) {
                 self._queryResultsMap.delete(uri);
 
@@ -741,6 +765,7 @@ export class SqlOutputContentProvider {
         linkType: string,
     ): void {
         const self = this;
+
         if (linkType === "xml") {
             try {
                 content = pd.xml(content);
@@ -749,6 +774,7 @@ export class SqlOutputContentProvider {
             }
         } else if (linkType === "json") {
             let jsonContent: string = undefined;
+
             try {
                 jsonContent = JSON.parse(content);
             } catch (e) {
@@ -812,6 +838,7 @@ export class SqlOutputContentProvider {
      */
     public toggleSqlCmd(uri: string): Thenable<boolean> {
         const queryRunner = this.getQueryRunner(uri);
+
         if (queryRunner) {
             return queryRunner.toggleSqlCmd().then((result) => {
                 return result;
@@ -833,15 +860,20 @@ export class SqlOutputContentProvider {
             Constants.extensionConfigSectionName,
             queryUri,
         );
+
         let splitPaneSelection = config[Constants.configSplitPaneSelection];
+
         let viewColumn: vscode.ViewColumn;
 
         switch (splitPaneSelection) {
             case "current":
                 viewColumn = this._vscodeWrapper.activeTextEditor.viewColumn;
+
                 break;
+
             case "end":
                 viewColumn = vscode.ViewColumn.Three;
+
                 break;
             // default case where splitPaneSelection is next or anything else
             default:

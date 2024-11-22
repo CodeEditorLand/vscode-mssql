@@ -56,5 +56,6 @@ export function instanceOfIDisposableDataProvider<T extends Slick.SlickData>(
     obj: any,
 ): obj is IDisposableDataProvider<T> {
     const provider = obj as IDisposableDataProvider<T>;
+
     return obj && provider.isDataInMemory !== undefined;
 }

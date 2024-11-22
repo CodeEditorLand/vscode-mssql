@@ -746,16 +746,20 @@ export interface TableDesignerReducers {
     };
     scriptAsCreate: {};
     copyScriptAsCreateToClipboard: {};
+
     setTab: {
         tabId: DesignerMainPaneTabs;
     };
+
     setPropertiesComponents: {
         components: PropertiesPaneData;
     };
+
     setResultTab: {
         tabId: DesignerResultPaneTabs;
     };
     closeDesigner: {};
+
     continueEditing: {};
     copyPublishErrorToClipboard: {};
 }

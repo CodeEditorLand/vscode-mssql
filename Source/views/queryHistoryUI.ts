@@ -27,6 +27,7 @@ export class QueryHistoryUI {
         node: vscode.TreeItem,
     ): QueryHistoryQuickPickItem {
         let historyNode = node as QueryHistoryNode;
+
         let quickPickItem: QueryHistoryQuickPickItem = {
             label: Utils.limitStringSize(historyNode.queryString, true).trim(),
             detail: `${historyNode.connectionLabel}, ${historyNode.timeStamp.toLocaleString()}`,
@@ -34,6 +35,7 @@ export class QueryHistoryUI {
             action: undefined,
             picked: false,
         };
+
         return quickPickItem;
     }
 
@@ -44,12 +46,14 @@ export class QueryHistoryUI {
             { label: LocalizedConstants.msgOpenQueryHistory },
             { label: LocalizedConstants.msgRunQueryHistory },
         ];
+
         let question: IQuestion = {
             type: QuestionTypes.expand,
             name: "question",
             message: LocalizedConstants.msgChooseQueryHistoryAction,
             choices: options,
         };
+
         return this._prompter
             .promptSingle(question)
             .then((answer: vscode.QuickPickItem) => {
@@ -72,6 +76,7 @@ export class QueryHistoryUI {
             message: LocalizedConstants.msgChooseQueryHistory,
             choices: options,
         };
+
         return this._prompter
             .promptSingle(question)
             .then((answer: QueryHistoryQuickPickItem) => {

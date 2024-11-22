@@ -47,6 +47,7 @@ export class ConnectionProfile
 
     constructor(connectionCredentials?: ConnectionCredentials) {
         super();
+
         if (connectionCredentials) {
             this.accountId = connectionCredentials.accountId;
             this.tenantId = connectionCredentials.tenantId;
@@ -78,17 +79,20 @@ export class ConnectionProfile
         // Ensure all core properties are entered
         let authOptions: INameValueChoice[] =
             ConnectionCredentials.getAuthenticationTypesChoice();
+
         if (authOptions.length === 1) {
             // Set default value as there is only 1 option
             profile.authenticationType = authOptions[0].value;
         }
         let azureAccountChoices: INameValueChoice[] =
             ConnectionProfile.getAccountChoices(accountStore);
+
         let accountAnswer: IAccount;
         azureAccountChoices.unshift({
             name: LocalizedConstants.azureAddAccount,
             value: "addAccount",
         });
+
         let tenantChoices: INameValueChoice[] = [];
 
         let questions: IQuestion[] =
@@ -119,6 +123,7 @@ export class ConnectionProfile
                 shouldPrompt: () => profile.isAzureActiveDirectory(),
                 onAnswered: async (value) => {
                     accountAnswer = value;
+
                     if (value !== "addAccount") {
                         let account = value;
                         profile.accountId = account?.key.id;
@@ -128,6 +133,7 @@ export class ConnectionProfile
                                 value: t,
                             })),
                         );
+
                         if (tenantChoices.length === 1) {
                             profile.tenantId = tenantChoices[0].value.id;
                         }
@@ -149,6 +155,7 @@ export class ConnectionProfile
                                     accountStore,
                                     providerSettings.resources.databaseResource,
                                 );
+
                             if (profile) {
                                 vscode.window.showInformationMessage(
                                     LocalizedConstants.accountAddedSuccessfully(
@@ -206,6 +213,7 @@ export class ConnectionProfile
                         passwordSaved: profile.savePassword ? "true" : "false",
                     },
                 );
+
                 return profile;
             }
             // returning undefined to indicate failure to create the profile
@@ -262,6 +270,7 @@ export class ConnectionProfile
         accountStore: AccountStore,
     ): INameValueChoice[] {
         let accounts = accountStore.getAccounts();
+
         let choices: Array<INameValueChoice> = [];
 
         if (accounts.length > 0) {

@@ -39,6 +39,7 @@ export default class ServiceDownloadProvider {
     public getDownloadFileName(platform: Runtime): string {
         let fileNamesJson =
             this._config.getSqlToolsConfigValue("downloadFileNames");
+
         let fileName = fileNamesJson[platform.toString()];
 
         if (fileName === undefined) {
@@ -57,12 +58,14 @@ export default class ServiceDownloadProvider {
      */
     public async getOrMakeInstallDirectory(platform: Runtime): Promise<string> {
         let basePath = this.getInstallDirectoryRoot();
+
         let versionFromConfig = this._config.getSqlToolsPackageVersion();
         basePath = basePath.replace("{#version#}", versionFromConfig);
         basePath = basePath.replace(
             "{#platform#}",
             getRuntimeDisplayName(platform),
         );
+
         try {
             await fs.mkdir(basePath, { recursive: true });
         } catch {
@@ -77,7 +80,9 @@ export default class ServiceDownloadProvider {
      */
     public getInstallDirectoryRoot(): string {
         let installDirFromConfig = this._config.getSqlToolsInstallDirectory();
+
         let basePath: string;
+
         if (path.isAbsolute(installDirFromConfig)) {
             basePath = installDirFromConfig;
         } else {
@@ -89,9 +94,11 @@ export default class ServiceDownloadProvider {
 
     private getGetDownloadUrl(fileName: string): string {
         let baseDownloadUrl = this._config.getSqlToolsServiceDownloadUrl();
+
         let version = this._config.getSqlToolsPackageVersion();
         baseDownloadUrl = baseDownloadUrl.replace("{#version#}", version);
         baseDownloadUrl = baseDownloadUrl.replace("{#fileName#}", fileName);
+
         return baseDownloadUrl;
     }
 
@@ -100,22 +107,26 @@ export default class ServiceDownloadProvider {
      */
     public async installSQLToolsService(platform: Runtime): Promise<boolean> {
         const fileName = this.getDownloadFileName(platform);
+
         const installDirectory = await this.getOrMakeInstallDirectory(platform);
 
         this._logger.appendLine(
             `${Constants.serviceInstallingTo} ${installDirectory}.`,
         );
+
         const urlString = this.getGetDownloadUrl(fileName);
 
         const isZipFile: boolean = path.extname(fileName) === ".zip";
 
         this._logger.appendLine(`${Constants.serviceDownloading} ${urlString}`);
+
         let pkg: IPackage = {
             installPath: installDirectory,
             url: urlString,
             tmpFile: undefined,
             isZipFile: isZipFile,
         };
+
         const tmpResult = await this.createTempFile(pkg);
         pkg.tmpFile = tmpResult;
 
@@ -131,6 +142,7 @@ export default class ServiceDownloadProvider {
             await this.install(pkg);
         } catch (err) {
             this._logger.appendLine(`[ERROR] ${err}`);
+
             throw err;
         }
         return true;

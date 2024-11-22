@@ -73,6 +73,7 @@ export class ExecutionPlanWebviewController extends ReactWebviewPanelController<
                 this.executionPlanService,
                 [this.executionPlanContents],
             );
+
             return {
                 ...state,
                 executionPlanState: {

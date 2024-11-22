@@ -86,20 +86,25 @@ export class MssqlProtocolHandler {
 
         const capabilitiesResult: CapabilitiesResult =
             await this.client.sendRequest(GetCapabilitiesRequest.type, {});
+
         const connectionOptions =
             capabilitiesResult.capabilities.connectionProvider.options;
 
         const connectionInfo = {};
+
         const args = new URLSearchParams(query);
 
         const profileName = args.get("profileName");
+
         if (profileName) {
             connectionInfo["profileName"] = profileName;
         }
 
         const connectionString = args.get("connectionString");
+
         if (connectionString) {
             connectionInfo["connectionString"] = connectionString;
+
             return connectionInfo as IConnectionInfo;
         }
 
@@ -114,6 +119,7 @@ export class MssqlProtocolHandler {
 
         for (const property of connectionOptionProperties) {
             const propName = property.name as string;
+
             const propValue: string | undefined = args.get(propName);
 
             if (propValue === undefined || propValue === null) {
@@ -124,10 +130,12 @@ export class MssqlProtocolHandler {
                 case "string":
                 case "category":
                     connectionInfo[propName] = propValue;
+
                     break;
 
                 case "number":
                     const numericalValue = parseInt(propValue);
+
                     if (!isNaN(numericalValue)) {
                         connectionInfo[propName] = numericalValue;
                     }
@@ -136,6 +144,7 @@ export class MssqlProtocolHandler {
                 case "boolean":
                     connectionInfo[propName] =
                         propValue === "true" || propValue === "1";
+
                     break;
 
                 default:

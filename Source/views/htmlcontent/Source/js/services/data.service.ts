@@ -23,6 +23,7 @@ function createMessageProtocol(): IMessageProtocol {
 				listener(message);
 			};
 			window.addEventListener('message', windowListener);
+
 			return {
 				dispose: () => window.removeEventListener('message', windowListener)
 			};
@@ -149,6 +150,7 @@ export class DataService implements OnDestroy {
 
 	get config(): Promise<{ [key: string]: any }> {
 		const self = this;
+
 		if (this._config) {
 			return Promise.resolve(this._config);
 		} else {
@@ -156,6 +158,7 @@ export class DataService implements OnDestroy {
 				self._shortcuts = config.shortcuts;
 				delete config.shortcuts;
 				self._config = config;
+
 				return self._config;
 			});
 		}
@@ -163,6 +166,7 @@ export class DataService implements OnDestroy {
 
 	get shortcuts(): Promise<any> {
 		const self = this;
+
 		if (this._shortcuts) {
 			return Promise.resolve(this._shortcuts);
 		} else {
@@ -170,6 +174,7 @@ export class DataService implements OnDestroy {
 				self._shortcuts = config.shortcuts;
 				delete config.shortcuts;
 				self._config = config;
+
 				return self._shortcuts;
 			});
 		}

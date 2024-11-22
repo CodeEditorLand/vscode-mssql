@@ -56,12 +56,14 @@ export class QueryResultWebviewController extends ReactWebviewViewController<
         });
 
         void this.initialize();
+
         if (!_vscodeWrapper) {
             this._vscodeWrapper = new VscodeWrapper();
         }
         if (this.isRichExperiencesEnabled) {
             vscode.window.onDidChangeActiveTextEditor((editor) => {
                 const uri = editor?.document?.uri?.toString(true);
+
                 if (uri && this._queryResultStateMap.has(uri)) {
                     this.state = this.getQueryResultState(uri);
                 } else {
@@ -78,6 +80,7 @@ export class QueryResultWebviewController extends ReactWebviewViewController<
             // not the best api but it's the best we can do in VSCode
             this._vscodeWrapper.onDidOpenTextDocument((document) => {
                 const uri = document.uri.toString(true);
+
                 if (this._queryResultStateMap.has(uri)) {
                     this._queryResultStateMap.delete(uri);
                 }
@@ -125,14 +128,20 @@ export class QueryResultWebviewController extends ReactWebviewViewController<
                         LocalizedConstants.alwaysShowInNewTab,
                         LocalizedConstants.keepInQueryPane,
                     );
+
                 let telemResponse: string;
+
                 switch (response) {
                     case LocalizedConstants.alwaysShowInNewTab:
                         telemResponse = "alwaysShowInNewTab";
+
                         break;
+
                     case LocalizedConstants.keepInQueryPane:
                         telemResponse = "keepInQueryPane";
+
                         break;
+
                     default:
                         telemResponse = "dismissed";
                 }
@@ -172,10 +181,12 @@ export class QueryResultWebviewController extends ReactWebviewViewController<
 
     public async createPanelController(uri: string) {
         const viewColumn = getNewResultPaneViewColumn(uri, this._vscodeWrapper);
+
         if (this._queryResultWebviewPanelControllerMap.has(uri)) {
             this._queryResultWebviewPanelControllerMap
                 .get(uri)
                 .revealToForeground();
+
             return;
         }
 
@@ -190,6 +201,7 @@ export class QueryResultWebviewController extends ReactWebviewViewController<
         controller.state = this.getQueryResultState(uri);
         controller.revealToForeground();
         this._queryResultWebviewPanelControllerMap.set(uri, controller);
+
         if (this.isVisible()) {
             await vscode.commands.executeCommand(
                 "workbench.action.togglePanel",
@@ -252,6 +264,7 @@ export class QueryResultWebviewController extends ReactWebviewViewController<
 
     public getQueryResultState(uri: string): qr.QueryResultWebviewState {
         var res = this._queryResultStateMap.get(uri);
+
         if (!res) {
             // This should never happen
             throw new Error(`No query result state found for uri ${uri}`);
@@ -264,8 +277,11 @@ export class QueryResultWebviewController extends ReactWebviewViewController<
         resultSetSummary: qr.ResultSetSummary,
     ) {
         let state = this.getQueryResultState(uri);
+
         const batchId = resultSetSummary.batchId;
+
         const resultId = resultSetSummary.id;
+
         if (!state.resultSetSummaries[batchId]) {
             state.resultSetSummaries[batchId] = {};
         }
@@ -320,6 +336,7 @@ export class QueryResultWebviewController extends ReactWebviewViewController<
         actualPlanEnabled: boolean,
     ): number {
         const summariesLength = recordLength(resultSetSummaries);
+
         if (!actualPlanEnabled) {
             return summariesLength;
         }
@@ -336,6 +353,7 @@ export class QueryResultWebviewController extends ReactWebviewViewController<
                 }
             });
         });
+
         return total;
     }
 }

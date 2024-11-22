@@ -57,7 +57,9 @@ export default class Config implements IConfig {
             case 1:
                 this._sqlToolsServiceConfigKey =
                     Constants.v1SqlToolsServiceConfigKey;
+
                 break;
+
             default:
                 this._sqlToolsServiceConfigKey =
                     Constants.sqlToolsServiceConfigKey;
@@ -71,8 +73,11 @@ export default class Config implements IConfig {
 
     public getSqlToolsConfigValue(configKey: string): any {
         let json = this.configJsonContent;
+
         let toolsConfig = json[this._sqlToolsServiceConfigKey];
+
         let configValue: string = undefined;
+
         if (toolsConfig !== undefined) {
             configValue = toolsConfig[configKey];
         }
@@ -81,8 +86,11 @@ export default class Config implements IConfig {
 
     public getExtensionConfig(key: string, defaultValue?: any): any {
         let json = this.configJsonContent;
+
         let extensionConfig = json[Constants.extensionConfigSectionName];
+
         let configValue = extensionConfig[key];
+
         if (!configValue) {
             configValue = defaultValue;
         }
@@ -91,7 +99,9 @@ export default class Config implements IConfig {
 
     public getWorkspaceConfig(key: string, defaultValue?: any): any {
         let json = this.configJsonContent;
+
         let configValue = json[key];
+
         if (!configValue) {
             configValue = defaultValue;
         }
@@ -102,6 +112,7 @@ export default class Config implements IConfig {
         let configContent = fs.readFileSync(
             path.join(__dirname, "../config.json"),
         );
+
         return JSON.parse(configContent.toString());
     }
 }

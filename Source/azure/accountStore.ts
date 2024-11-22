@@ -22,14 +22,17 @@ export class AccountStore {
         this._logger.verbose(
             `Retreived ${configValues?.length} Azure accounts from account store.`,
         );
+
         return configValues;
     }
 
     public getAccount(key: string): IAccount | undefined {
         let account: IAccount | undefined;
+
         let configValues = this._context.globalState.get<IAccount[]>(
             Constants.configAzureAccount,
         );
+
         if (!configValues) {
             throw new Error("No Azure accounts stored");
         }
@@ -41,6 +44,7 @@ export class AccountStore {
                 key.startsWith(value.key.id)
             ) {
                 account = value;
+
                 break;
             }
         }
@@ -59,6 +63,7 @@ export class AccountStore {
             Constants.configAzureAccount,
             configValues,
         );
+
         return;
     }
 
@@ -100,6 +105,7 @@ export class AccountStore {
                 this._logger.info(
                     "Unexpected empty account key, removing account from account store.",
                 );
+
                 return false;
             }
         });
@@ -107,6 +113,7 @@ export class AccountStore {
             Constants.configAzureAccount,
             configValues,
         );
+
         return;
     }
 

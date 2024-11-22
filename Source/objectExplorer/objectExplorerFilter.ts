@@ -66,12 +66,14 @@ export class ObjectExplorerFilterReactWebviewController extends ReactWebviewPane
         this.registerReducer("submit", (state, payload) => {
             this._onSubmit.fire(payload.filters);
             this.panel.dispose();
+
             return state;
         });
 
         this.registerReducer("cancel", (state) => {
             this._onCancel.fire();
             this.panel.dispose();
+
             return state;
         });
     }
@@ -103,6 +105,7 @@ export class ObjectExplorerFilter {
                     correlationId,
                 },
             );
+
             if (
                 !this._filterWebviewController ||
                 this._filterWebviewController.isDisposed

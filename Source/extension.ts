@@ -38,6 +38,7 @@ export async function activate(
         () => controller,
     );
     await controller.activate();
+
     return {
         sqlToolsServicePath: SqlToolsServerClient.instance.sqlToolsServicePath,
         promptForConnection: (ignoreFocusOut?: boolean) => {
@@ -50,6 +51,7 @@ export async function activate(
             saveConnection?: boolean,
         ) => {
             const uri = utils.generateQueryUri().toString();
+
             const connectionPromise = new Deferred<boolean>();
             // First wait for initial connection request to succeed
             const requestSucceeded = await controller.connect(
@@ -58,6 +60,7 @@ export async function activate(
                 connectionPromise,
                 saveConnection,
             );
+
             if (!requestSucceeded) {
                 if (
                     controller.connectionManager.failedUriToFirewallIpMap.has(
@@ -76,6 +79,7 @@ export async function activate(
             }
             // Next wait for the actual connection to be made
             const connectionSucceeded = await connectionPromise;
+
             if (!connectionSucceeded) {
                 throw new Error(
                     `Connection for ${JSON.stringify(connectionInfo)} failed`,
@@ -108,6 +112,7 @@ export async function activate(
             connectionInfo: IConnectionInfo,
         ) => {
             const connectionProfile = new ConnectionProfile(connectionInfo);
+
             return controller.connectionManager.connectionUI.addFirewallRule(
                 connectionUri,
                 connectionProfile,
@@ -150,6 +155,7 @@ export async function getController(): Promise<MainController> {
     if (!controller) {
         let savedController: MainController =
             await vscode.commands.executeCommand("mssql.getControllerForTests");
+
         return savedController;
     }
     return controller;

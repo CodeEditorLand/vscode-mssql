@@ -43,6 +43,7 @@ export default class ExpandPrompt extends Prompt {
 	private renderNameValueChoice(choices: INameValueChoice[]): any {
 		const choiceMap = this._question.choices.reduce((result, choice) => {
 			result[choice.name] = choice.value;
+
 			return result;
 		}, {});
 
@@ -57,6 +58,7 @@ export default class ExpandPrompt extends Prompt {
 
 				// Note: cannot be used with 0 or false responses
 				let returnVal = choiceMap[result] || false;
+
 				return this.validateAndReturn(returnVal);
 			});
 	}
@@ -73,6 +75,7 @@ export default class ExpandPrompt extends Prompt {
 
 		if (validationError) {
 			this._question.message = `${figures.warning} ${validationError}`;
+
 			return false;
 		}
 		return true;

@@ -50,6 +50,7 @@ export class ScriptingService {
      */
     public getObjectFromNode(node: TreeNodeInfo): IScriptingObject {
         let metadata = node.metadata;
+
         let scriptingObject: IScriptingObject = {
             type: metadata.metadataTypeName,
             schema: metadata.schema,
@@ -57,6 +58,7 @@ export class ScriptingService {
             parentName: metadata.parentName,
             parentTypeName: metadata.parentTypeName,
         };
+
         return scriptingObject;
     }
 
@@ -69,19 +71,27 @@ export class ScriptingService {
         operation: ScriptOperation,
     ): IScriptingParams {
         const scriptingObject = this.getObjectFromNode(node);
+
         let serverInfo = this._connectionManager.getServerInfo(
             node.connectionInfo,
         );
+
         let scriptCreateDropOption: string;
+
         switch (operation) {
             case ScriptOperation.Select:
                 scriptCreateDropOption = "ScriptSelect";
+
                 break;
+
             case ScriptOperation.Delete:
                 scriptCreateDropOption = "ScriptDrop";
+
                 break;
+
             case ScriptOperation.Create:
                 scriptCreateDropOption = "ScriptCreate";
+
             default:
                 scriptCreateDropOption = "ScriptCreate";
         }
@@ -106,6 +116,7 @@ export class ScriptingService {
                       ]
                     : "Script140Compat",
         };
+
         let scriptingParams: IScriptingParams = {
             filePath: undefined,
             scriptDestination: "ToEditor",
@@ -123,6 +134,7 @@ export class ScriptingService {
             selectScript: undefined,
             operation: operation,
         };
+
         return scriptingParams;
     }
 
@@ -132,10 +144,12 @@ export class ScriptingService {
         operation: ScriptOperation,
     ): Promise<string> {
         let scriptingParams = this.createScriptingParams(node, uri, operation);
+
         const result = await this._client.sendRequest(
             ScriptingRequest.type,
             scriptingParams,
         );
+
         return result.script;
     }
 }

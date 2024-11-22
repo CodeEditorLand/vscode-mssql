@@ -13,6 +13,7 @@ export default class CodeAdapter implements IPrompter {
 
 	private outChannel: OutputChannel;
 	private messageLevelFormatters = {};
+
 	constructor(
 		private vscodeWrapper: VscodeWrapper
 	) {
@@ -26,13 +27,16 @@ export default class CodeAdapter implements IPrompter {
 
 	private formatMessage(message: any): string {
 		const prefix = `${message.level}: (${message.id}) `;
+
 		return `${prefix}${message.message}`;
 	}
 
 	public log(message: any): void {
 		let line: string = '';
+
 		if (message && typeof (message.level) === 'string') {
 			let formatter: (a: any) => string = this.formatMessage;
+
 			if (this.messageLevelFormatters[message.level]) {
 				formatter = this.messageLevelFormatters[message.level];
 			}
@@ -69,6 +73,7 @@ export default class CodeAdapter implements IPrompter {
 
 	public promptSingle<T>(question: IQuestion, ignoreFocusOut?: boolean): Promise<T> {
 		let questions: IQuestion[] = [question];
+
 		return this.prompt<T>(questions, ignoreFocusOut).then(answers => {
 			if (answers) {
 				return answers[question.name] || undefined;

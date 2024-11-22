@@ -99,6 +99,7 @@ export class SqlTasksService {
         const params: CancelTaskParams = {
             taskId,
         };
+
         return this._client.sendRequest(CancelTaskRequest.type, params);
     }
 
@@ -148,15 +149,18 @@ export class SqlTasksService {
         taskProgressInfo: TaskProgressInfo,
     ): Promise<void> {
         const taskInfo = this._activeTasks.get(taskProgressInfo.taskId);
+
         if (!taskInfo) {
             console.warn(
                 `Status update for unknown task ${taskProgressInfo.taskId}`!,
             );
+
             return;
         }
         const taskStatusString = toTaskStatusDisplayString(
             taskProgressInfo.status,
         );
+
         if (
             taskProgressInfo.message &&
             taskProgressInfo.message.toLowerCase() !==
@@ -169,6 +173,7 @@ export class SqlTasksService {
             // Task is completed, complete the progress notification and display a final toast informing the
             // user of the final status.
             this._activeTasks.delete(taskProgressInfo.taskId);
+
             if (taskProgressInfo.status === TaskStatus.Canceled) {
                 taskInfo.completionPromise.reject(new Error("Task cancelled"));
             } else {
@@ -194,6 +199,7 @@ export class SqlTasksService {
                       taskStatusString,
                   );
             showCompletionMessage(taskProgressInfo.status, taskMessage);
+
             if (
                 taskInfo.taskInfo.taskExecutionMode ===
                     TaskExecutionMode.script &&
@@ -269,22 +275,30 @@ function toTaskStatusDisplayString(taskStatus: TaskStatus): string {
     switch (taskStatus) {
         case TaskStatus.Canceled:
             return localizedConstants.canceled;
+
         case TaskStatus.Failed:
             return localizedConstants.failed;
+
         case TaskStatus.Succeeded:
             return localizedConstants.succeeded;
+
         case TaskStatus.SucceededWithWarning:
             return localizedConstants.succeededWithWarning;
+
         case TaskStatus.InProgress:
             return localizedConstants.inProgress;
+
         case TaskStatus.Canceling:
             return localizedConstants.canceling;
+
         case TaskStatus.NotStarted:
             return localizedConstants.notStarted;
+
         default:
             console.warn(
                 `Don't have display string for task status ${taskStatus}`,
             );
+
             return (<any>taskStatus).toString(); // Typescript warns that we can never get here because we've used all the enum values so cast to any
     }
 }

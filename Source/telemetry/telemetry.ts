@@ -124,6 +124,7 @@ export function startActivity(
     additionalMeasurements: TelemetryEventMeasures = {},
 ): ActivityObject {
     const startTime = performance.now();
+
     if (!correlationId) {
         correlationId = uuidv4();
     }

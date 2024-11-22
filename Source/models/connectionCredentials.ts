@@ -69,6 +69,7 @@ export class ConnectionCredentials implements IConnectionInfo {
 
         details.options["connectionString"] = credentials.connectionString;
         details.options["server"] = credentials.server;
+
         if (credentials.port && details.options["server"].indexOf(",") === -1) {
             // Port is appended to the server name in a connection string
             details.options["server"] += "," + credentials.port;
@@ -135,6 +136,7 @@ export class ConnectionCredentials implements IConnectionInfo {
                 connectionStore,
                 defaultProfileValues,
             );
+
         let unprocessedCredentials: IConnectionInfo = Object.assign(
             {},
             credentials,
@@ -338,6 +340,7 @@ export class ConnectionCredentials implements IConnectionInfo {
                 onAnswered: (value) => {
                     if (credentials) {
                         credentials.password = value;
+
                         if (
                             typeof (<IConnectionProfile>credentials) !==
                             "undefined"
@@ -367,6 +370,7 @@ export class ConnectionCredentials implements IConnectionInfo {
                 },
             },
         ];
+
         return questions;
     }
 
@@ -383,6 +387,7 @@ export class ConnectionCredentials implements IConnectionInfo {
             "addr=",
             "network address=",
         ];
+
         let isConnectionString = dataSourceKeys.some(
             (key) => value.toLowerCase().indexOf(key) !== -1,
         );
@@ -422,6 +427,7 @@ export class ConnectionCredentials implements IConnectionInfo {
     ): boolean {
         // TODO consider enum based verification and handling of AD auth here in the future
         let authenticationType = credentials.authenticationType;
+
         if (typeof credentials.authenticationType === "undefined") {
             authenticationType = utils.authTypeToString(
                 AuthenticationTypes.SqlLogin,
@@ -437,6 +443,7 @@ export class ConnectionCredentials implements IConnectionInfo {
         connectionString: string,
     ): boolean {
         const connString = connectionString.toLowerCase();
+
         return (
             (connString.includes("user") ||
                 connString.includes("uid") ||

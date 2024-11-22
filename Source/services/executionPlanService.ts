@@ -19,12 +19,14 @@ export class ExecutionPlanService implements ep.ExecutionPlanService {
             let params: GetExecutionPlanParams = {
                 graphInfo: planFile,
             };
+
             return await this._sqlToolsClient.sendRequest(
                 GetExecutionPlanRequest.type,
                 params,
             );
         } catch (e) {
             this._sqlToolsClient.logger.error(e);
+
             throw e;
         }
     }

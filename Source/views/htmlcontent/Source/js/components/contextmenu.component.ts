@@ -72,6 +72,7 @@ export class ContextMenu implements OnInit {
 		@Inject(forwardRef(() => ShortcutService)) private shortcuts: ShortcutService
 	) {
 		const self = this;
+
 		for (let key in this.keys) {
 			if (this.keys.hasOwnProperty(key)) {
 				this.shortcuts.stringCodeFor(key).then((result) => {

@@ -43,6 +43,7 @@ export class MsalAzureDeviceCode extends MsalAzureAuth {
         authComplete: IDeferred<void, Error>;
     }> {
         let authCompleteDeferred: IDeferred<void, Error>;
+
         let authCompletePromise = new Promise<void>(
             (resolve, reject) => (authCompleteDeferred = { resolve, reject }),
         );
@@ -91,6 +92,7 @@ export class MsalAzureDeviceCode extends MsalAzureAuth {
             msg,
             LocalizedConstants.msgCopyAndOpenWebpage,
         );
+
         if (selection === LocalizedConstants.msgCopyAndOpenWebpage) {
             this.vscodeWrapper.clipboardWriteText(userCode);
             await vscode.env.openExternal(vscode.Uri.parse(verificationUrl));

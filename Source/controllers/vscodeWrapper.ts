@@ -130,7 +130,9 @@ export default class VscodeWrapper {
      */
     public get isEditingSqlFile(): boolean {
         let sqlFile = false;
+
         let editor = this.activeTextEditor;
+
         if (editor) {
             if (editor.document.languageId === Constants.languageId) {
                 sqlFile = true;
@@ -179,6 +181,7 @@ export default class VscodeWrapper {
         uri: vscode.Uri,
     ): Promise<vscode.TextDocument> {
         const doc = await vscode.workspace.openTextDocument(uri);
+
         return doc;
     }
 
@@ -200,6 +203,7 @@ export default class VscodeWrapper {
             language: "sql",
             content: content,
         });
+
         return doc;
     }
 
@@ -208,6 +212,7 @@ export default class VscodeWrapper {
      */
     public logToOutputChannel(msg: any): void {
         let date: Date = new Date();
+
         if (msg instanceof Array) {
             msg.forEach((element) => {
                 VscodeWrapper._outputChannel.appendLine(
@@ -340,6 +345,7 @@ export default class VscodeWrapper {
         options: TextDocumentShowOptions,
     ): Promise<vscode.TextEditor> {
         const editor = await vscode.window.showTextDocument(document, options);
+
         return editor;
     }
 

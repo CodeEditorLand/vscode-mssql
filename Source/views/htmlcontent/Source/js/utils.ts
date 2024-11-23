@@ -16,14 +16,14 @@ export function formatString(str: string, ...args: any[]): string {
 		result = str.replace(/\{(\d+)\}/g, (match, rest) => {
 			let index = rest[0];
 
-			return typeof args[index] !== 'undefined' ? args[index] : match;
+			return typeof args[index] !== "undefined" ? args[index] : match;
 		});
 	}
 	return result;
 }
 
 export function isNumber(val: any): boolean {
-	return typeof (val) === 'number';
+	return typeof val === "number";
 }
 
 /**
@@ -34,10 +34,14 @@ export function isNumber(val: any): boolean {
  * @return String with characters replaced.
  */
 export function htmlEntities(str: string): string {
-	if (typeof (str) !== 'string') { return undefined; }
+	if (typeof str !== "string") {
+		return undefined;
+	}
 
-	let newStr = str.replace(/[\u00A0-\u9999<>\&"']/gim, (i) => { return `&#${i.charCodeAt(0)};`; });
-	newStr = newStr.replace(/\s/g, '&nbsp;');
+	let newStr = str.replace(/[\u00A0-\u9999<>\&"']/gim, (i) => {
+		return `&#${i.charCodeAt(0)};`;
+	});
+	newStr = newStr.replace(/\s/g, "&nbsp;");
 
 	return newStr;
 }
@@ -48,9 +52,11 @@ export function htmlEntities(str: string): string {
  * @returns True if the object is a DbCellValue, false otherwise
  */
 export function isDbCellValue(object: DbCellValue): boolean {
-	return object !== undefined
-		&& object.displayValue !== undefined
-		&& object.isNull !== undefined;
+	return (
+		object !== undefined &&
+		object.displayValue !== undefined &&
+		object.isNull !== undefined
+	);
 }
 
 /**
@@ -60,5 +66,5 @@ export function isDbCellValue(object: DbCellValue): boolean {
  * @returns True if the object is a NULL value object, false otherwise
  */
 export function isNullValueCell(object: DbCellValue): boolean {
-	return object.isNull || object.displayValue === 'NULL';
+	return object.isNull || object.displayValue === "NULL";
 }

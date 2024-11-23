@@ -12,8 +12,8 @@ import { IConnectionProfile } from "../models/interfaces";
  * @interface IConnectionConfig
  */
 export interface IConnectionConfig {
-    addConnection(profile: IConnectionProfile): Promise<void>;
+	addConnection(profile: IConnectionProfile): Promise<void>;
 
-    getConnections(getWorkspaceConnections: boolean): IConnectionProfile[];
-    removeConnection(profile: IConnectionProfile): Promise<boolean>;
+	getConnections(getWorkspaceConnections: boolean): IConnectionProfile[];
+	removeConnection(profile: IConnectionProfile): Promise<boolean>;
 }

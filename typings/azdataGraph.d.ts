@@ -1,4 +1,4 @@
-declare module 'azdataGraph/dist/build' {
+declare module "azdataGraph/dist/build" {
 	const bind: any;
 
 	export default bind;
@@ -6,4 +6,4 @@ declare module 'azdataGraph/dist/build' {
 	export const mxClient: any;
 
 	export function azdataQueryPlan(queryPlanConfiguration: any): any;
-  }
+}

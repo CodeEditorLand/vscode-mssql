@@ -3,358 +3,342 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { randomUUID } from "crypto";
 import * as vscode from "vscode";
-
+import * as qr from "../sharedInterfaces/queryResult";
 import * as Constants from "../constants/constants";
 import * as LocalizedConstants from "../constants/locConstants";
 import { ReactWebviewViewController } from "../controllers/reactWebviewViewController";
-import UntitledSqlDocumentService from "../controllers/untitledSqlDocumentService";
-import VscodeWrapper from "../controllers/vscodeWrapper";
 import { SqlOutputContentProvider } from "../models/sqlOutputContentProvider";
-import { ExecutionPlanService } from "../services/executionPlanService";
-import * as qr from "../sharedInterfaces/queryResult";
-import {
-	TelemetryActions,
-	TelemetryViews,
-} from "../sharedInterfaces/telemetry";
-import { ApiStatus } from "../sharedInterfaces/webview";
 import { sendActionEvent } from "../telemetry/telemetry";
+import {
+    TelemetryActions,
+    TelemetryViews,
+} from "../sharedInterfaces/telemetry";
+import { randomUUID } from "crypto";
+import { ApiStatus } from "../sharedInterfaces/webview";
+import UntitledSqlDocumentService from "../controllers/untitledSqlDocumentService";
+import { ExecutionPlanService } from "../services/executionPlanService";
+import VscodeWrapper from "../controllers/vscodeWrapper";
 import { QueryResultWebviewPanelController } from "./queryResultWebviewPanelController";
 import {
-	getNewResultPaneViewColumn,
-	recordLength,
-	registerCommonRequestHandlers,
+    getNewResultPaneViewColumn,
+    recordLength,
+    registerCommonRequestHandlers,
 } from "./utils";
 
 export class QueryResultWebviewController extends ReactWebviewViewController<
-	qr.QueryResultWebviewState,
-	qr.QueryResultReducers
+    qr.QueryResultWebviewState,
+    qr.QueryResultReducers
 > {
-	private _queryResultStateMap: Map<string, qr.QueryResultWebviewState> =
-		new Map<string, qr.QueryResultWebviewState>();
-	private _queryResultWebviewPanelControllerMap: Map<
-		string,
-		QueryResultWebviewPanelController
-	> = new Map<string, QueryResultWebviewPanelController>();
-	private _sqlOutputContentProvider: SqlOutputContentProvider;
-	private _correlationId: string = randomUUID();
-	public actualPlanStatuses: string[] = [];
+    private _queryResultStateMap: Map<string, qr.QueryResultWebviewState> =
+        new Map<string, qr.QueryResultWebviewState>();
+    private _queryResultWebviewPanelControllerMap: Map<
+        string,
+        QueryResultWebviewPanelController
+    > = new Map<string, QueryResultWebviewPanelController>();
+    private _sqlOutputContentProvider: SqlOutputContentProvider;
+    private _correlationId: string = randomUUID();
+    public actualPlanStatuses: string[] = [];
 
-	constructor(
-		context: vscode.ExtensionContext,
-		private executionPlanService: ExecutionPlanService,
-		private untitledSqlDocumentService: UntitledSqlDocumentService,
-		private _vscodeWrapper: VscodeWrapper,
-	) {
-		super(context, "queryResult", {
-			resultSetSummaries: {},
-			messages: [],
-			tabStates: {
-				resultPaneTab: qr.QueryResultPaneTabs.Messages,
-			},
-			executionPlanState: {},
-		});
+    constructor(
+        context: vscode.ExtensionContext,
+        private executionPlanService: ExecutionPlanService,
+        private untitledSqlDocumentService: UntitledSqlDocumentService,
+        private _vscodeWrapper: VscodeWrapper,
+    ) {
+        super(context, "queryResult", {
+            resultSetSummaries: {},
+            messages: [],
+            tabStates: {
+                resultPaneTab: qr.QueryResultPaneTabs.Messages,
+            },
+            executionPlanState: {},
+            filterState: {},
+        });
 
-		void this.initialize();
+        void this.initialize();
+        if (!_vscodeWrapper) {
+            this._vscodeWrapper = new VscodeWrapper();
+        }
+        if (this.isRichExperiencesEnabled) {
+            vscode.window.onDidChangeActiveTextEditor((editor) => {
+                const uri = editor?.document?.uri?.toString(true);
+                if (uri && this._queryResultStateMap.has(uri)) {
+                    this.state = this.getQueryResultState(uri);
+                } else {
+                    this.state = {
+                        resultSetSummaries: {},
+                        messages: [],
+                        tabStates: undefined,
+                        isExecutionPlan: false,
+                        executionPlanState: {},
+                        filterState: {},
+                    };
+                }
+            });
 
-		if (!_vscodeWrapper) {
-			this._vscodeWrapper = new VscodeWrapper();
-		}
-		if (this.isRichExperiencesEnabled) {
-			vscode.window.onDidChangeActiveTextEditor((editor) => {
-				const uri = editor?.document?.uri?.toString(true);
+            // not the best api but it's the best we can do in VSCode
+            this._vscodeWrapper.onDidOpenTextDocument((document) => {
+                const uri = document.uri.toString(true);
+                if (this._queryResultStateMap.has(uri)) {
+                    this._queryResultStateMap.delete(uri);
+                }
+            });
+        }
+    }
 
-				if (uri && this._queryResultStateMap.has(uri)) {
-					this.state = this.getQueryResultState(uri);
-				} else {
-					this.state = {
-						resultSetSummaries: {},
-						messages: [],
-						tabStates: undefined,
-						isExecutionPlan: false,
-						executionPlanState: {},
-					};
-				}
-			});
+    private async initialize() {
+        this.registerRpcHandlers();
+    }
 
-			// not the best api but it's the best we can do in VSCode
-			this._vscodeWrapper.onDidOpenTextDocument((document) => {
-				const uri = document.uri.toString(true);
+    private get isRichExperiencesEnabled(): boolean {
+        return this._vscodeWrapper
+            .getConfiguration()
+            .get(Constants.configEnableRichExperiences);
+    }
 
-				if (this._queryResultStateMap.has(uri)) {
-					this._queryResultStateMap.delete(uri);
-				}
-			});
-		}
-	}
+    private get isOpenQueryResultsInTabByDefaultEnabled(): boolean {
+        return this._vscodeWrapper
+            .getConfiguration()
+            .get(Constants.configOpenQueryResultsInTabByDefault);
+    }
 
-	private async initialize() {
-		this.registerRpcHandlers();
-	}
+    private get isDefaultQueryResultToDocumentDoNotShowPromptEnabled(): boolean {
+        return this._vscodeWrapper
+            .getConfiguration()
+            .get(Constants.configOpenQueryResultsInTabByDefaultDoNotShowPrompt);
+    }
 
-	private get isRichExperiencesEnabled(): boolean {
-		return this._vscodeWrapper
-			.getConfiguration()
-			.get(Constants.configEnableRichExperiences);
-	}
+    private get shouldShowDefaultQueryResultToDocumentPrompt(): boolean {
+        return (
+            !this.isOpenQueryResultsInTabByDefaultEnabled &&
+            !this.isDefaultQueryResultToDocumentDoNotShowPromptEnabled
+        );
+    }
 
-	private get isOpenQueryResultsInTabByDefaultEnabled(): boolean {
-		return this._vscodeWrapper
-			.getConfiguration()
-			.get(Constants.configOpenQueryResultsInTabByDefault);
-	}
+    private registerRpcHandlers() {
+        this.registerRequestHandler("openInNewTab", async (message) => {
+            void this.createPanelController(message.uri);
 
-	private get isDefaultQueryResultToDocumentDoNotShowPromptEnabled(): boolean {
-		return this._vscodeWrapper
-			.getConfiguration()
-			.get(Constants.configOpenQueryResultsInTabByDefaultDoNotShowPrompt);
-	}
+            if (this.shouldShowDefaultQueryResultToDocumentPrompt) {
+                const response =
+                    await this._vscodeWrapper.showInformationMessage(
+                        LocalizedConstants.openQueryResultsInTabByDefaultPrompt,
+                        LocalizedConstants.alwaysShowInNewTab,
+                        LocalizedConstants.keepInQueryPane,
+                    );
+                let telemResponse: string;
+                switch (response) {
+                    case LocalizedConstants.alwaysShowInNewTab:
+                        telemResponse = "alwaysShowInNewTab";
+                        break;
+                    case LocalizedConstants.keepInQueryPane:
+                        telemResponse = "keepInQueryPane";
+                        break;
+                    default:
+                        telemResponse = "dismissed";
+                }
 
-	private get shouldShowDefaultQueryResultToDocumentPrompt(): boolean {
-		return (
-			!this.isOpenQueryResultsInTabByDefaultEnabled &&
-			!this.isDefaultQueryResultToDocumentDoNotShowPromptEnabled
-		);
-	}
+                sendActionEvent(
+                    TelemetryViews.General,
+                    TelemetryActions.OpenQueryResultsInTabByDefaultPrompt,
+                    {
+                        response: telemResponse,
+                    },
+                );
 
-	private registerRpcHandlers() {
-		this.registerRequestHandler("openInNewTab", async (message) => {
-			void this.createPanelController(message.uri);
+                if (response === LocalizedConstants.alwaysShowInNewTab) {
+                    await this._vscodeWrapper
+                        .getConfiguration()
+                        .update(
+                            Constants.configOpenQueryResultsInTabByDefault,
+                            true,
+                            vscode.ConfigurationTarget.Global,
+                        );
+                }
+                // show the prompt only once
+                await this._vscodeWrapper
+                    .getConfiguration()
+                    .update(
+                        Constants.configOpenQueryResultsInTabByDefaultDoNotShowPrompt,
+                        true,
+                        vscode.ConfigurationTarget.Global,
+                    );
+            }
+        });
+        this.registerRequestHandler("getWebviewLocation", async () => {
+            return qr.QueryResultWebviewLocation.Panel;
+        });
+        registerCommonRequestHandlers(this, this._correlationId);
+    }
 
-			if (this.shouldShowDefaultQueryResultToDocumentPrompt) {
-				const response =
-					await this._vscodeWrapper.showInformationMessage(
-						LocalizedConstants.openQueryResultsInTabByDefaultPrompt,
-						LocalizedConstants.alwaysShowInNewTab,
-						LocalizedConstants.keepInQueryPane,
-					);
+    public async createPanelController(uri: string) {
+        const viewColumn = getNewResultPaneViewColumn(uri, this._vscodeWrapper);
+        if (this._queryResultWebviewPanelControllerMap.has(uri)) {
+            this._queryResultWebviewPanelControllerMap
+                .get(uri)
+                .revealToForeground();
+            return;
+        }
 
-				let telemResponse: string;
+        const controller = new QueryResultWebviewPanelController(
+            this._context,
+            this._vscodeWrapper,
+            viewColumn,
+            uri,
+            this._queryResultStateMap.get(uri).title,
+            this,
+        );
+        controller.state = this.getQueryResultState(uri);
+        controller.revealToForeground();
+        this._queryResultWebviewPanelControllerMap.set(uri, controller);
+        if (this.isVisible()) {
+            await vscode.commands.executeCommand(
+                "workbench.action.togglePanel",
+            );
+        }
+    }
 
-				switch (response) {
-					case LocalizedConstants.alwaysShowInNewTab:
-						telemResponse = "alwaysShowInNewTab";
+    public addQueryResultState(
+        uri: string,
+        title: string,
+        isExecutionPlan?: boolean,
+        actualPlanEnabled?: boolean,
+    ): void {
+        let currentState = {
+            resultSetSummaries: {},
+            messages: [],
+            tabStates: {
+                resultPaneTab: qr.QueryResultPaneTabs.Messages,
+            },
+            uri: uri,
+            title: title,
+            isExecutionPlan: isExecutionPlan,
+            actualPlanEnabled: actualPlanEnabled,
+            ...(isExecutionPlan && {
+                executionPlanState: {
+                    loadState: ApiStatus.Loading,
+                    executionPlanGraphs: [],
+                    totalCost: 0,
+                    xmlPlans: {},
+                },
+            }),
+            filterState: {},
+        };
+        this._queryResultStateMap.set(uri, currentState);
+    }
 
-						break;
+    public setQueryResultState(uri: string, state: qr.QueryResultWebviewState) {
+        this._queryResultStateMap.set(uri, state);
+    }
 
-					case LocalizedConstants.keepInQueryPane:
-						telemResponse = "keepInQueryPane";
+    public updatePanelState(uri: string): void {
+        if (this._queryResultWebviewPanelControllerMap.has(uri)) {
+            this._queryResultWebviewPanelControllerMap
+                .get(uri)
+                .updateState(this.getQueryResultState(uri));
+            this._queryResultWebviewPanelControllerMap
+                .get(uri)
+                .revealToForeground();
+        }
+    }
 
-						break;
+    public removePanel(uri: string): void {
+        if (this._queryResultWebviewPanelControllerMap.has(uri)) {
+            this._queryResultWebviewPanelControllerMap.delete(uri);
+        }
+    }
 
-					default:
-						telemResponse = "dismissed";
-				}
+    public hasPanel(uri: string): boolean {
+        return this._queryResultWebviewPanelControllerMap.has(uri);
+    }
 
-				sendActionEvent(
-					TelemetryViews.General,
-					TelemetryActions.OpenQueryResultsInTabByDefaultPrompt,
-					{
-						response: telemResponse,
-					},
-				);
+    public getQueryResultState(uri: string): qr.QueryResultWebviewState {
+        var res = this._queryResultStateMap.get(uri);
+        if (!res) {
+            // This should never happen
+            throw new Error(`No query result state found for uri ${uri}`);
+        }
+        return res;
+    }
 
-				if (response === LocalizedConstants.alwaysShowInNewTab) {
-					await this._vscodeWrapper
-						.getConfiguration()
-						.update(
-							Constants.configOpenQueryResultsInTabByDefault,
-							true,
-							vscode.ConfigurationTarget.Global,
-						);
-				}
-				// show the prompt only once
-				await this._vscodeWrapper
-					.getConfiguration()
-					.update(
-						Constants.configOpenQueryResultsInTabByDefaultDoNotShowPrompt,
-						true,
-						vscode.ConfigurationTarget.Global,
-					);
-			}
-		});
-		this.registerRequestHandler("getWebviewLocation", async () => {
-			return qr.QueryResultWebviewLocation.Panel;
-		});
-		registerCommonRequestHandlers(this, this._correlationId);
-	}
+    public addResultSetSummary(
+        uri: string,
+        resultSetSummary: qr.ResultSetSummary,
+    ) {
+        let state = this.getQueryResultState(uri);
+        const batchId = resultSetSummary.batchId;
+        const resultId = resultSetSummary.id;
+        if (!state.resultSetSummaries[batchId]) {
+            state.resultSetSummaries[batchId] = {};
+        }
+        state.resultSetSummaries[batchId][resultId] = resultSetSummary;
+    }
 
-	public async createPanelController(uri: string) {
-		const viewColumn = getNewResultPaneViewColumn(uri, this._vscodeWrapper);
+    public setSqlOutputContentProvider(
+        provider: SqlOutputContentProvider,
+    ): void {
+        this._sqlOutputContentProvider = provider;
+    }
 
-		if (this._queryResultWebviewPanelControllerMap.has(uri)) {
-			this._queryResultWebviewPanelControllerMap
-				.get(uri)
-				.revealToForeground();
+    public getSqlOutputContentProvider(): SqlOutputContentProvider {
+        return this._sqlOutputContentProvider;
+    }
 
-			return;
-		}
+    public setExecutionPlanService(service: ExecutionPlanService): void {
+        this.executionPlanService = service;
+    }
 
-		const controller = new QueryResultWebviewPanelController(
-			this._context,
-			this._vscodeWrapper,
-			viewColumn,
-			uri,
-			this._queryResultStateMap.get(uri).title,
-			this,
-		);
-		controller.state = this.getQueryResultState(uri);
-		controller.revealToForeground();
-		this._queryResultWebviewPanelControllerMap.set(uri, controller);
+    public getExecutionPlanService(): ExecutionPlanService {
+        return this.executionPlanService;
+    }
 
-		if (this.isVisible()) {
-			await vscode.commands.executeCommand(
-				"workbench.action.togglePanel",
-			);
-		}
-	}
+    public setUntitledDocumentService(
+        service: UntitledSqlDocumentService,
+    ): void {
+        this.untitledSqlDocumentService = service;
+    }
 
-	public addQueryResultState(
-		uri: string,
-		title: string,
-		isExecutionPlan?: boolean,
-		actualPlanEnabled?: boolean,
-	): void {
-		let currentState = {
-			resultSetSummaries: {},
-			messages: [],
-			tabStates: {
-				resultPaneTab: qr.QueryResultPaneTabs.Messages,
-			},
-			uri: uri,
-			title: title,
-			isExecutionPlan: isExecutionPlan,
-			actualPlanEnabled: actualPlanEnabled,
-			...(isExecutionPlan && {
-				executionPlanState: {
-					loadState: ApiStatus.Loading,
-					executionPlanGraphs: [],
-					totalCost: 0,
-					xmlPlans: {},
-				},
-			}),
-		};
-		this._queryResultStateMap.set(uri, currentState);
-	}
+    public getUntitledDocumentService(): UntitledSqlDocumentService {
+        return this.untitledSqlDocumentService;
+    }
 
-	public setQueryResultState(uri: string, state: qr.QueryResultWebviewState) {
-		this._queryResultStateMap.set(uri, state);
-	}
+    public async copyAllMessagesToClipboard(uri: string): Promise<void> {
+        const messages = uri
+            ? this.getQueryResultState(uri)?.messages?.map(
+                  (message) => message.message,
+              )
+            : this.state?.messages?.map((message) => message.message);
 
-	public updatePanelState(uri: string): void {
-		if (this._queryResultWebviewPanelControllerMap.has(uri)) {
-			this._queryResultWebviewPanelControllerMap
-				.get(uri)
-				.updateState(this.getQueryResultState(uri));
-			this._queryResultWebviewPanelControllerMap
-				.get(uri)
-				.revealToForeground();
-		}
-	}
+        if (!messages) {
+            return;
+        }
 
-	public removePanel(uri: string): void {
-		if (this._queryResultWebviewPanelControllerMap.has(uri)) {
-			this._queryResultWebviewPanelControllerMap.delete(uri);
-		}
-	}
+        const messageText = messages.join("\n");
+        await this._vscodeWrapper.clipboardWriteText(messageText);
+    }
 
-	public hasPanel(uri: string): boolean {
-		return this._queryResultWebviewPanelControllerMap.has(uri);
-	}
-
-	public getQueryResultState(uri: string): qr.QueryResultWebviewState {
-		var res = this._queryResultStateMap.get(uri);
-
-		if (!res) {
-			// This should never happen
-			throw new Error(`No query result state found for uri ${uri}`);
-		}
-		return res;
-	}
-
-	public addResultSetSummary(
-		uri: string,
-		resultSetSummary: qr.ResultSetSummary,
-	) {
-		let state = this.getQueryResultState(uri);
-
-		const batchId = resultSetSummary.batchId;
-
-		const resultId = resultSetSummary.id;
-
-		if (!state.resultSetSummaries[batchId]) {
-			state.resultSetSummaries[batchId] = {};
-		}
-		state.resultSetSummaries[batchId][resultId] = resultSetSummary;
-	}
-
-	public setSqlOutputContentProvider(
-		provider: SqlOutputContentProvider,
-	): void {
-		this._sqlOutputContentProvider = provider;
-	}
-
-	public getSqlOutputContentProvider(): SqlOutputContentProvider {
-		return this._sqlOutputContentProvider;
-	}
-
-	public setExecutionPlanService(service: ExecutionPlanService): void {
-		this.executionPlanService = service;
-	}
-
-	public getExecutionPlanService(): ExecutionPlanService {
-		return this.executionPlanService;
-	}
-
-	public setUntitledDocumentService(
-		service: UntitledSqlDocumentService,
-	): void {
-		this.untitledSqlDocumentService = service;
-	}
-
-	public getUntitledDocumentService(): UntitledSqlDocumentService {
-		return this.untitledSqlDocumentService;
-	}
-
-	public async copyAllMessagesToClipboard(uri: string): Promise<void> {
-		const messages = uri
-			? this.getQueryResultState(uri)?.messages?.map(
-					(message) => message.message,
-				)
-			: this.state?.messages?.map((message) => message.message);
-
-		if (!messages) {
-			return;
-		}
-
-		const messageText = messages.join("\n");
-		await this._vscodeWrapper.clipboardWriteText(messageText);
-	}
-
-	public getNumExecutionPlanResultSets(
-		resultSetSummaries: qr.QueryResultWebviewState["resultSetSummaries"],
-		actualPlanEnabled: boolean,
-	): number {
-		const summariesLength = recordLength(resultSetSummaries);
-
-		if (!actualPlanEnabled) {
-			return summariesLength;
-		}
-		// count the amount of xml showplans in the result summaries
-		let total = 0;
-		Object.values(resultSetSummaries).forEach((batch) => {
-			Object.values(batch).forEach((result) => {
-				// Check if any column in columnInfo has the specific column name
-				if (
-					result.columnInfo[0].columnName ===
-					Constants.showPlanXmlColumnName
-				) {
-					total++;
-				}
-			});
-		});
-
-		return total;
-	}
+    public getNumExecutionPlanResultSets(
+        resultSetSummaries: qr.QueryResultWebviewState["resultSetSummaries"],
+        actualPlanEnabled: boolean,
+    ): number {
+        const summariesLength = recordLength(resultSetSummaries);
+        if (!actualPlanEnabled) {
+            return summariesLength;
+        }
+        // count the amount of xml showplans in the result summaries
+        let total = 0;
+        Object.values(resultSetSummaries).forEach((batch) => {
+            Object.values(batch).forEach((result) => {
+                // Check if any column in columnInfo has the specific column name
+                if (
+                    result.columnInfo[0].columnName ===
+                    Constants.showPlanXmlColumnName
+                ) {
+                    total++;
+                }
+            });
+        });
+        return total;
+    }
 }

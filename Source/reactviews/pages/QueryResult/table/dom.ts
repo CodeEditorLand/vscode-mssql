@@ -164,10 +164,12 @@ export function $<T extends HTMLElement>(
 }
 
 export function append<T extends Node>(parent: HTMLElement, child: T): T;
+
 export function append<T extends Node>(
 	parent: HTMLElement,
 	...children: (T | string)[]
 ): void;
+
 export function append<T extends Node>(
 	parent: HTMLElement,
 	...children: (T | string)[]

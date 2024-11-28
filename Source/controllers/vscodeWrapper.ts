@@ -10,6 +10,7 @@ import { AzureLoginStatus } from "../models/interfaces";
 import * as Constants from "./../constants/constants";
 
 export import TextEditor = vscode.TextEditor;
+
 export import ConfigurationTarget = vscode.ConfigurationTarget;
 
 export default class VscodeWrapper {

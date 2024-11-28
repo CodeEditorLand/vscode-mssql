@@ -12,14 +12,17 @@ export interface IFindPosition {
 }
 
 export type CellValueGetter = (data: any) => any;
+
 export type TableFilterFunc<T extends Slick.SlickData> = (
 	data: Array<T>,
 	columns: Slick.Column<T>[],
 ) => Array<T>;
+
 export type TableSortFunc<T extends Slick.SlickData> = (
 	args: Slick.OnSortEventArgs<T>,
 	data: Array<T>,
 ) => Array<T>;
+
 export type TableFindFunc<T extends Slick.SlickData> = (
 	val: T,
 	exp: string,

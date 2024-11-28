@@ -39,6 +39,7 @@ export async function getAllValues<T, TResult>(
 }
 
 export type SubscriptionClientFactory = (token: IToken) => SubscriptionClient;
+
 export function defaultSubscriptionClientFactory(
 	token: IToken,
 ): SubscriptionClient {
@@ -49,6 +50,7 @@ export type ResourceManagementClientFactory = (
 	token: IToken,
 	subscriptionId: string,
 ) => ResourceManagementClient;
+
 export function defaultResourceManagementClientFactory(
 	token: IToken,
 	subscriptionId: string,
@@ -63,6 +65,7 @@ export type SqlManagementClientFactory = (
 	token: IToken,
 	subscriptionId: string,
 ) => SqlManagementClient;
+
 export function defaultSqlManagementClientFactory(
 	token: IToken,
 	subscriptionId: string,

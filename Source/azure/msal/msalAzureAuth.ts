@@ -36,6 +36,7 @@ import * as Constants from "../constants";
 export type GetTenantsResponseData = {
 	value: ITenantResponse[];
 };
+
 export type ErrorResponseBodyWithError = Required<ErrorResponseBody>;
 
 export abstract class MsalAzureAuth {

@@ -39,4 +39,5 @@ const publicAzureSettings: IProviderSettings = {
 };
 
 const allSettings = publicAzureSettings;
+
 export default allSettings;

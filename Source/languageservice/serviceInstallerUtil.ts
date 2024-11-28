@@ -77,7 +77,7 @@ let serverProvider = new ServerProvider(downloadProvider, config, statusView);
 /*
  * Installs the service for the given platform if it's not already installed.
  */
-export function installService(runtime: Runtime): Promise<String> {
+export function installService(runtime: Runtime): Promise<string> {
 	if (runtime === undefined) {
 		return PlatformInformation.getCurrent().then((platformInfo) => {
 			if (platformInfo.isValidRuntime) {

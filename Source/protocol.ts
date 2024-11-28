@@ -195,11 +195,13 @@ export function createProxy(
 	handler: IServerProxy,
 	isClient: boolean,
 ): IWebviewProxy;
+
 export function createProxy(
 	protocol: IMessageProtocol,
 	handler: IWebviewProxy,
 	isClient: boolean,
 ): IServerProxy;
+
 export function createProxy(
 	protocol: IMessageProtocol,
 	handler: any,

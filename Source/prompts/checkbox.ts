@@ -19,6 +19,7 @@ export default class CheckboxPrompt extends Prompt {
 	public render(): any {
 		let choices = this._question.choices.reduce((result, choice) => {
 			let choiceName = choice.name || choice;
+
 			result[
 				`${choice.checked === true ? figures.radioOn : figures.radioOff} ${choiceName}`
 			] = choice;
@@ -27,9 +28,11 @@ export default class CheckboxPrompt extends Prompt {
 		}, {});
 
 		let options = this.defaultQuickPickOptions;
+
 		options.placeHolder = this._question.message;
 
 		let quickPickOptions = Object.keys(choices);
+
 		quickPickOptions.push(figures.tick);
 
 		return this._vscodeWrapper

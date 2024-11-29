@@ -27,6 +27,7 @@ export class ObjectExplorerUtils {
 				// if connected
 				label += "_green";
 			}
+
 			return path.join(ObjectExplorerUtils.rootPath, `${label}.svg`);
 		}
 	}
@@ -39,6 +40,7 @@ export class ObjectExplorerUtils {
 		} else {
 			profile = <IConnectionProfile>node.parentNode.connectionInfo;
 		}
+
 		return ObjectExplorerUtils.getNodeUriFromProfile(profile);
 	}
 
@@ -49,15 +51,18 @@ export class ObjectExplorerUtils {
 			let fields = profile.connectionString
 				.split(";")
 				.filter((s) => !s.toLowerCase().includes("password"));
+
 			uri = fields.join(";");
 
 			return uri;
 		}
+
 		if (profile.authenticationType === Constants.sqlAuthentication) {
 			uri = `${profile.server}_${profile.database}_${profile.user}_${profile.profileName}`;
 		} else {
 			uri = `${profile.server}_${profile.database}_${profile.profileName}`;
 		}
+
 		return uri;
 	}
 
@@ -86,8 +91,10 @@ export class ObjectExplorerUtils {
 					return node.metadata.name;
 				}
 			}
+
 			node = node.parentNode;
 		}
+
 		return LocalizedConstants.defaultDatabaseLabel;
 	}
 

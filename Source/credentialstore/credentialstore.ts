@@ -24,6 +24,7 @@ export class CredentialStore implements ICredentialStore {
 		if (!this._client) {
 			this._client = SqlToolsServerClient.instance;
 		}
+
 		this._secretStorage = this._context.secrets;
 	}
 
@@ -36,6 +37,7 @@ export class CredentialStore implements ICredentialStore {
 		credentialId: string,
 	): Promise<Contracts.Credential> {
 		let cred: Contracts.Credential = new Contracts.Credential();
+
 		cred.credentialId = credentialId;
 
 		if (Utils.isLinux) {
@@ -43,6 +45,7 @@ export class CredentialStore implements ICredentialStore {
 
 			return cred;
 		}
+
 		return await this._client!.sendRequest(
 			Contracts.ReadCredentialRequest.type,
 			cred,
@@ -54,7 +57,9 @@ export class CredentialStore implements ICredentialStore {
 		password: any,
 	): Promise<boolean> {
 		let cred: Contracts.Credential = new Contracts.Credential();
+
 		cred.credentialId = credentialId;
+
 		cred.password = password;
 		/* This is only done for linux because this is going to be
 		 * the default credential system for linux in a future release
@@ -62,6 +67,7 @@ export class CredentialStore implements ICredentialStore {
 		if (Utils.isLinux) {
 			await this._secretStorage.store(credentialId, password);
 		}
+
 		const success = await this._client!.sendRequest(
 			Contracts.SaveCredentialRequest.type,
 			cred,
@@ -72,11 +78,13 @@ export class CredentialStore implements ICredentialStore {
 
 	public async deleteCredential(credentialId: string): Promise<boolean> {
 		let cred: Contracts.Credential = new Contracts.Credential();
+
 		cred.credentialId = credentialId;
 
 		if (Utils.isLinux) {
 			await this._secretStorage.delete(credentialId);
 		}
+
 		const success = await this._client!.sendRequest(
 			Contracts.DeleteCredentialRequest.type,
 			cred,

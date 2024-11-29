@@ -46,6 +46,7 @@ export class PropertyUpdater<T> {
 		if (this.quickPickOptions) {
 			return true;
 		}
+
 		return false;
 	}
 

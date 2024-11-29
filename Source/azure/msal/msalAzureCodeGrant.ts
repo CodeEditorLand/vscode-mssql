@@ -31,13 +31,17 @@ import { MsalAzureAuth } from "./msalAzureAuth";
 
 interface ICryptoValues {
 	nonce: string;
+
 	challengeMethod: string;
+
 	codeVerifier: string;
+
 	codeChallenge: string;
 }
 
 export class MsalAzureCodeGrant extends MsalAzureAuth {
 	private pkceCodes: ICryptoValues;
+
 	private cryptoProvider: CryptoProvider;
 
 	constructor(
@@ -55,7 +59,9 @@ export class MsalAzureCodeGrant extends MsalAzureAuth {
 			vscodeWrapper,
 			logger,
 		);
+
 		this.cryptoProvider = new CryptoProvider();
+
 		this.pkceCodes = {
 			nonce: "",
 			challengeMethod: Constants.s256CodeChallengeMethod, // Use SHA256 as the challenge method
@@ -66,6 +72,7 @@ export class MsalAzureCodeGrant extends MsalAzureAuth {
 
 	protected async login(tenant: ITenant): Promise<{
 		response: AuthenticationResult;
+
 		authComplete: IDeferred<void, Error>;
 	}> {
 		let authCompleteDeferred: IDeferred<void, Error>;
@@ -85,6 +92,7 @@ export class MsalAzureCodeGrant extends MsalAzureAuth {
 
 			throw new AzureAuthError(msg, "Server could not start", ex);
 		}
+
 		await this.createCryptoValuesMsal();
 
 		const state = `${serverPort},${this.pkceCodes.nonce}`;
@@ -92,10 +100,12 @@ export class MsalAzureCodeGrant extends MsalAzureAuth {
 		let authCodeRequest: AuthorizationCodeRequest;
 
 		let authority = this.loginEndpointUrl + tenant.id;
+
 		this.logger.info(`Authority URL set to: ${authority}`);
 
 		try {
 			let authUrlRequest: AuthorizationUrlRequest;
+
 			authUrlRequest = {
 				scopes: this.scopes,
 				redirectUri: `${this.redirectUri}:${serverPort}/redirect`,
@@ -105,6 +115,7 @@ export class MsalAzureCodeGrant extends MsalAzureAuth {
 				authority: authority,
 				state: state,
 			};
+
 			authCodeRequest = {
 				scopes: this.scopes,
 				redirectUri: `${this.redirectUri}:${serverPort}/redirect`,
@@ -115,6 +126,7 @@ export class MsalAzureCodeGrant extends MsalAzureAuth {
 
 			let authCodeUrl =
 				await this.clientApplication.getAuthCodeUrl(authUrlRequest);
+
 			await vscode.env.openExternal(
 				vscode.Uri.parse(
 					`http://localhost:${serverPort}/signin?nonce=${encodeURIComponent(this.pkceCodes.nonce)}`,
@@ -127,6 +139,7 @@ export class MsalAzureCodeGrant extends MsalAzureAuth {
 				authCodeUrl,
 				authCompletePromise,
 			);
+
 			authCodeRequest.code = authCode;
 		} catch (e) {
 			this.logger.error("MSAL: Error requesting auth code", e);
@@ -139,6 +152,7 @@ export class MsalAzureCodeGrant extends MsalAzureAuth {
 
 		if (!result) {
 			this.logger.error("Failed to acquireTokenByCode");
+
 			this.logger.error(
 				`Auth Code Request: ${JSON.stringify(authCodeRequest)}`,
 			);
@@ -172,7 +186,9 @@ export class MsalAzureCodeGrant extends MsalAzureAuth {
 				fileContents = await fs.readFile(filePath);
 			} catch (ex) {
 				this.logger.error(ex);
+
 				res.writeHead(400);
+
 				res.end();
 
 				return;
@@ -204,17 +220,23 @@ export class MsalAzureCodeGrant extends MsalAzureAuth {
 
 		server.on("/signin", (req, reqUrl, res) => {
 			let receivedNonce: string = reqUrl.query.nonce as string;
+
 			receivedNonce = receivedNonce.replace(/ /g, "+");
 
 			if (receivedNonce !== nonce) {
 				res.writeHead(400, { "content-type": "text/html" });
+
 				res.write(LocalizedConstants.azureAuthNonceError);
+
 				res.end();
+
 				this.logger.error("nonce no match", receivedNonce, nonce);
 
 				return;
 			}
+
 			res.writeHead(302, { Location: loginUrl });
+
 			res.end();
 		});
 
@@ -226,16 +248,22 @@ export class MsalAzureCodeGrant extends MsalAzureAuth {
 
 				if (split.length !== 2) {
 					res.writeHead(400, { "content-type": "text/html" });
+
 					res.write(LocalizedConstants.azureAuthStateError);
+
 					res.end();
+
 					reject(new Error("State mismatch"));
 
 					return;
 				}
+
 				const port = split[0];
+
 				res.writeHead(302, {
 					Location: `http://127.0.0.1:${port}/callback${reqUrl.search}`,
 				});
+
 				res.end();
 			});
 
@@ -248,8 +276,11 @@ export class MsalAzureCodeGrant extends MsalAzureAuth {
 
 				if (stateSplit.length !== 2) {
 					res.writeHead(400, { "content-type": "text/html" });
+
 					res.write(LocalizedConstants.azureAuthStateError);
+
 					res.end();
+
 					reject(new Error("State mismatch"));
 
 					return;
@@ -257,8 +288,11 @@ export class MsalAzureCodeGrant extends MsalAzureAuth {
 
 				if (stateSplit[1] !== encodeURIComponent(nonce)) {
 					res.writeHead(400, { "content-type": "text/html" });
+
 					res.write(LocalizedConstants.azureAuthNonceError);
+
 					res.end();
+
 					reject(new Error("Nonce mismatch"));
 
 					return;
@@ -276,7 +310,9 @@ export class MsalAzureCodeGrant extends MsalAzureAuth {
 					},
 					(ex: Error) => {
 						res.writeHead(400, { "content-type": "text/html" });
+
 						res.write(ex.message);
+
 						res.end();
 					},
 				);
@@ -289,7 +325,9 @@ export class MsalAzureCodeGrant extends MsalAzureAuth {
 
 		const { verifier, challenge } =
 			await this.cryptoProvider.generatePkceCodes();
+
 		this.pkceCodes.codeVerifier = verifier;
+
 		this.pkceCodes.codeChallenge = challenge;
 	}
 }

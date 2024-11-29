@@ -17,10 +17,13 @@ export default class ConfirmPrompt extends Prompt {
 
 	public render(): any {
 		let choices: { [id: string]: boolean } = {};
+
 		choices[LocalizedConstants.msgYes] = true;
+
 		choices[LocalizedConstants.msgNo] = false;
 
 		let options = this.defaultQuickPickOptions;
+
 		options.placeHolder = this._question.message;
 
 		return this._vscodeWrapper

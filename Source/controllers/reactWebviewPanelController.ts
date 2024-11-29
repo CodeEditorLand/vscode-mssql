@@ -43,6 +43,7 @@ export class ReactWebviewPanelController<
 		private _options: MssqlWebviewPanelOptions,
 	) {
 		super(_context, sourceFile, initialData);
+
 		this.createWebviewPanel();
 		// This call sends messages to the Webview so it's called after the Webview creation.
 		this.initializeBase();
@@ -63,12 +64,15 @@ export class ReactWebviewPanelController<
 		);
 
 		this._panel.webview.html = this._getHtmlTemplate();
+
 		this._panel.iconPath = this._options.iconPath;
+
 		this.registerDisposable(
 			this._panel.webview.onDidReceiveMessage(
 				this._webviewMessageHandler,
 			),
 		);
+
 		this.registerDisposable(
 			this._panel.onDidDispose(async () => {
 				let prompt;
@@ -76,11 +80,13 @@ export class ReactWebviewPanelController<
 				if (this._options.showRestorePromptAfterClose) {
 					prompt = await this.showRestorePrompt();
 				}
+
 				if (prompt) {
 					await prompt.run();
 
 					return;
 				}
+
 				this.dispose();
 			}),
 		);
@@ -109,6 +115,7 @@ export class ReactWebviewPanelController<
 
 	private async showRestorePrompt(): Promise<{
 		title: string;
+
 		run: () => Promise<void>;
 	}> {
 		return await vscode.window.showInformationMessage(
@@ -125,7 +132,9 @@ export class ReactWebviewPanelController<
 						{},
 						{},
 					);
+
 					await this.createWebviewPanel();
+
 					this._panel.reveal(this._options.viewColumn);
 				},
 			},

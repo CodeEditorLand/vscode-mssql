@@ -61,7 +61,9 @@ export default class ServiceDownloadProvider {
 		let basePath = this.getInstallDirectoryRoot();
 
 		let versionFromConfig = this._config.getSqlToolsPackageVersion();
+
 		basePath = basePath.replace("{#version#}", versionFromConfig);
+
 		basePath = basePath.replace(
 			"{#platform#}",
 			getRuntimeDisplayName(platform),
@@ -73,6 +75,7 @@ export default class ServiceDownloadProvider {
 			// Best effort to make the folder, if it already exists (expected scenario) or something else happens
 			// then just carry on
 		}
+
 		return basePath;
 	}
 
@@ -90,6 +93,7 @@ export default class ServiceDownloadProvider {
 			// The path from config is relative to the out folder
 			basePath = path.join(__dirname, "../../" + installDirFromConfig);
 		}
+
 		return basePath;
 	}
 
@@ -97,7 +101,9 @@ export default class ServiceDownloadProvider {
 		let baseDownloadUrl = this._config.getSqlToolsServiceDownloadUrl();
 
 		let version = this._config.getSqlToolsPackageVersion();
+
 		baseDownloadUrl = baseDownloadUrl.replace("{#version#}", version);
+
 		baseDownloadUrl = baseDownloadUrl.replace("{#fileName#}", fileName);
 
 		return baseDownloadUrl;
@@ -129,6 +135,7 @@ export default class ServiceDownloadProvider {
 		};
 
 		const tmpResult = await this.createTempFile(pkg);
+
 		pkg.tmpFile = tmpResult;
 
 		try {
@@ -138,14 +145,18 @@ export default class ServiceDownloadProvider {
 				this._logger,
 				this._statusView,
 			);
+
 			this._logger.logDebug(`Downloaded to ${pkg.tmpFile.name}...`);
+
 			this._logger.appendLine(" Done!");
+
 			await this.install(pkg);
 		} catch (err) {
 			this._logger.appendLine(`[ERROR] ${err}`);
 
 			throw err;
 		}
+
 		return true;
 	}
 
@@ -172,6 +183,7 @@ export default class ServiceDownloadProvider {
 
 	private install(pkg: IPackage): Promise<void> {
 		this._logger.appendLine("Installing ...");
+
 		this._statusView.installingService();
 
 		return new Promise<void>((resolve, reject) => {
@@ -179,6 +191,7 @@ export default class ServiceDownloadProvider {
 				.decompress(pkg, this._logger)
 				.then((_) => {
 					this._statusView.serviceInstalled();
+
 					resolve();
 				})
 				.catch((err) => {

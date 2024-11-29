@@ -12,6 +12,7 @@ import * as ep from "../reactviews/pages/ExecutionPlan/executionPlanInterfaces";
 
 export class ExecutionPlanService implements ep.ExecutionPlanService {
 	constructor(private _sqlToolsClient: SqlToolsServiceClient) {}
+
 	async getExecutionPlan(
 		planFile: ep.ExecutionPlanGraphInfo,
 	): Promise<ep.GetExecutionPlanResult> {

@@ -75,6 +75,7 @@ export class ConnectionDialogWebviewController extends ReactWebviewPanelControll
 	private _connectionToEditCopy: IConnectionDialogProfile | undefined;
 
 	private static _logger: Logger;
+
 	private _azureSubscriptions: Map<string, AzureSubscription>;
 
 	constructor(
@@ -126,13 +127,16 @@ export class ConnectionDialogWebviewController extends ReactWebviewPanelControll
 
 		if (!ConnectionDialogWebviewController._logger) {
 			const vscodeWrapper = new VscodeWrapper();
+
 			const channel = vscodeWrapper.createOutputChannel(
 				Loc.connectionDialog,
 			);
+
 			ConnectionDialogWebviewController._logger = Logger.create(channel);
 		}
 
 		this.registerRpcHandlers();
+
 		this.initializeDialog().catch((err) => {
 			void vscode.window.showErrorMessage(getErrorMessage(err));
 
@@ -150,9 +154,11 @@ export class ConnectionDialogWebviewController extends ReactWebviewPanelControll
 	private async initializeDialog() {
 		try {
 			await this.updateLoadedConnections(this.state);
+
 			this.updateState();
 		} catch (err) {
 			void vscode.window.showErrorMessage(getErrorMessage(err));
+
 			sendErrorEvent(
 				TelemetryViews.ConnectionDialog,
 				TelemetryActions.Initialize,
@@ -169,6 +175,7 @@ export class ConnectionDialogWebviewController extends ReactWebviewPanelControll
 			}
 		} catch (err) {
 			await this.loadEmptyConnection();
+
 			void vscode.window.showErrorMessage(getErrorMessage(err));
 
 			sendErrorEvent(
@@ -208,6 +215,7 @@ export class ConnectionDialogWebviewController extends ReactWebviewPanelControll
 			this.groupAdvancedOptions(this.state.connectionComponents);
 
 		await this.updateItemVisibility();
+
 		this.updateState();
 	}
 
@@ -216,15 +224,18 @@ export class ConnectionDialogWebviewController extends ReactWebviewPanelControll
 			this._connectionToEditCopy = structuredClone(
 				this._connectionToEdit,
 			);
+
 			const connection = await this.initializeConnectionForDialog(
 				this._connectionToEdit,
 			);
+
 			this.state.connectionProfile = connection;
 
 			this.state.selectedInputMode =
 				connection.connectionString && connection.server === undefined
 					? ConnectionInputMode.ConnectionString
 					: ConnectionInputMode.Parameters;
+
 			this.updateState();
 		}
 	}
@@ -235,6 +246,7 @@ export class ConnectionDialogWebviewController extends ReactWebviewPanelControll
 			connectTimeout: 15, // seconds
 			applicationName: "vscode-mssql",
 		} as IConnectionDialogProfile;
+
 		this.state.connectionProfile = emptyConnection;
 	}
 
@@ -245,12 +257,14 @@ export class ConnectionDialogWebviewController extends ReactWebviewPanelControll
 		const isConnectionStringConnection =
 			connection.connectionString !== undefined &&
 			connection.connectionString !== "";
+
 		if (!isConnectionStringConnection) {
 			const password =
 				await this._mainController.connectionManager.connectionStore.lookupPassword(
 					connection,
 					isConnectionStringConnection,
 				);
+
 			connection.password = password;
 		} else {
 			// If the connection is a connection string connection with SQL Auth:
@@ -272,10 +286,12 @@ export class ConnectionDialogWebviewController extends ReactWebviewPanelControll
 				if (passwordIndex !== -1) {
 					// extract password from connection string; found between 'Password=' and the next ';'
 					const passwordStart = passwordIndex + "password=".length;
+
 					const passwordEnd = connectionString.indexOf(
 						";",
 						passwordStart,
 					);
+
 					if (passwordEnd !== -1) {
 						connection.password = connectionString.substring(
 							passwordStart,
@@ -295,6 +311,7 @@ export class ConnectionDialogWebviewController extends ReactWebviewPanelControll
 		dialogConnection.displayName = dialogConnection.profileName
 			? dialogConnection.profileName
 			: getConnectionDisplayName(connection);
+
 		return dialogConnection;
 	}
 
@@ -311,12 +328,14 @@ export class ConnectionDialogWebviewController extends ReactWebviewPanelControll
 			) {
 				hiddenProperties.push("user", "password", "savePassword");
 			}
+
 			if (
 				this.state.connectionProfile.authenticationType !==
 				AuthenticationType.AzureMFA
 			) {
 				hiddenProperties.push("accountId", "tenantId");
 			}
+
 			if (
 				this.state.connectionProfile.authenticationType ===
 				AuthenticationType.AzureMFA
@@ -325,6 +344,7 @@ export class ConnectionDialogWebviewController extends ReactWebviewPanelControll
 				const tenants = await this.getTenants(
 					this.state.connectionProfile.accountId,
 				);
+
 				if (tenants.length === 1) {
 					hiddenProperties.push("tenantId");
 				}
@@ -347,6 +367,7 @@ export class ConnectionDialogWebviewController extends ReactWebviewPanelControll
 		) {
 			return this.state.connectionComponents.mainOptions;
 		}
+
 		return ["connectionString", "profileName"];
 	}
 
@@ -360,9 +381,11 @@ export class ConnectionDialogWebviewController extends ReactWebviewPanelControll
 
 	private async getAccounts(): Promise<FormItemOptions[]> {
 		let accounts: IAccount[] = [];
+
 		try {
 			accounts =
 				await this._mainController.azureAccountService.getAccounts();
+
 			return accounts.map((account) => {
 				return {
 					displayName: account.displayInfo.displayName,
@@ -399,17 +422,22 @@ export class ConnectionDialogWebviewController extends ReactWebviewPanelControll
 
 	private async getTenants(accountId: string): Promise<FormItemOptions[]> {
 		let tenants: ITenant[] = [];
+
 		try {
 			const account = (
 				await this._mainController.azureAccountService.getAccounts()
 			).find((account) => account.displayInfo?.userId === accountId);
+
 			if (!account) {
 				return [];
 			}
+
 			tenants = account.properties.tenants;
+
 			if (!tenants) {
 				return [];
 			}
+
 			return tenants.map((tenant) => {
 				return {
 					displayName: tenant.displayName,
@@ -453,6 +481,7 @@ export class ConnectionDialogWebviewController extends ReactWebviewPanelControll
 					type: FormItemType.Checkbox,
 					tooltip: connOption.description,
 				};
+
 			case "string":
 				return {
 					propertyName:
@@ -462,6 +491,7 @@ export class ConnectionDialogWebviewController extends ReactWebviewPanelControll
 					type: FormItemType.Input,
 					tooltip: connOption.description,
 				};
+
 			case "password":
 				return {
 					propertyName:
@@ -481,6 +511,7 @@ export class ConnectionDialogWebviewController extends ReactWebviewPanelControll
 					type: FormItemType.Input,
 					tooltip: connOption.description,
 				};
+
 			case "category":
 				return {
 					propertyName:
@@ -496,9 +527,12 @@ export class ConnectionDialogWebviewController extends ReactWebviewPanelControll
 						};
 					}),
 				};
+
 			default:
 				const error = `Unhandled connection option type: ${connOption.valueType}`;
+
 				ConnectionDialogWebviewController._logger.log(error);
+
 				sendErrorEvent(
 					TelemetryViews.ConnectionDialog,
 					TelemetryActions.LoadConnectionProperties,
@@ -549,6 +583,7 @@ export class ConnectionDialogWebviewController extends ReactWebviewPanelControll
 						validationMessage: Loc.azureAccountIsRequired,
 					};
 				}
+
 				return {
 					isValid: true,
 					validationMessage: "",
@@ -576,6 +611,7 @@ export class ConnectionDialogWebviewController extends ReactWebviewPanelControll
 						validationMessage: Loc.tenantIdIsRequired,
 					};
 				}
+
 				return {
 					isValid: true,
 					validationMessage: "",
@@ -600,6 +636,7 @@ export class ConnectionDialogWebviewController extends ReactWebviewPanelControll
 						validationMessage: Loc.connectionStringIsRequired,
 					};
 				}
+
 				return {
 					isValid: true,
 					validationMessage: "",
@@ -620,6 +657,7 @@ export class ConnectionDialogWebviewController extends ReactWebviewPanelControll
 					validationMessage: Loc.usernameIsRequired,
 				};
 			}
+
 			return {
 				isValid: true,
 				validationMessage: "",
@@ -637,6 +675,7 @@ export class ConnectionDialogWebviewController extends ReactWebviewPanelControll
 					validationMessage: Loc.usernameIsRequired,
 				};
 			}
+
 			return {
 				isValid: true,
 				validationMessage: "",
@@ -653,6 +692,7 @@ export class ConnectionDialogWebviewController extends ReactWebviewPanelControll
 				GetCapabilitiesRequest.type,
 				{},
 			);
+
 		const connectionOptions: ConnectionOption[] =
 			capabilitiesResult.capabilities.connectionProvider.options;
 
@@ -673,6 +713,7 @@ export class ConnectionDialogWebviewController extends ReactWebviewPanelControll
 				console.error(
 					`Error loading connection option '${option.name}': ${getErrorMessage(err)}`,
 				);
+
 				sendErrorEvent(
 					TelemetryViews.ConnectionDialog,
 					TelemetryActions.LoadConnectionProperties,
@@ -700,7 +741,9 @@ export class ConnectionDialogWebviewController extends ReactWebviewPanelControll
 		components: Partial<
 			Record<keyof IConnectionDialogProfile, ConnectionDialogFormItemSpec>
 		>;
+
 		mainOptions: (keyof IConnectionDialogProfile)[];
+
 		topAdvancedOptions: (keyof IConnectionDialogProfile)[];
 	}): Record<string, (keyof IConnectionDialogProfile)[]> {
 		const result = {};
@@ -743,12 +786,15 @@ export class ConnectionDialogWebviewController extends ReactWebviewPanelControll
 		propertyName?: keyof IConnectionDialogProfile,
 	): Promise<string[]> {
 		const erroredInputs = [];
+
 		if (propertyName) {
 			const component = this.getFormComponent(propertyName);
+
 			if (component && component.validate) {
 				component.validation = component.validate(
 					connectionProfile[propertyName],
 				);
+
 				if (!component.validation.isValid) {
 					erroredInputs.push(component.propertyName);
 				}
@@ -762,12 +808,14 @@ export class ConnectionDialogWebviewController extends ReactWebviewPanelControll
 							isValid: true,
 							validationMessage: "",
 						};
+
 						return;
 					} else {
 						if (c.validate) {
 							c.validation = c.validate(
 								connectionProfile[c.propertyName],
 							);
+
 							if (!c.validation.isValid) {
 								erroredInputs.push(c.propertyName);
 							}
@@ -781,21 +829,28 @@ export class ConnectionDialogWebviewController extends ReactWebviewPanelControll
 
 	private async getAzureActionButtons(): Promise<FormItemActionButton[]> {
 		const actionButtons: FormItemActionButton[] = [];
+
 		actionButtons.push({
 			label: Loc.signIn,
 			id: "azureSignIn",
 			callback: async () => {
 				const account =
 					await this._mainController.azureAccountService.addAccount();
+
 				const accountsComponent = this.getFormComponent("accountId");
+
 				if (accountsComponent) {
 					accountsComponent.options = await this.getAccounts();
+
 					this.state.connectionProfile.accountId = account.key.id;
+
 					this.updateState();
+
 					await this.handleAzureMFAEdits("accountId");
 				}
 			},
 		});
+
 		if (
 			this.state.connectionProfile.authenticationType ===
 				AuthenticationType.AzureMFA &&
@@ -808,16 +863,19 @@ export class ConnectionDialogWebviewController extends ReactWebviewPanelControll
 					account.displayInfo.userId ===
 					this.state.connectionProfile.accountId,
 			);
+
 			if (account) {
 				const session =
 					await this._mainController.azureAccountService.getAccountSecurityToken(
 						account,
 						undefined,
 					);
+
 				const isTokenExpired = AzureController.isTokenInValid(
 					session.token,
 					session.expiresOn,
 				);
+
 				if (isTokenExpired) {
 					actionButtons.push({
 						label: refreshTokenLabel,
@@ -830,12 +888,14 @@ export class ConnectionDialogWebviewController extends ReactWebviewPanelControll
 									account.displayInfo.userId ===
 									this.state.connectionProfile.accountId,
 							);
+
 							if (account) {
 								const session =
 									await this._mainController.azureAccountService.getAccountSecurityToken(
 										account,
 										undefined,
 									);
+
 								ConnectionDialogWebviewController._logger.log(
 									"Token refreshed",
 									session.expiresOn,
@@ -846,6 +906,7 @@ export class ConnectionDialogWebviewController extends ReactWebviewPanelControll
 				}
 			}
 		}
+
 		return actionButtons;
 	}
 
@@ -857,6 +918,7 @@ export class ConnectionDialogWebviewController extends ReactWebviewPanelControll
 			"tenantId",
 			"authenticationType",
 		];
+
 		if (mfaComponents.includes(propertyName)) {
 			if (
 				this.state.connectionProfile.authenticationType !==
@@ -864,44 +926,60 @@ export class ConnectionDialogWebviewController extends ReactWebviewPanelControll
 			) {
 				return;
 			}
+
 			const accountComponent = this.getFormComponent("accountId");
+
 			const tenantComponent = this.getFormComponent("tenantId");
+
 			let tenants: FormItemOptions[] = [];
+
 			switch (propertyName) {
 				case "accountId":
 					tenants = await this.getTenants(
 						this.state.connectionProfile.accountId,
 					);
+
 					if (tenantComponent) {
 						tenantComponent.options = tenants;
+
 						if (tenants && tenants.length > 0) {
 							this.state.connectionProfile.tenantId =
 								tenants[0].value;
 						}
 					}
+
 					accountComponent.actionButtons =
 						await this.getAzureActionButtons();
+
 					break;
+
 				case "tenantId":
 					break;
+
 				case "authenticationType":
 					const firstOption = accountComponent.options[0];
+
 					if (firstOption) {
 						this.state.connectionProfile.accountId =
 							firstOption.value;
 					}
+
 					tenants = await this.getTenants(
 						this.state.connectionProfile.accountId,
 					);
+
 					if (tenantComponent) {
 						tenantComponent.options = tenants;
+
 						if (tenants && tenants.length > 0) {
 							this.state.connectionProfile.tenantId =
 								tenants[0].value;
 						}
 					}
+
 					accountComponent.actionButtons =
 						await this.getAzureActionButtons();
+
 					break;
 			}
 		}
@@ -909,6 +987,7 @@ export class ConnectionDialogWebviewController extends ReactWebviewPanelControll
 
 	private clearFormError() {
 		this.state.formError = "";
+
 		for (const component of this.getActiveFormComponents().map(
 			(x) => this.state.connectionComponents.components[x],
 		)) {
@@ -921,7 +1000,9 @@ export class ConnectionDialogWebviewController extends ReactWebviewPanelControll
 			"setConnectionInputType",
 			async (state, payload) => {
 				this.state.selectedInputMode = payload.inputMode;
+
 				await this.updateItemVisibility();
+
 				this.updateState();
 
 				if (
@@ -940,10 +1021,12 @@ export class ConnectionDialogWebviewController extends ReactWebviewPanelControll
 				const component = this.getFormComponent(
 					payload.event.propertyName,
 				);
+
 				if (component && component.actionButtons) {
 					const actionButton = component.actionButtons.find(
 						(b) => b.id === payload.event.value,
 					);
+
 					if (actionButton?.callback) {
 						await actionButton.callback();
 					}
@@ -953,12 +1036,15 @@ export class ConnectionDialogWebviewController extends ReactWebviewPanelControll
 					payload.event.propertyName
 					// eslint-disable-next-line @typescript-eslint/no-explicit-any
 				] as any) = payload.event.value;
+
 				await this.validateConnectionProfile(
 					this.state.connectionProfile,
 					payload.event.propertyName,
 				);
+
 				await this.handleAzureMFAEdits(payload.event.propertyName);
 			}
+
 			await this.updateItemVisibility();
 
 			return state;
@@ -971,15 +1057,20 @@ export class ConnectionDialogWebviewController extends ReactWebviewPanelControll
 			);
 
 			this._connectionToEditCopy = structuredClone(payload.connection);
+
 			this.clearFormError();
+
 			this.state.connectionProfile = payload.connection;
 
 			this.state.selectedInputMode = this._connectionToEditCopy
 				.connectionString
 				? ConnectionInputMode.ConnectionString
 				: ConnectionInputMode.Parameters;
+
 			await this.updateItemVisibility();
+
 			await this.handleAzureMFAEdits("azureAuthType");
+
 			await this.handleAzureMFAEdits("accountId");
 
 			return state;
@@ -987,24 +1078,31 @@ export class ConnectionDialogWebviewController extends ReactWebviewPanelControll
 
 		this.registerReducer("connect", async (state) => {
 			this.clearFormError();
+
 			this.state.connectionStatus = ApiStatus.Loading;
+
 			this.state.formError = "";
+
 			this.updateState();
 
 			const cleanedConnection: IConnectionDialogProfile = structuredClone(
 				this.state.connectionProfile,
 			);
+
 			this.cleanConnection(cleanedConnection); // clean the connection by clearing the options that aren't being used
 
 			// Perform final validation of all inputs
 			const erroredInputs =
 				await this.validateConnectionProfile(cleanedConnection);
+
 			if (erroredInputs.length > 0) {
 				this.state.connectionStatus = ApiStatus.Error;
+
 				console.warn(
 					"One more more inputs have errors: " +
 						erroredInputs.join(", "),
 				);
+
 				return state;
 			}
 
@@ -1022,6 +1120,7 @@ export class ConnectionDialogWebviewController extends ReactWebviewPanelControll
 							connectionCertValidationFailedErrorCode
 						) {
 							this.state.connectionStatus = ApiStatus.Error;
+
 							this.state.trustServerCertError =
 								result.errorMessage;
 
@@ -1032,6 +1131,7 @@ export class ConnectionDialogWebviewController extends ReactWebviewPanelControll
 						}
 
 						this.state.formError = result.errorMessage;
+
 						this.state.connectionStatus = ApiStatus.Error;
 
 						sendActionEvent(
@@ -1056,6 +1156,7 @@ export class ConnectionDialogWebviewController extends ReactWebviewPanelControll
 					}
 				} catch (error) {
 					this.state.formError = getErrorMessage(error);
+
 					this.state.connectionStatus = ApiStatus.Error;
 
 					sendErrorEvent(
@@ -1093,6 +1194,7 @@ export class ConnectionDialogWebviewController extends ReactWebviewPanelControll
 					await this._mainController.connectionManager.getUriForConnection(
 						this._connectionToEditCopy,
 					);
+
 					await this._objectExplorerProvider.removeConnectionNodes([
 						this._connectionToEditCopy,
 					]);
@@ -1101,6 +1203,7 @@ export class ConnectionDialogWebviewController extends ReactWebviewPanelControll
 						// eslint-disable-next-line @typescript-eslint/no-explicit-any
 						this._connectionToEditCopy as any,
 					);
+
 					this._objectExplorerProvider.refresh(undefined);
 				}
 
@@ -1108,22 +1211,28 @@ export class ConnectionDialogWebviewController extends ReactWebviewPanelControll
 					// eslint-disable-next-line @typescript-eslint/no-explicit-any
 					this.state.connectionProfile as any,
 				);
+
 				const node =
 					await this._mainController.createObjectExplorerSessionFromDialog(
 						this.state.connectionProfile,
 					);
 
 				this._objectExplorerProvider.refresh(undefined);
+
 				await this.updateLoadedConnections(state);
+
 				this.updateState();
 
 				this.state.connectionStatus = ApiStatus.Loaded;
+
 				await this._mainController.objectExplorerTree.reveal(node, {
 					focus: true,
 					select: true,
 					expand: true,
 				});
+
 				await this.panel.dispose();
+
 				await UserSurvey.getInstance().promptUserForNPSFeedback();
 			} catch (error) {
 				this.state.connectionStatus = ApiStatus.Error;
@@ -1144,6 +1253,7 @@ export class ConnectionDialogWebviewController extends ReactWebviewPanelControll
 
 				return state;
 			}
+
 			return state;
 		});
 
@@ -1158,11 +1268,13 @@ export class ConnectionDialogWebviewController extends ReactWebviewPanelControll
 
 		this.registerReducer("cancelTrustServerCertDialog", async (state) => {
 			state.trustServerCertError = undefined;
+
 			return state;
 		});
 
 		this.registerReducer("filterAzureSubscriptions", async (state) => {
 			await promptForAzureSubscriptionFilter(state);
+
 			await this.loadAllAzureServers(state);
 
 			return state;
@@ -1227,15 +1339,18 @@ export class ConnectionDialogWebviewController extends ReactWebviewPanelControll
 		state: ConnectionDialogWebviewState,
 	): Promise<Map<string, AzureSubscription[]> | undefined> {
 		let endActivity: ActivityObject;
+
 		try {
 			const auth = await confirmVscodeAzureSignin();
 
 			if (!auth) {
 				state.formError = l10n.t("Azure sign in failed.");
+
 				return undefined;
 			}
 
 			state.loadingAzureSubscriptionsStatus = ApiStatus.Loading;
+
 			this.updateState();
 
 			// getSubscriptions() below checks this config setting if filtering is specified.  If the user has this set, then we use it; if not, we get all subscriptions.
@@ -1258,6 +1373,7 @@ export class ConnectionDialogWebviewController extends ReactWebviewPanelControll
 					s,
 				]),
 			);
+
 			const tenantSubMap = this.groupBy<string, AzureSubscription>(
 				Array.from(this._azureSubscriptions.values()),
 				"tenantId",
@@ -1276,6 +1392,7 @@ export class ConnectionDialogWebviewController extends ReactWebviewPanelControll
 			}
 
 			state.azureSubscriptions = subs;
+
 			state.loadingAzureSubscriptionsStatus = ApiStatus.Loaded;
 
 			endActivity.end(
@@ -1285,14 +1402,19 @@ export class ConnectionDialogWebviewController extends ReactWebviewPanelControll
 					subscriptionCount: subs.length,
 				},
 			);
+
 			this.updateState();
 
 			return tenantSubMap;
 		} catch (error) {
 			state.formError = l10n.t("Error loading Azure subscriptions.");
+
 			state.loadingAzureSubscriptionsStatus = ApiStatus.Error;
+
 			console.error(state.formError + "\n" + getErrorMessage(error));
+
 			endActivity.endFailed(error, false);
+
 			return undefined;
 		}
 	}
@@ -1304,6 +1426,7 @@ export class ConnectionDialogWebviewController extends ReactWebviewPanelControll
 			TelemetryViews.ConnectionDialog,
 			TelemetryActions.LoadAzureServers,
 		);
+
 		try {
 			const tenantSubMap = await this.loadAzureSubscriptions(state);
 
@@ -1317,9 +1440,13 @@ export class ConnectionDialogWebviewController extends ReactWebviewPanelControll
 				);
 			} else {
 				state.loadingAzureServersStatus = ApiStatus.Loading;
+
 				state.azureServers = [];
+
 				this.updateState();
+
 				const promiseArray: Promise<void>[] = [];
+
 				for (const t of tenantSubMap.keys()) {
 					for (const s of tenantSubMap.get(t)) {
 						promiseArray.push(
@@ -1330,7 +1457,9 @@ export class ConnectionDialogWebviewController extends ReactWebviewPanelControll
 						);
 					}
 				}
+
 				await Promise.all(promiseArray);
+
 				endActivity.end(
 					ActivityStatus.Succeeded,
 					undefined, // additionalProperties
@@ -1340,17 +1469,21 @@ export class ConnectionDialogWebviewController extends ReactWebviewPanelControll
 				);
 
 				state.loadingAzureServersStatus = ApiStatus.Loaded;
+
 				return;
 			}
 		} catch (error) {
 			state.formError = l10n.t("Error loading Azure databases.");
+
 			state.loadingAzureServersStatus = ApiStatus.Error;
+
 			console.error(state.formError + "\n" + getErrorMessage(error));
 
 			endActivity.endFailed(
 				error,
 				false, // includeErrorMessage
 			);
+
 			return;
 		}
 	}
@@ -1360,15 +1493,20 @@ export class ConnectionDialogWebviewController extends ReactWebviewPanelControll
 		subscriptionId: string,
 	) {
 		const azSub = this._azureSubscriptions.get(subscriptionId);
+
 		const stateSub = state.azureSubscriptions.find(
 			(s) => s.id === subscriptionId,
 		);
 
 		try {
 			const servers = await fetchServersFromAzure(azSub);
+
 			state.azureServers.push(...servers);
+
 			stateSub.loaded = true;
+
 			this.updateState();
+
 			console.log(
 				`Loaded ${servers.length} servers for subscription ${azSub.name} (${azSub.subscriptionId})`,
 			);
@@ -1397,10 +1535,13 @@ export class ConnectionDialogWebviewController extends ReactWebviewPanelControll
 	private groupBy<K, V>(values: V[], key: keyof V): Map<K, V[]> {
 		return values.reduce((rv, x) => {
 			const keyValue = x[key] as K;
+
 			if (!rv.has(keyValue)) {
 				rv.set(keyValue, []);
 			}
+
 			rv.get(keyValue)!.push(x);
+
 			return rv;
 		}, new Map<K, V[]>());
 	}
@@ -1440,6 +1581,7 @@ export class ConnectionDialogWebviewController extends ReactWebviewPanelControll
 
 	private async loadConnections(): Promise<{
 		savedConnections: IConnectionDialogProfile[];
+
 		recentConnections: IConnectionDialogProfile[];
 	}> {
 		const unsortedConnections: IConnectionCredentialsQuickPickItem[] =
@@ -1537,6 +1679,7 @@ export class ConnectionDialogWebviewController extends ReactWebviewPanelControll
 		const loadedConnections = await this.loadConnections();
 
 		state.recentConnections = loadedConnections.recentConnections;
+
 		state.savedConnections = loadedConnections.savedConnections;
 	}
 

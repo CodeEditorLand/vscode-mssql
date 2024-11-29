@@ -20,6 +20,7 @@ enum Command {
 
 interface ConnectionOptionProperty {
 	name: keyof IConnectionInfo;
+
 	type: "string" | "number" | "boolean" | "category";
 }
 
@@ -140,6 +141,7 @@ export class MssqlProtocolHandler {
 					if (!isNaN(numericalValue)) {
 						connectionInfo[propName] = numericalValue;
 					}
+
 					break;
 
 				case "boolean":

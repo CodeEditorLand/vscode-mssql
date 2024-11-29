@@ -18,10 +18,15 @@ import { ShortcutService } from "./../services/shortcuts.service";
 
 export interface IContextMenuClickEventArgs {
 	type: string;
+
 	batchId: number;
+
 	resultId: number;
+
 	index: number;
+
 	selection: ISlickRange[];
+
 	source: "contextMenu" | "gridIcons";
 }
 
@@ -59,13 +64,21 @@ export class ContextMenu implements OnInit {
 
 	@Output() clickEvent: EventEmitter<IContextMenuClickEventArgs> =
 		new EventEmitter<IContextMenuClickEventArgs>();
+
 	private batchId: number;
+
 	private resultId: number;
+
 	private index: number;
+
 	private selection: ISlickRange[];
+
 	private isDisabled: boolean;
+
 	public position: { x: number; y: number } = { x: 0, y: 0 };
+
 	public visible: boolean = false;
+
 	private keys = {
 		"event.saveAsCSV": "",
 		"event.saveAsJSON": "",
@@ -106,10 +119,15 @@ export class ContextMenu implements OnInit {
 		selection: ISlickRange[],
 	): void {
 		this.batchId = batchId;
+
 		this.resultId = resultId;
+
 		this.index = index;
+
 		this.selection = selection;
+
 		this.position = { x: x, y: y };
+
 		this.visible = true;
 	}
 

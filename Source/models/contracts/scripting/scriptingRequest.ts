@@ -298,6 +298,7 @@ export interface IScriptingParams {
 
 export interface IScriptingResult {
 	operationId: string;
+
 	script: string;
 }
 

@@ -48,5 +48,6 @@ export function mixin(
 			}
 		});
 	}
+
 	return destination;
 }

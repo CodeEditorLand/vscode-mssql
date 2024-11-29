@@ -16,22 +16,28 @@ import {
  */
 export class WebviewRpc<Reducers> {
 	private _rpcRequestId = 0;
+
 	private _rpcHandlers: {
 		[id: number]: {
 			resolve: (result: unknown) => void;
+
 			reject: (error: unknown) => void;
 		};
 	} = {};
+
 	private _methodSubscriptions: {
 		[method: string]: Record<string, (params: unknown) => void>;
 	} = {};
+
 	private static _instance: WebviewRpc<any>;
+
 	public static getInstance<Reducers>(
 		vscodeApi: WebviewApi<unknown>,
 	): WebviewRpc<Reducers> {
 		if (!WebviewRpc._instance) {
 			WebviewRpc._instance = new WebviewRpc<Reducers>(vscodeApi);
 		}
+
 		return WebviewRpc._instance;
 	}
 
@@ -48,9 +54,11 @@ export class WebviewRpc<Reducers> {
 					} else {
 						this._rpcHandlers[id].resolve(result);
 					}
+
 					delete this._rpcHandlers[id];
 				}
 			}
+
 			if (message.type === "notification") {
 				const { method, params } = message;
 
@@ -71,6 +79,7 @@ export class WebviewRpc<Reducers> {
 	 */
 	public call(method: string, params?: unknown): Promise<unknown> {
 		const id = this._rpcRequestId++;
+
 		this._vscodeApi.postMessage({ type: "request", id, method, params });
 
 		return new Promise((resolve, reject) => {
@@ -99,6 +108,7 @@ export class WebviewRpc<Reducers> {
 		if (!this._methodSubscriptions[method]) {
 			this._methodSubscriptions[method] = {};
 		}
+
 		this._methodSubscriptions[method][callerId] = callback;
 	}
 

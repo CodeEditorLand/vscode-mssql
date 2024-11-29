@@ -14,6 +14,7 @@ export function getAdvancedOptionsComponents(
 	if (!viewDefinition) {
 		return [];
 	}
+
 	const tabComponents: designer.DesignerDataPropertyInfo[] = [
 		{
 			componentType: "textarea",
@@ -201,6 +202,7 @@ export function getColumnsTabComponents(
 	if (additionalComponents) {
 		tabComponents.push(...additionalComponents);
 	}
+
 	return tabComponents;
 }
 
@@ -210,6 +212,7 @@ export function getPrimaryKeyTabComponents(
 	if (!view || !view.primaryKeyColumnSpecificationTableOptions) {
 		return [];
 	}
+
 	const columnSpecProperties: designer.DesignerDataPropertyInfo[] = [
 		{
 			componentType: "dropdown",
@@ -248,7 +251,9 @@ export function getPrimaryKeyTabComponents(
 	if (view.additionalPrimaryKeyProperties) {
 		view.additionalPrimaryKeyProperties.forEach((component) => {
 			const copy = { ...component };
+
 			copy.showInPropertiesView = false;
+
 			tabComponents.push(copy);
 		});
 	}
@@ -296,6 +301,7 @@ export function getPrimaryKeyTabComponents(
 	if (additionalComponents) {
 		tabComponents.push(...additionalComponents);
 	}
+
 	return tabComponents;
 }
 
@@ -305,6 +311,7 @@ export function getIndexesTabComponents(
 	if (!view || !view.indexTableOptions) {
 		return [];
 	}
+
 	const indexTableOptions = view.indexTableOptions;
 
 	const columnSpecTableOptions = view.indexColumnSpecificationTableOptions;
@@ -389,6 +396,7 @@ export function getIndexesTabComponents(
 				property.group = TableDesigner.AdvancedOptions;
 			}
 		});
+
 		tabComponents.push({
 			componentType: "table",
 			propertyName: designer.TableProperty.Indexes,
@@ -434,7 +442,9 @@ export function getIndexesTabComponents(
 				// Making all ungrouped properties of column store index as advanced options
 				const properties =
 					component.componentProperties as designer.DesignerTableProperties;
+
 				properties.expandedGroups = [TableDesigner.Columns];
+
 				properties.itemProperties.forEach((property) => {
 					if (!property.group) {
 						property.group = TableDesigner.AdvancedOptions;
@@ -442,8 +452,10 @@ export function getIndexesTabComponents(
 				});
 			}
 		});
+
 		tabComponents.push(...additionalComponents);
 	}
+
 	return tabComponents;
 }
 
@@ -453,6 +465,7 @@ export function getForeignKeysTabComponents(
 	if (!view || !view.foreignKeyTableOptions) {
 		return [];
 	}
+
 	const foreignKeyTableOptions = view.foreignKeyTableOptions;
 
 	const columnMappingTableOptions = view!.foreignKeyColumnMappingTableOptions;
@@ -576,6 +589,7 @@ export function getForeignKeysTabComponents(
 				property.group = TableDesigner.AdvancedOptions;
 			}
 		});
+
 		tabComponents.push({
 			componentType: "table",
 			propertyName: designer.TableProperty.ForeignKeys,
@@ -613,6 +627,7 @@ export function getForeignKeysTabComponents(
 	if (additionalComponents) {
 		tabComponents.push(...additionalComponents);
 	}
+
 	return tabComponents;
 }
 
@@ -622,6 +637,7 @@ export function getCheckConstraintsTabComponents(
 	if (!view || !view.checkConstraintTableOptions) {
 		return [];
 	}
+
 	const checkConstraintTableOptions = view.checkConstraintTableOptions;
 
 	const additionalcomponents = view.additionalComponents || [];
@@ -702,6 +718,7 @@ export function getCheckConstraintsTabComponents(
 	if (additionalComponents) {
 		tabComponents.push(...additionalComponents);
 	}
+
 	return tabComponents;
 }
 
@@ -751,6 +768,7 @@ function getTableDisplayProperties(
 	if (!options) {
 		return defaultProperties;
 	}
+
 	return (
 		(options.propertiesToDisplay!.length > 0
 			? options.propertiesToDisplay
@@ -765,6 +783,7 @@ function addAdditionalTableProperties(
 	if (options.additionalProperties) {
 		properties.push(...options.additionalProperties);
 	}
+
 	return properties;
 }
 
@@ -777,5 +796,6 @@ function getAdditionalComponentsForTab(
 	if (additionalComponents) {
 		return additionalComponents.filter((c) => c.tab === tabId);
 	}
+
 	return [];
 }

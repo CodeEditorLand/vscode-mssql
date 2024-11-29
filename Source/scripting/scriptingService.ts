@@ -95,6 +95,7 @@ export class ScriptingService {
 			default:
 				scriptCreateDropOption = "ScriptCreate";
 		}
+
 		let scriptOptions: IScriptOptions = {
 			scriptCreateDrop: scriptCreateDropOption,
 			typeOfDataToScript: "SchemaOnly",

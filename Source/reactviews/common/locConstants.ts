@@ -7,6 +7,7 @@ import * as l10n from "@vscode/l10n";
 
 export class LocConstants {
 	private static _instance = new LocConstants();
+
 	private constructor() {}
 
 	public static getInstance(): LocConstants {

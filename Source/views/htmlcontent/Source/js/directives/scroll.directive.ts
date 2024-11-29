@@ -24,6 +24,7 @@ export class ScrollDirective {
 
 	constructor(@Inject(forwardRef(() => ElementRef)) private _el: ElementRef) {
 		const self = this;
+
 		Observable.fromEvent(this._el.nativeElement, "scroll").subscribe(
 			(event) => {
 				if (self.scrollEnabled) {

@@ -32,8 +32,10 @@ function createMessageProtocol(): IMessageProtocol {
 		onMessage: (listener) => {
 			const windowListener = (event: MessageEvent) => {
 				const message = event.data;
+
 				listener(message);
 			};
+
 			window.addEventListener("message", windowListener);
 
 			return {
@@ -52,8 +54,11 @@ function createMessageProtocol(): IMessageProtocol {
 @Injectable()
 export class DataService implements OnDestroy {
 	private _shortcuts;
+
 	private _config;
+
 	private _proxy: IServerProxy;
+
 	public dataEventObs = new Subject<QueryEvent>();
 
 	constructor() {
@@ -75,6 +80,7 @@ export class DataService implements OnDestroy {
 
 	ngOnDestroy(): void {
 		this.dataEventObs.dispose();
+
 		this._proxy.dispose();
 	}
 
@@ -193,7 +199,9 @@ export class DataService implements OnDestroy {
 		} else {
 			return this._proxy.getConfig().then((config) => {
 				self._shortcuts = config.shortcuts;
+
 				delete config.shortcuts;
+
 				self._config = config;
 
 				return self._config;
@@ -209,7 +217,9 @@ export class DataService implements OnDestroy {
 		} else {
 			return this._proxy.getConfig().then((config) => {
 				self._shortcuts = config.shortcuts;
+
 				delete config.shortcuts;
+
 				self._config = config;
 
 				return self._shortcuts;

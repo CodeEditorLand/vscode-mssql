@@ -18,9 +18,13 @@ import { Keys } from "../../keys";
  */
 export class CopyKeybind<T extends Slick.SlickData> implements Slick.Plugin<T> {
     private grid!: Slick.Grid<T>;
+
     private handler = new Slick.EventHandler();
+
     private uri: string;
+
     private resultSetSummary: ResultSetSummary;
+
     private webViewState: VscodeWebviewContext<
         QueryResultWebviewState,
         QueryResultReducers
@@ -35,12 +39,15 @@ export class CopyKeybind<T extends Slick.SlickData> implements Slick.Plugin<T> {
         >,
     ) {
         this.uri = uri;
+
         this.resultSetSummary = resultSetSummary;
+
         this.webViewState = webViewState;
     }
 
     public init(grid: Slick.Grid<T>) {
         this.grid = grid;
+
         this.handler.subscribe(this.grid.onKeyDown, (e: Slick.DOMEvent) =>
             this.handleKeyDown(e as unknown as KeyboardEvent),
         );
@@ -52,11 +59,14 @@ export class CopyKeybind<T extends Slick.SlickData> implements Slick.Plugin<T> {
 
     private async handleKeyDown(e: KeyboardEvent): Promise<void> {
         let handled = false;
+
         let platform = await this.webViewState.extensionRpc.call("getPlatform");
+
         if (platform === "darwin") {
             // Cmd + C
             if (e.metaKey && e.key === Keys.c) {
                 handled = true;
+
                 await this.handleCopySelection(
                     this.grid,
                     this.webViewState,
@@ -67,6 +77,7 @@ export class CopyKeybind<T extends Slick.SlickData> implements Slick.Plugin<T> {
         } else {
             if (e.ctrlKey && e.key === Keys.c) {
                 handled = true;
+
                 await this.handleCopySelection(
                     this.grid,
                     this.webViewState,
@@ -78,9 +89,11 @@ export class CopyKeybind<T extends Slick.SlickData> implements Slick.Plugin<T> {
 
         if (handled) {
             e.preventDefault();
+
             e.stopPropagation();
         }
     }
+
     public async handleCopySelection(
         grid: Slick.Grid<T>,
         webViewState: VscodeWebviewContext<
@@ -91,6 +104,7 @@ export class CopyKeybind<T extends Slick.SlickData> implements Slick.Plugin<T> {
         resultSetSummary: ResultSetSummary,
     ) {
         let selectedRanges = grid.getSelectionModel().getSelectedRanges();
+
         let selection = tryCombineSelectionsForResults(selectedRanges);
 
         await webViewState.extensionRpc.call("copySelection", {

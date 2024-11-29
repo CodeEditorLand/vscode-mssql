@@ -18,7 +18,9 @@ export interface ExecutionPlanState {
 	 * The total cost of the execution plan
 	 */
 	totalCost?: number;
+
 	loadState?: ApiStatus;
+
 	errorMessage?: string;
 	/**
 	 * The xml plans associated with the execution plan
@@ -342,11 +344,13 @@ export interface ExecutionGraphComparisonResult {
 
 export interface ExecutionPlanComparisonResult extends ResultStatus {
 	firstComparisonResult: ExecutionGraphComparisonResult;
+
 	secondComparisonResult: ExecutionGraphComparisonResult;
 }
 
 export interface IsExecutionPlanResult {
 	isExecutionPlan: boolean;
+
 	queryExecutionPlanFileExtension: string;
 }
 
@@ -376,6 +380,7 @@ export interface ExecutionPlanService {
 
 export interface ResultStatus {
 	success: boolean;
+
 	errorMessage: string;
 }
 
@@ -431,6 +436,7 @@ export interface AzDataGraphCell {
 	 * Description to be displayed in the cell tooltip
 	 */
 	description: string;
+
 	badges: AzDataGraphNodeBadge[];
 	/**
 	 * Cost associated with the node
@@ -467,6 +473,7 @@ export interface CostMetric {
 
 export interface AzDataGraphNodeBadge {
 	type: string;
+
 	tooltip: string;
 }
 
@@ -507,6 +514,7 @@ export interface AzDataGraphCellEdge {
 
 export interface Point {
 	x: number;
+
 	y: number;
 }
 
@@ -562,13 +570,21 @@ export interface ExecutionPlanEdge {
 
 export interface ExecutionPlanPropertyTableItem {
 	id: number;
+
 	name: string;
+
 	value: string;
+
 	parent: number;
+
 	children: number[];
+
 	displayOrder: number;
+
 	isExpanded: boolean;
+
 	isChild: boolean;
+
 	level: number;
 }
 

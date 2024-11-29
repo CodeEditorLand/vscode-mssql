@@ -37,13 +37,21 @@ export class ConnectionProfile
 	implements IConnectionProfile
 {
 	public profileName: string;
+
 	public savePassword: boolean;
+
 	public emptyPasswordInput: boolean;
+
 	public azureAuthType: AzureAuthType;
+
 	public declare azureAccountToken: string | undefined;
+
 	public declare expiresOn: number | undefined;
+
 	public accountStore: AccountStore;
+
 	public declare accountId: string;
+
 	public declare tenantId: string;
 
 	constructor(connectionCredentials?: ConnectionCredentials) {
@@ -51,14 +59,23 @@ export class ConnectionProfile
 
 		if (connectionCredentials) {
 			this.accountId = connectionCredentials.accountId;
+
 			this.tenantId = connectionCredentials.tenantId;
+
 			this.authenticationType = connectionCredentials.authenticationType;
+
 			this.azureAccountToken = connectionCredentials.azureAccountToken;
+
 			this.expiresOn = connectionCredentials.expiresOn;
+
 			this.database = connectionCredentials.database;
+
 			this.email = connectionCredentials.email;
+
 			this.user = connectionCredentials.email;
+
 			this.password = connectionCredentials.password;
+
 			this.server = connectionCredentials.server;
 		}
 	}
@@ -85,10 +102,12 @@ export class ConnectionProfile
 			// Set default value as there is only 1 option
 			profile.authenticationType = authOptions[0].value;
 		}
+
 		let azureAccountChoices: INameValueChoice[] =
 			ConnectionProfile.getAccountChoices(accountStore);
 
 		let accountAnswer: IAccount;
+
 		azureAccountChoices.unshift({
 			name: LocalizedConstants.azureAddAccount,
 			value: "addAccount",
@@ -127,7 +146,9 @@ export class ConnectionProfile
 
 					if (value !== "addAccount") {
 						let account = value;
+
 						profile.accountId = account?.key.id;
+
 						tenantChoices.push(
 							...account?.properties?.tenants!.map((t) => ({
 								name: t.displayName,
@@ -138,6 +159,7 @@ export class ConnectionProfile
 						if (tenantChoices.length === 1) {
 							profile.tenantId = tenantChoices[0].value.id;
 						}
+
 						try {
 							profile = await azureController.refreshTokenWrapper(
 								profile,
@@ -166,6 +188,7 @@ export class ConnectionProfile
 							}
 						} catch (e) {
 							console.error(`Could not add account: ${e}`);
+
 							vscode.window.showErrorMessage(e);
 						}
 					}
@@ -242,6 +265,7 @@ export class ConnectionProfile
 				);
 			}
 		}
+
 		return false;
 	}
 
@@ -282,6 +306,7 @@ export class ConnectionProfile
 				});
 			}
 		}
+
 		return choices;
 	}
 }

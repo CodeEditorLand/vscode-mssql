@@ -56,6 +56,7 @@ import VscodeWrapper from "./vscodeWrapper";
 
 export interface IResultSet {
 	columns: string[];
+
 	totalNumberOfRows: number;
 }
 
@@ -66,15 +67,25 @@ export interface IResultSet {
 export default class QueryRunner {
 	// MEMBER VARIABLES ////////////////////////////////////////////////////
 	private _batchSets: BatchSummary[] = [];
+
 	private _batchSetMessages: { [batchId: number]: IResultMessage[] } = {};
+
 	private _isExecuting: boolean;
+
 	private _resultLineOffset: number;
+
 	private _totalElapsedMilliseconds: number;
+
 	private _hasCompleted: boolean;
+
 	private _isSqlCmd: boolean = false;
+
 	public eventEmitter: EventEmitter = new EventEmitter();
+
 	private _uriToQueryPromiseMap = new Map<string, Deferred<boolean>>();
+
 	private _uriToQueryStringMap = new Map<string, string>();
+
 	private static _runningQueries = [];
 
 	// CONSTRUCTOR /////////////////////////////////////////////////////////
@@ -101,7 +112,9 @@ export default class QueryRunner {
 
 		// Store the state
 		this._isExecuting = false;
+
 		this._totalElapsedMilliseconds = 0;
+
 		this._hasCompleted = false;
 	}
 
@@ -228,6 +241,7 @@ export default class QueryRunner {
 						selection.endColumn,
 					),
 				);
+
 				queryString = doc.getText(range);
 			} else {
 				queryString = doc.getText();
@@ -240,6 +254,7 @@ export default class QueryRunner {
 			if (promise) {
 				this._uriToQueryPromiseMap.set(this._ownerUri, promise);
 			}
+
 			await this._client
 				.sendRequest(QueryExecuteRequest.type, queryDetails)
 				.then(onSuccess, onError);
@@ -257,8 +272,11 @@ export default class QueryRunner {
 
 		// Update internal state to show that we're executing the query
 		this._resultLineOffset = selection ? selection.startLine : 0;
+
 		this._isExecuting = true;
+
 		this._totalElapsedMilliseconds = 0;
+
 		this._statusView.executingQuery(this.uri);
 
 		let onSuccess = (result) => {
@@ -266,18 +284,23 @@ export default class QueryRunner {
 			QueryRunner._runningQueries.push(
 				vscode.Uri.parse(this._ownerUri).fsPath,
 			);
+
 			vscode.commands.executeCommand(
 				"setContext",
 				"mssql.runningQueries",
 				QueryRunner._runningQueries,
 			);
+
 			this.eventEmitter.emit("start", this.uri);
+
 			this._notificationHandler.registerRunner(this, this._ownerUri);
 		};
 
 		let onError = (error) => {
 			this._statusView.executedQuery(this.uri);
+
 			this._isExecuting = false;
+
 			this.removeRunningQuery();
 			// TODO: localize
 			this._vscodeWrapper.showErrorMessage(
@@ -295,6 +318,7 @@ export default class QueryRunner {
 		QueryRunner._runningQueries = QueryRunner._runningQueries.filter(
 			(fileName) => fileName !== vscode.Uri.parse(this._ownerUri).fsPath,
 		);
+
 		vscode.commands.executeCommand(
 			"setContext",
 			"mssql.runningQueries",
@@ -312,13 +336,16 @@ export default class QueryRunner {
 
 		// Store the batch sets we got back as a source of "truth"
 		this._isExecuting = false;
+
 		this._hasCompleted = true;
+
 		this._batchSets = result.batchSummaries;
 
 		this._batchSets.map((batch) => {
 			if (batch.selection) {
 				batch.selection.startLine =
 					batch.selection.startLine + this._resultLineOffset;
+
 				batch.selection.endLine =
 					batch.selection.endLine + this._resultLineOffset;
 			}
@@ -329,21 +356,27 @@ export default class QueryRunner {
 
 		if (promise) {
 			promise.resolve();
+
 			this._uriToQueryPromiseMap.delete(result.ownerUri);
 		}
+
 		this._statusView.executedQuery(result.ownerUri);
+
 		this._statusView.setExecutionTime(
 			result.ownerUri,
 			Utils.parseNumAsTimeString(this._totalElapsedMilliseconds),
 		);
 
 		let hasError = this._batchSets.some((batch) => batch.hasError === true);
+
 		this.removeRunningQuery();
+
 		this.eventEmitter.emit(
 			"complete",
 			Utils.parseNumAsTimeString(this._totalElapsedMilliseconds),
 			hasError,
 		);
+
 		sendActionEvent(
 			TelemetryViews.QueryEditor,
 			TelemetryActions.QueryExecutionCompleted,
@@ -372,6 +405,7 @@ export default class QueryRunner {
 		// Recalculate the start and end lines, relative to the result line offset
 		if (batch.selection) {
 			batch.selection.startLine += this._resultLineOffset;
+
 			batch.selection.endLine += this._resultLineOffset;
 		}
 
@@ -383,6 +417,7 @@ export default class QueryRunner {
 
 		// Store the batch
 		this._batchSets[batch.id] = batch;
+
 		this.eventEmitter.emit("batchStart", batch);
 	}
 
@@ -397,6 +432,7 @@ export default class QueryRunner {
 		let executionTime = <number>(
 			(Utils.parseTimeString(batch.executionElapsed) || 0)
 		);
+
 		this._totalElapsedMilliseconds += executionTime;
 
 		if (executionTime > 0) {
@@ -406,6 +442,7 @@ export default class QueryRunner {
 				Utils.parseNumAsTimeString(executionTime),
 			);
 		}
+
 		this.eventEmitter.emit("batchComplete", batch);
 	}
 
@@ -414,10 +451,12 @@ export default class QueryRunner {
 	 */
 	public async refreshQueryTab(uri: string): Promise<boolean> {
 		this._isExecuting = true;
+
 		this._hasCompleted = false;
 
 		for (let batchId = 0; batchId < this.batchSets.length; batchId++) {
 			const batchSet = this.batchSets[batchId];
+
 			this.eventEmitter.emit("batchStart", batchSet);
 
 			let executionTime = <number>(
@@ -438,6 +477,7 @@ export default class QueryRunner {
 			if (messages !== undefined) {
 				for (
 					let messageId = 0;
+
 					messageId < messages.length;
 					++messageId
 				) {
@@ -450,17 +490,23 @@ export default class QueryRunner {
 
 			for (
 				let resultSetId = 0;
+
 				resultSetId < batchSet.resultSetSummaries.length;
+
 				resultSetId++
 			) {
 				let resultSet = batchSet.resultSetSummaries[resultSetId];
+
 				this.eventEmitter.emit("resultSet", resultSet, true);
 			}
 		}
 		// We're done with this query so shut down any waiting mechanisms
 		this._statusView.executedQuery(uri);
+
 		this._isExecuting = false;
+
 		this._hasCompleted = true;
+
 		this.eventEmitter.emit(
 			"complete",
 			Utils.parseNumAsTimeString(this._totalElapsedMilliseconds),
@@ -480,11 +526,13 @@ export default class QueryRunner {
 
 		// Store the result set in the batch and emit that a result set has completed
 		batchSet.resultSetSummaries[resultSet.id] = resultSet;
+
 		this.eventEmitter.emit("resultSet", resultSet);
 	}
 
 	public handleMessage(obj: QueryExecuteMessageParams): void {
 		let message = obj.message;
+
 		message.time = new Date(message.time).toLocaleTimeString();
 
 		// save the message into the batch summary so it can be restored on view refresh
@@ -516,10 +564,15 @@ export default class QueryRunner {
 		resultSetIndex: number,
 	): Promise<QueryExecuteSubsetResult> {
 		let queryDetails = new QueryExecuteSubsetParams();
+
 		queryDetails.ownerUri = this.uri;
+
 		queryDetails.resultSetIndex = resultSetIndex;
+
 		queryDetails.rowsCount = numberOfRows;
+
 		queryDetails.rowsStartIndex = rowStart;
+
 		queryDetails.batchIndex = batchIndex;
 
 		try {
@@ -536,6 +589,7 @@ export default class QueryRunner {
 			this._vscodeWrapper.showErrorMessage(
 				"Something went wrong getting more rows: " + error.message,
 			);
+
 			void Promise.reject(error);
 		}
 	}
@@ -546,6 +600,7 @@ export default class QueryRunner {
 	 */
 	public async dispose(): Promise<void> {
 		let disposeDetails = new QueryDisposeParams();
+
 		disposeDetails.ownerUri = this.uri;
 
 		try {
@@ -558,6 +613,7 @@ export default class QueryRunner {
 			this._vscodeWrapper.showErrorMessage(
 				"Failed disposing query: " + error.message,
 			);
+
 			void Promise.reject(error);
 		}
 	}
@@ -573,12 +629,14 @@ export default class QueryRunner {
 
 		if (batchSummary !== undefined) {
 			let resultSetSummary = batchSummary.resultSetSummaries[resultId];
+
 			headers = resultSetSummary.columnInfo
 				.slice(range.fromCell, range.toCell + 1)
 				.map((info, i) => {
 					return info.columnName;
 				});
 		}
+
 		return headers;
 	}
 
@@ -597,10 +655,12 @@ export default class QueryRunner {
 			if (firstCol === undefined || range.fromCell < firstCol) {
 				firstCol = range.fromCell;
 			}
+
 			if (lastCol === undefined || range.toCell > lastCol) {
 				lastCol = range.toCell;
 			}
 		}
+
 		let columnRange: ISlickRange = {
 			fromCell: firstCol,
 			toCell: lastCol,
@@ -613,14 +673,17 @@ export default class QueryRunner {
 			resultId,
 			columnRange,
 		);
+
 		copyString += columnHeaders.join("\t");
 
 		let oldLang: string;
 
 		if (process.platform === "darwin") {
 			oldLang = process.env["LANG"];
+
 			process.env["LANG"] = "en_US.UTF-8";
 		}
+
 		await this._vscodeWrapper.clipboardWriteText(copyString);
 
 		if (process.platform === "darwin") {
@@ -653,10 +716,12 @@ export default class QueryRunner {
 				if (firstCol === undefined || range.fromCell < firstCol) {
 					firstCol = range.fromCell;
 				}
+
 				if (lastCol === undefined || range.toCell > lastCol) {
 					lastCol = range.toCell;
 				}
 			}
+
 			let columnRange: ISlickRange = {
 				fromCell: firstCol,
 				toCell: lastCol,
@@ -669,7 +734,9 @@ export default class QueryRunner {
 				resultId,
 				columnRange,
 			);
+
 			copyString += columnHeaders.join("\t");
+
 			copyString += os.EOL;
 		}
 
@@ -696,10 +763,12 @@ export default class QueryRunner {
 
 					if (rowIdToSelectionMap.has(rowNumber)) {
 						let rowSelection = rowIdToSelectionMap.get(rowNumber);
+
 						rowSelection.push(range);
 					} else {
 						rowIdToSelectionMap.set(rowNumber, [range]);
 					}
+
 					rowIdToRowMap.set(rowNumber, row);
 				}
 			};
@@ -711,6 +780,7 @@ export default class QueryRunner {
 		for (let i = 1; i < tasks.length; i++) {
 			p = p.then(tasks[i]);
 		}
+
 		await p;
 
 		// Go through all rows and get selections for them
@@ -746,6 +816,7 @@ export default class QueryRunner {
 				for (let j = firstColumn; j < rowSelection.fromCell; j++) {
 					copyString += "\t";
 				}
+
 				let cellObjects = row.slice(
 					rowSelection.fromCell,
 					rowSelection.toCell + 1,
@@ -757,6 +828,7 @@ export default class QueryRunner {
 							this.removeNewLines(x.displayValue),
 						)
 					: cellObjects.map((x) => x.displayValue);
+
 				copyString += cells.join("\t");
 
 				// Add tabs until the end column of the selection
@@ -764,6 +836,7 @@ export default class QueryRunner {
 					copyString += "\t";
 				}
 			}
+
 			copyString += os.EOL;
 		}
 
@@ -779,8 +852,10 @@ export default class QueryRunner {
 
 		if (process.platform === "darwin") {
 			oldLang = process.env["LANG"];
+
 			process.env["LANG"] = "en_US.UTF-8";
 		}
+
 		await this._vscodeWrapper.clipboardWriteText(copyString);
 
 		if (process.platform === "darwin") {
@@ -790,16 +865,19 @@ export default class QueryRunner {
 
 	public async toggleSqlCmd(): Promise<boolean> {
 		const queryExecuteOptions: QueryExecutionOptions = { options: {} };
+
 		queryExecuteOptions.options["isSqlCmdMode"] = !this.isSqlCmd;
 
 		const queryExecuteOptionsParams: QueryExecutionOptionsParams = {
 			ownerUri: this.uri,
 			options: queryExecuteOptions,
 		};
+
 		await this._client.sendRequest(
 			QueryExecuteOptionsRequest.type,
 			queryExecuteOptionsParams,
 		);
+
 		this._isSqlCmd = !this._isSqlCmd;
 
 		return true;
@@ -815,6 +893,7 @@ export default class QueryRunner {
 			Constants.extensionConfigSectionName,
 			this.uri,
 		);
+
 		includeHeaders = config.get(Constants.copyIncludeHeaders);
 
 		return !!includeHeaders;
@@ -888,11 +967,13 @@ export default class QueryRunner {
 				) {
 					firstColumn = rowSelections[i].fromCell;
 				}
+
 				if (lastColumn === -1 || rowSelections[i].toCell > lastColumn) {
 					lastColumn = rowSelections[i].toCell;
 				}
 			}
 		}
+
 		return [firstColumn, lastColumn];
 	}
 
@@ -917,6 +998,7 @@ export default class QueryRunner {
 			if (activeTextEditor) {
 				column = activeTextEditor.viewColumn;
 			}
+
 			let editor = await this._vscodeWrapper.showTextDocument(doc, {
 				viewColumn: column,
 				preserveFocus: false,
@@ -929,6 +1011,7 @@ export default class QueryRunner {
 				selection.endLine,
 				selection.endColumn,
 			);
+
 			editor.selection = querySelection;
 
 			return;
@@ -939,6 +1022,7 @@ export default class QueryRunner {
 		if (this._uriToQueryStringMap.has(uri)) {
 			return this._uriToQueryStringMap.get(uri);
 		}
+
 		return undefined;
 	}
 

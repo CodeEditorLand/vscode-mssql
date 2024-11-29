@@ -41,6 +41,7 @@ export class ConnectionConfig implements IConnectionConfig {
 		profiles = profiles.filter(
 			(value) => !Utils.isSameProfile(value, profile),
 		);
+
 		profiles.push(profile);
 
 		return await this.writeProfilesToSettings(profiles);
@@ -77,12 +78,15 @@ export class ConnectionConfig implements IConnectionConfig {
 		let userProfiles = this.getProfilesFromSettings();
 
 		userProfiles.sort(compareProfileFunc);
+
 		profiles = profiles.concat(userProfiles);
 
 		if (getWorkspaceConnections) {
 			// Read from workspace settings
 			let workspaceProfiles = this.getProfilesFromSettings(false);
+
 			workspaceProfiles.sort(compareProfileFunc);
+
 			profiles = profiles.concat(workspaceProfiles);
 		}
 
@@ -110,6 +114,7 @@ export class ConnectionConfig implements IConnectionConfig {
 
 		// Remove the profile if already set
 		let found = false;
+
 		profiles = profiles.filter((value) => {
 			if (Utils.isSameProfile(value, profile)) {
 				// remove just this profile

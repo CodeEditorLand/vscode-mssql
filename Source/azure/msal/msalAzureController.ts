@@ -35,8 +35,10 @@ import { MsalCachePluginProvider } from "./msalCachePlugin";
 
 export class MsalAzureController extends AzureController {
 	private _authMappings = new Map<AzureAuthType, MsalAzureAuth>();
+
 	private _cachePluginProvider: MsalCachePluginProvider | undefined =
 		undefined;
+
 	protected clientApplication: PublicClientApplication;
 
 	private getLoggerCallback(): ILoggerCallback {
@@ -80,12 +82,15 @@ export class MsalAzureController extends AzureController {
 		}
 
 		let azureAuth = await this.getAzureAuthInstance(authType!);
+
 		await this.clearOldCacheIfExists();
+
 		void azureAuth.loadTokenCache();
 	}
 
 	public async clearTokenCache(): Promise<void> {
 		this.clientApplication.clearCache();
+
 		await this._cachePluginProvider.unlinkMsalCache();
 
 		// Delete Encryption Keys
@@ -103,7 +108,9 @@ export class MsalAzureController extends AzureController {
 
 		try {
 			await fsPromises.access(filePath);
+
 			await fsPromises.rm(filePath);
+
 			this.logger.verbose(`Old cache file removed successfully.`);
 		} catch (e) {
 			if (e.code !== "ENOENT") {
@@ -126,6 +133,7 @@ export class MsalAzureController extends AzureController {
 		let authType = getAzureActiveDirectoryConfig();
 
 		let azureAuth = await this.getAzureAuthInstance(authType!);
+
 		await this.clearOldCacheIfExists();
 
 		let accountInfo = await azureAuth.getAccountFromMsalCache(
@@ -141,6 +149,7 @@ export class MsalAzureController extends AzureController {
 		if (!this._authMappings.has(authType)) {
 			await this.handleAuthMapping();
 		}
+
 		return this._authMappings!.get(authType);
 	}
 
@@ -159,6 +168,7 @@ export class MsalAzureController extends AzureController {
 				[],
 				[],
 			);
+
 			tenantId = tenantId || account.properties.owningTenant.id;
 
 			let result = await azureAuth.getToken(account, tenantId, settings);
@@ -180,6 +190,7 @@ export class MsalAzureController extends AzureController {
 		} else {
 			if (account) {
 				account.isStale = true;
+
 				this.logger.error(
 					`_getAccountSecurityToken: Authentication method not found for account ${account.displayInfo.displayName}`,
 				);
@@ -207,6 +218,7 @@ export class MsalAzureController extends AzureController {
 			let azureAuth = await this.getAzureAuthInstance(
 				getAzureActiveDirectoryConfig(),
 			);
+
 			newAccount = await azureAuth!.refreshAccessToken(
 				account,
 				AzureConstants.organizationTenant.id,
@@ -238,6 +250,7 @@ export class MsalAzureController extends AzureController {
 					if (newAccount!.isStale === true) {
 						return undefined;
 					}
+
 					await accountStore.addAccount(newAccount!);
 
 					return await this.getAccountSecurityToken(
@@ -263,8 +276,11 @@ export class MsalAzureController extends AzureController {
 		settings: IAADResource,
 	): Promise<ConnectionProfile> {
 		let account = await this.addAccount(accountStore);
+
 		profile.user = account!.displayInfo.displayName;
+
 		profile.email = account!.displayInfo.email;
+
 		profile.accountId = account!.key.id;
 
 		// Skip fetching access token for profile if Sql Authentication Provider is enabled.
@@ -281,10 +297,13 @@ export class MsalAzureController extends AzureController {
 
 			if (!token) {
 				let errorMessage = LocalizedConstants.msgGetTokenFail;
+
 				this.logger.error(errorMessage);
+
 				this._vscodeWrapper.showErrorMessage(errorMessage);
 			} else {
 				profile.azureAccountToken = token.token;
+
 				profile.expiresOn = token.expiresOn;
 			}
 		} else {
@@ -292,6 +311,7 @@ export class MsalAzureController extends AzureController {
 				"SQL Authentication Provider is enabled, access token will not be acquired by extension.",
 			);
 		}
+
 		return profile;
 	}
 
@@ -299,12 +319,14 @@ export class MsalAzureController extends AzureController {
 		let azureAuth = await this.getAzureAuthInstance(
 			getAzureActiveDirectoryConfig(),
 		);
+
 		await azureAuth!.clearCredentials(account);
 	}
 
 	public async handleAuthMapping(): Promise<void> {
 		if (!this.clientApplication) {
 			let storagePath = await this.findOrMakeStoragePath();
+
 			this._cachePluginProvider = new MsalCachePluginProvider(
 				Constants.msalCacheFileName,
 				storagePath!,
@@ -329,6 +351,7 @@ export class MsalAzureController extends AzureController {
 					cachePlugin: this._cachePluginProvider?.getCachePlugin(),
 				},
 			};
+
 			this.clientApplication = new PublicClientApplication(
 				msalConfiguration,
 			);

@@ -33,6 +33,7 @@ export class QueryNotificationHandler {
 			return QueryNotificationHandler._instance;
 		} else {
 			QueryNotificationHandler._instance = new QueryNotificationHandler();
+
 			QueryNotificationHandler._instance.initialize();
 
 			return QueryNotificationHandler._instance;
@@ -45,18 +46,22 @@ export class QueryNotificationHandler {
 			QueryExecuteCompleteNotification.type,
 			this.handleQueryCompleteNotification(),
 		);
+
 		SqlToolsServiceClient.instance.onNotification(
 			QueryExecuteBatchStartNotification.type,
 			this.handleBatchStartNotification(),
 		);
+
 		SqlToolsServiceClient.instance.onNotification(
 			QueryExecuteBatchCompleteNotification.type,
 			this.handleBatchCompleteNotification(),
 		);
+
 		SqlToolsServiceClient.instance.onNotification(
 			QueryExecuteResultSetCompleteNotification.type,
 			this.handleResultSetCompleteNotification(),
 		);
+
 		SqlToolsServiceClient.instance.onNotification(
 			QueryExecuteMessageNotification.type,
 			this.handleMessageNotification(),
@@ -74,6 +79,7 @@ export class QueryNotificationHandler {
 		while (this._handlerCallbackQueue.length > 0) {
 			let handler: NotificationHandler<any> =
 				this._handlerCallbackQueue.shift();
+
 			handler(runner);
 		}
 
@@ -131,6 +137,7 @@ export class QueryNotificationHandler {
 			let handlerCallback = (runner: QueryRunner) => {
 				runner.handleBatchStart(event);
 			};
+
 			self.enqueueOrRun(
 				handlerCallback,
 				self._queryRunners.get(event.ownerUri),
@@ -147,6 +154,7 @@ export class QueryNotificationHandler {
 			let handlerCallback = (runner: QueryRunner) => {
 				runner.handleBatchComplete(event);
 			};
+
 			self.enqueueOrRun(
 				handlerCallback,
 				self._queryRunners.get(event.ownerUri),
@@ -163,6 +171,7 @@ export class QueryNotificationHandler {
 			let handlerCallback = (runner: QueryRunner) => {
 				runner.handleResultSetComplete(event);
 			};
+
 			self.enqueueOrRun(
 				handlerCallback,
 				self._queryRunners.get(event.ownerUri),
@@ -179,6 +188,7 @@ export class QueryNotificationHandler {
 			let handlerCallback = (runner: QueryRunner) => {
 				runner.handleMessage(event);
 			};
+
 			self.enqueueOrRun(
 				handlerCallback,
 				self._queryRunners.get(event.ownerUri),

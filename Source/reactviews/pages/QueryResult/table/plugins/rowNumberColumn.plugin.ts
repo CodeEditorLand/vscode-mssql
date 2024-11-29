@@ -23,6 +23,7 @@ export class RowNumberColumn<T extends Slick.SlickData>
 	implements Slick.Plugin<T>
 {
 	private handler = new Slick.EventHandler();
+
 	private grid!: Slick.Grid<T>;
 
 	constructor(private options?: IRowNumberColumnOptions) {
@@ -31,6 +32,7 @@ export class RowNumberColumn<T extends Slick.SlickData>
 
 	public init(grid: Slick.Grid<T>) {
 		this.grid = grid;
+
 		this.handler
 			.subscribe(
 				this.grid.onClick,

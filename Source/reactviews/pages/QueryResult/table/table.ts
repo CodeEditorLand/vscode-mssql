@@ -52,25 +52,37 @@ export const jsonLanguageId = "json";
 
 export class Table<T extends Slick.SlickData> implements IThemable {
     public queryResultState: QueryResultState;
+
     protected styleElement: HTMLStyleElement;
+
     protected idPrefix: string;
 
     protected _grid: Slick.Grid<T>;
     // protected _columns: Slick.Column<T>[];
+
     protected _data: IDisposableDataProvider<T>;
+
     private _sorter?: ITableSorter<T>;
+
     private _classChangeTimeout: any;
 
     private _autoscroll?: boolean;
+
     private _container: HTMLElement;
+
     protected _tableContainer: HTMLElement;
+
     private selectionModel: CellSelectionModel<T>;
+
     private uri: string;
+
     private resultSetSummary: ResultSetSummary;
+
     private webViewState: VscodeWebviewContext<
         QueryResultWebviewState,
         QueryResultReducers
     >;
+
     private linkHandler: (fileContent: string, fileType: string) => void;
 
     constructor(
@@ -89,16 +101,22 @@ export class Table<T extends Slick.SlickData> implements IThemable {
         gridParentRef?: React.RefObject<HTMLDivElement>,
     ) {
         this.uri = uri;
+
         this.resultSetSummary = resultSetSummary;
+
         this.webViewState = webViewState;
+
         this.queryResultState = state!;
+
         this.linkHandler = linkHandler;
+
         this.selectionModel = new CellSelectionModel<T>(
             {
                 hasRowSelector: true,
             },
             webViewState,
         );
+
         if (
             !configuration ||
             !configuration.dataProvider ||
@@ -114,6 +132,7 @@ export class Table<T extends Slick.SlickData> implements IThemable {
         let newOptions = mixin(options || {}, getDefaultOptions<T>(), false);
 
         this._container = document.createElement("div");
+
         this._container.className = "monaco-table";
 
         DOM.addDisposableListener(
@@ -121,6 +140,7 @@ export class Table<T extends Slick.SlickData> implements IThemable {
             DOM.EventType.FOCUS,
             () => {
                 clearTimeout(this._classChangeTimeout);
+
                 this._classChangeTimeout = setTimeout(() => {
                     this._container.classList.add("focused");
                 }, 100);
@@ -133,6 +153,7 @@ export class Table<T extends Slick.SlickData> implements IThemable {
             DOM.EventType.BLUR,
             () => {
                 clearTimeout(this._classChangeTimeout);
+
                 this._classChangeTimeout = setTimeout(() => {
                     this._container.classList.remove("focused");
                 }, 100);
@@ -141,29 +162,40 @@ export class Table<T extends Slick.SlickData> implements IThemable {
         );
 
         parent.appendChild(this._container);
+
         this.styleElement = DOM.createStyleSheet(this._container);
+
         this._tableContainer = document.createElement("div");
         // this._tableContainer.className = //TODO: class name for styles
         let gridParent = gridParentRef?.current;
+
         if (gridParent) {
             this._tableContainer.style.width = `${(gridParent?.clientWidth - ACTIONBAR_WIDTH_PX).toString()}px`;
+
             const height = gridParent?.clientHeight;
+
             this._tableContainer.style.height = `${height.toString()}px`;
         }
+
         this._container.appendChild(this._tableContainer);
+
         this.styleElement = DOM.createStyleSheet(this._container);
+
         this._grid = new Slick.Grid<T>(
             this._tableContainer,
             this._data,
             [],
             newOptions,
         );
+
         this.registerPlugin(
             new HeaderFilter(webViewState.themeKind, this.queryResultState),
         );
+
         this.registerPlugin(
             new ContextMenu(this.uri, this.resultSetSummary, this.webViewState),
         );
+
         this.registerPlugin(
             new CopyKeybind(this.uri, this.resultSetSummary, this.webViewState),
         );
@@ -175,24 +207,35 @@ export class Table<T extends Slick.SlickData> implements IThemable {
         }
 
         this.idPrefix = this._tableContainer.classList[0];
+
         this._container.classList.add(this.idPrefix);
+
         if (configuration && configuration.sorter) {
             this._sorter = configuration.sorter;
+
             this._grid.onSort.subscribe((_e, args) => {
                 this._sorter!(args);
+
                 this._grid.invalidate();
+
                 this._grid.render();
             });
         }
 
         this.setSelectionModel(this.selectionModel);
+
         this.mapMouseEvent(this._grid.onContextMenu);
+
         this.mapMouseEvent(this._grid.onClick);
+
         this.mapMouseEvent(this._grid.onHeaderClick);
+
         this.mapMouseEvent(this._grid.onDblClick);
+
         this._grid.onColumnsResized.subscribe(() =>
             console.log("oncolumnresize"),
         );
+
         this.style(styles);
         // this.registerPlugin(new MouseWheelSupport());
     }
@@ -202,33 +245,44 @@ export class Table<T extends Slick.SlickData> implements IThemable {
             if (column.field) {
                 const filters =
                     this.queryResultState.state.filterState[column.field];
+
                 if (filters) {
                     (<FilterableColumn<T>>column).filterValues =
                         filters.filterValues;
                 }
             }
         });
+
         await this._data.filter(this.columns);
+
         return true;
     }
 
     public rerenderGrid() {
         this._grid.updateRowCount();
+
         this._grid.setColumns(this._grid.getColumns());
+
         this._grid.invalidateAllRows();
+
         this._grid.render();
     }
 
     private mapMouseEvent(slickEvent: Slick.Event<any>) {
         slickEvent.subscribe((e: Slick.EventData) => {
             const originalEvent = (e as JQuery.TriggeredEvent).originalEvent;
+
             const cell = this._grid.getCellFromEvent(originalEvent!);
+
             const anchor =
                 originalEvent instanceof MouseEvent
                     ? { x: originalEvent.x, y: originalEvent.y }
                     : (originalEvent!.srcElement as HTMLElement);
+
             console.log("anchor: ", anchor);
+
             console.log("cell: ", cell);
+
             this.handleLinkClick(cell);
             // emitter.fire({ anchor, cell });
         });
@@ -236,6 +290,7 @@ export class Table<T extends Slick.SlickData> implements IThemable {
 
     private handleLinkClick(cell: Slick.Cell): void {
         const columnInfo = this.resultSetSummary.columnInfo[cell.cell - 1];
+
         if (columnInfo.isXml || columnInfo.isJson) {
             this.linkHandler(
                 this.getCellValue(cell.row, cell.cell),
@@ -246,7 +301,9 @@ export class Table<T extends Slick.SlickData> implements IThemable {
 
     public getCellValue(row: number, column: number): string {
         const rowRef = this._grid.getDataItem(row);
+
         const col = this._grid.getColumns()[column].field!;
+
         return rowRef[col].displayValue;
     }
 
@@ -256,16 +313,21 @@ export class Table<T extends Slick.SlickData> implements IThemable {
 
     public invalidateRows(rows: number[], keepEditor: boolean) {
         this._grid.invalidateRows(rows, keepEditor);
+
         this._grid.render();
     }
 
     public updateRowCount() {
         this._grid.updateRowCount();
+
         this._grid.render();
+
         if (this._autoscroll) {
             this._grid.scrollRowIntoView(this._data.getLength() - 1, false);
         }
+
         this.ariaRowCount = this.grid.getDataLength();
+
         this.ariaColumnCount = this.grid.getColumns().length;
     }
 
@@ -278,14 +340,18 @@ export class Table<T extends Slick.SlickData> implements IThemable {
     }
 
     setData(data: Array<T>): void;
+
     setData(data: TableDataView<T>): void;
+
     setData(data: Array<T> | TableDataView<T>): void {
         if (data instanceof TableDataView) {
             this._data = data;
         } else {
             this._data = new TableDataView<T>(data);
         }
+
         this._grid.setData(this._data, true);
+
         this.updateRowCount();
     }
 
@@ -316,9 +382,12 @@ export class Table<T extends Slick.SlickData> implements IThemable {
         ) => any,
     ): void;
     // onSelectedRowsChanged(fn: (e: Slick.DOMEvent, data: Slick.OnSelectedRowsChangedEventArgs<T>) => any): vscode.Disposable;
+
     onSelectedRowsChanged(fn: any): void {
         this._grid.onSelectedRowsChanged.subscribe(fn);
+
         console.log("onselectedrowschanged");
+
         return;
     }
 
@@ -332,9 +401,11 @@ export class Table<T extends Slick.SlickData> implements IThemable {
 
     getSelectedRanges(): Slick.Range[] {
         let selectionModel = this._grid.getSelectionModel();
+
         if (selectionModel && selectionModel.getSelectedRanges) {
             return selectionModel.getSelectedRanges();
         }
+
         return <Slick.Range[]>(<unknown>undefined);
     }
 
@@ -366,26 +437,38 @@ export class Table<T extends Slick.SlickData> implements IThemable {
     }
 
     layout(dimension: DOM.Dimension): void;
+
     layout(size: number, orientation: Orientation): void;
+
     layout(sizing: number | DOM.Dimension, orientation?: Orientation): void {
         if (sizing instanceof DOM.Dimension) {
             this._container.style.width = sizing.width + "px";
+
             this._container.style.height = sizing.height + "px";
+
             this._tableContainer.style.width = sizing.width + "px";
+
             this._tableContainer.style.height = sizing.height + "px";
         } else {
             if (orientation === Orientation.VERTICAL) {
                 this._container.style.width = "100%";
+
                 this._container.style.height = sizing + "px";
+
                 this._tableContainer.style.width = "100%";
+
                 this._tableContainer.style.height = sizing + "px";
             } else {
                 this._container.style.width = sizing + "px";
+
                 this._container.style.height = "100%";
+
                 this._tableContainer.style.width = sizing + "px";
+
                 this._tableContainer.style.height = "100%";
             }
         }
+
         this.resizeCanvas();
     }
 
@@ -416,6 +499,7 @@ export class Table<T extends Slick.SlickData> implements IThemable {
             content.push(
                 `.monaco-table.${this.idPrefix}.focused .slick-row .active { background-color: ${styles.listFocusBackground}; }`,
             );
+
             content.push(
                 `.monaco-table.${this.idPrefix}.focused .slick-row .active:hover { background-color: ${styles.listFocusBackground}; }`,
             ); // overwrite :hover style in this case!
@@ -431,6 +515,7 @@ export class Table<T extends Slick.SlickData> implements IThemable {
             content.push(
                 `.monaco-table.${this.idPrefix}.focused .slick-row .selected { background-color: ${styles.listActiveSelectionBackground}; }`,
             );
+
             content.push(
                 `.monaco-table.${this.idPrefix}.focused .slick-row .selected:hover { background-color: ${styles.listActiveSelectionBackground}; }`,
             ); // overwrite :hover style in this case!
@@ -458,6 +543,7 @@ export class Table<T extends Slick.SlickData> implements IThemable {
             content.push(
                 `.monaco-table.${this.idPrefix} .slick-row .selected.active { background-color:  ${styles.listInactiveFocusBackground}; }`,
             );
+
             content.push(
                 `.monaco-table.${this.idPrefix} .slick-row .selected.active:hover { background-color:  ${styles.listInactiveFocusBackground}; }`,
             ); // overwrite :hover style in this case!
@@ -467,6 +553,7 @@ export class Table<T extends Slick.SlickData> implements IThemable {
             content.push(
                 `.monaco-table.${this.idPrefix} .slick-row .selected { background-color:  ${styles.listInactiveSelectionBackground}; }`,
             );
+
             content.push(
                 `.monaco-table.${this.idPrefix} .slick-row .selected:hover { background-color:  ${styles.listInactiveSelectionBackground}; }`,
             ); // overwrite :hover style in this case!
@@ -508,6 +595,7 @@ export class Table<T extends Slick.SlickData> implements IThemable {
             content.push(
                 `.monaco-table.${this.idPrefix}.focused .slick-row .selected { outline: 1px solid ${styles.listFocusOutline}; outline-offset: -1px; }`,
             );
+
             content.push(
                 `.monaco-table.${this.idPrefix}.focused .slick-row .selected.active { outline: 2px solid ${styles.listFocusOutline}; outline-offset: -1px; }`,
             );
@@ -530,6 +618,7 @@ export class Table<T extends Slick.SlickData> implements IThemable {
 
     public setOptions(newOptions: Slick.GridOptions<T>) {
         this._grid.setOptions(newOptions);
+
         this._grid.invalidate();
     }
 
@@ -585,6 +674,7 @@ export function range(arg: number, to?: number): number[] {
         from = arg;
     } else {
         from = 0;
+
         to = arg;
     }
 

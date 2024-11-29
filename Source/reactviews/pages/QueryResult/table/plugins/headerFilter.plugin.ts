@@ -29,7 +29,9 @@ export type HeaderFilterCommands = "sort-asc" | "sort-desc";
 
 export interface CommandEventArgs<T extends Slick.SlickData> {
     grid: Slick.Grid<T>;
+
     column: Slick.Column<T>;
+
     command: HeaderFilterCommands;
 }
 
@@ -39,35 +41,47 @@ export const FilterButtonWidth: number = 34;
 
 export class HeaderFilter<T extends Slick.SlickData> {
     public theme: ColorThemeKind;
+
     public onFilterApplied = new Slick.Event<{
         grid: Slick.Grid<T>;
+
         column: FilterableColumn<T>;
     }>();
+
     public onCommand = new Slick.Event<CommandEventArgs<T>>();
+
     public enabled: boolean = true;
 
     private activePopup: JQuery<HTMLElement> | null = null;
 
     private grid!: Slick.Grid<T>;
+
     private handler = new Slick.EventHandler();
+
     private columnDef!: FilterableColumn<T>;
+
     private columnButtonMapping: Map<string, HTMLElement> = new Map<
         string,
         HTMLElement
     >();
+
     private _listData: TableFilterListElement[] = [];
+
     private _list!: VirtualizedList<TableFilterListElement>;
 
     private _eventManager = new EventManager();
+
     private queryResultState: QueryResultState;
 
     constructor(theme: ColorThemeKind, queryResultState: QueryResultState) {
         this.queryResultState = queryResultState;
+
         this.theme = theme;
     }
 
     public init(grid: Slick.Grid<T>): void {
         this.grid = grid;
+
         this.handler
             .subscribe(
                 this.grid.onHeaderCellRendered,
@@ -89,7 +103,9 @@ export class HeaderFilter<T extends Slick.SlickData> {
 
     public destroy() {
         this.handler.unsubscribeAll();
+
         this._eventManager.clearEventListeners();
+
         this._list.dispose();
     }
 
@@ -98,9 +114,11 @@ export class HeaderFilter<T extends Slick.SlickData> {
         args: Slick.OnHeaderCellRenderedEventArgs<T>,
     ) {
         const column = args.column as FilterableColumn<T>;
+
         if ((<FilterableColumn<T>>column).filterable === false) {
             return;
         }
+
         if (args.node.classList.contains("slick-header-with-filter")) {
             // the the filter button has already being added to the header
             return;
@@ -111,28 +129,37 @@ export class HeaderFilter<T extends Slick.SlickData> {
         // If the column is not defined as sortable because of the above reason, we will add the sort indicator here.
         if (column.sortable !== true) {
             args.node.classList.add("slick-header-sortable");
+
             append(args.node, $("span.slick-sort-indicator"));
         }
+
         const theme: string = resolveVscodeThemeType(this.theme);
+
         args.node.classList.add("slick-header-with-filter");
+
         args.node.classList.add(theme);
+
         const $el = jQuery(
             `<button tabindex="-1" id="anchor-btn" aria-label="${ShowFilterText}" title="${ShowFilterText}"></button>`,
         )
             .addClass("slick-header-menubutton")
             .data("column", column);
+
         if (column.filterValues?.length) {
             this.setButtonImage($el, column.filterValues?.length > 0);
         }
 
         const elDivElement = $el.get(0);
+
         if (elDivElement) {
             this._eventManager.addEventListener(
                 elDivElement,
                 "click",
                 async (e: Event) => {
                     e.stopPropagation();
+
                     e.preventDefault();
+
                     await this.showFilter(elDivElement);
                 },
             );
@@ -146,9 +173,12 @@ export class HeaderFilter<T extends Slick.SlickData> {
 
     private async showFilter(filterButton: HTMLElement) {
         let $menuButton: JQuery<HTMLElement> | undefined;
+
         const target = withNullAsUndefined(filterButton);
+
         if (target) {
             $menuButton = jQuery(target);
+
             this.columnDef = $menuButton.data("column");
         }
 
@@ -158,7 +188,9 @@ export class HeaderFilter<T extends Slick.SlickData> {
                 this.activePopup.data("button") === filterButton;
             // close the popup and reset activePopup
             this.activePopup.fadeOut();
+
             this.activePopup = null;
+
             if (isSameButton) {
                 return; // Exit since we're just closing the popup for the same button
             }
@@ -166,6 +198,7 @@ export class HeaderFilter<T extends Slick.SlickData> {
 
         // Proceed to open the new popup for the clicked column
         const offset = jQuery(filterButton).offset();
+
         const $popup = jQuery(
             '<div id="popup-menu" class="slick-header-menu">' +
                 `<button id="sort-ascending" type="button" icon="slick-header-menuicon.ascending" class="sort-btn">${locConstants.queryResult.sortAscending}</button>` +
@@ -182,6 +215,7 @@ export class HeaderFilter<T extends Slick.SlickData> {
         );
 
         const popupElement = $popup.get(0);
+
         if (popupElement) {
             this._eventManager.addEventListener(
                 document,
@@ -189,8 +223,10 @@ export class HeaderFilter<T extends Slick.SlickData> {
                 (_e: Event) => {
                     if ($popup) {
                         const popupElement = $popup.get(0);
+
                         if (!popupElement.contains(_e.target as Node)) {
                             closePopup($popup);
+
                             this.activePopup = null;
                         }
                     }
@@ -200,6 +236,7 @@ export class HeaderFilter<T extends Slick.SlickData> {
             this._eventManager.addEventListener(window, "blur", (_e: Event) => {
                 if ($popup) {
                     closePopup($popup);
+
                     this.activePopup = null;
                 }
             });
@@ -216,6 +253,7 @@ export class HeaderFilter<T extends Slick.SlickData> {
 
         // Append and show the new popup
         $popup.appendTo(document.body);
+
         openPopup($popup);
 
         // Store the clicked button reference with the popup, so we can check it later
@@ -223,7 +261,9 @@ export class HeaderFilter<T extends Slick.SlickData> {
 
         // Set the new popup as the active popup
         this.activePopup = $popup;
+
         const checkboxContainer = $popup.find("#checkbox-list");
+
         this._list = this.createList(checkboxContainer);
 
         $popup.find("#search-input").on("input", (e: Event) => {
@@ -235,15 +275,18 @@ export class HeaderFilter<T extends Slick.SlickData> {
 
             this._listData.forEach((i) => {
                 i.isVisible = i.displayText.toLowerCase().includes(searchTerm);
+
                 if (i.isVisible) {
                     visibleItems.push(i);
                 }
             });
+
             this._list.updateItems(visibleItems);
         });
 
         $popup.find("#select-all-checkbox").on("change", (e: Event) => {
             const isChecked = (e.target as HTMLInputElement).checked;
+
             this.selectAllFiltered(isChecked);
         });
 
@@ -257,6 +300,7 @@ export class HeaderFilter<T extends Slick.SlickData> {
                 !$target.closest("#popup-menu").length
             ) {
                 this.activePopup!.fadeOut();
+
                 this.activePopup = null;
             }
         });
@@ -267,6 +311,7 @@ export class HeaderFilter<T extends Slick.SlickData> {
             `#close-popup-${this.columnDef.id}`,
             () => {
                 closePopup($popup);
+
                 this.activePopup = null;
             },
         );
@@ -277,9 +322,13 @@ export class HeaderFilter<T extends Slick.SlickData> {
             "#sort-ascending",
             (_e: JQuery.ClickEvent) => {
                 void this.handleMenuItemClick("sort-asc", this.columnDef);
+
                 closePopup($popup);
+
                 this.activePopup = null;
+
                 this.grid.setSortColumn(this.columnDef.id!, true);
+
                 this.columnDef.sorted = SortProperties.ASC;
             },
         );
@@ -289,9 +338,13 @@ export class HeaderFilter<T extends Slick.SlickData> {
             "#sort-descending",
             (_e: JQuery.ClickEvent) => {
                 void this.handleMenuItemClick("sort-desc", this.columnDef);
+
                 closePopup($popup);
+
                 this.activePopup = null;
+
                 this.grid.setSortColumn(this.columnDef.id!, false);
+
                 this.columnDef.sorted = SortProperties.DESC;
             },
         );
@@ -303,16 +356,22 @@ export class HeaderFilter<T extends Slick.SlickData> {
                 this.columnDef.filterValues = this._listData
                     .filter((element) => element.checked)
                     .map((element) => element.value);
+
                 closePopup($popup);
+
                 this.activePopup = null;
+
                 this.applyFilterSelections();
+
                 if (!$menuButton) {
                     return;
                 }
+
                 this.setButtonImage(
                     $menuButton,
                     this.columnDef.filterValues.length > 0,
                 );
+
                 await this.handleApply(this.columnDef);
             },
         );
@@ -324,11 +383,15 @@ export class HeaderFilter<T extends Slick.SlickData> {
                 this.columnDef.filterValues!.length = 0;
 
                 closePopup($popup);
+
                 this.activePopup = null;
+
                 if (!$menuButton) {
                     return;
                 }
+
                 this.setButtonImage($menuButton, false);
+
                 await this.handleApply(this.columnDef, true);
             },
         );
@@ -351,16 +414,25 @@ export class HeaderFilter<T extends Slick.SlickData> {
             this._listData,
             (itemContainer, item) => {
                 itemContainer.style.boxSizing = "border-box";
+
                 itemContainer.style.display = "flex";
+
                 itemContainer.style.alignItems = "center";
+
                 itemContainer.style.padding = "0 5px";
 
                 const id = `checkbox-${item.index}`;
+
                 const checkboxElement = document.createElement("input");
+
                 checkboxElement.type = "checkbox";
+
                 checkboxElement.checked = item.checked;
+
                 checkboxElement.name = item.value;
+
                 checkboxElement.id = id;
+
                 checkboxElement.tabIndex = -1;
 
                 // Attach change listener
@@ -370,30 +442,44 @@ export class HeaderFilter<T extends Slick.SlickData> {
                     () => {
                         this._listData[item.index].checked =
                             checkboxElement.checked;
+
                         item.checked = checkboxElement.checked;
                     },
                 );
 
                 const label = document.createElement("label");
+
                 label.style.flex = "1";
+
                 label.style.overflow = "hidden";
+
                 label.style.textOverflow = "ellipsis";
+
                 label.style.whiteSpace = "nowrap";
+
                 label.innerText = item.displayText;
+
                 label.title = item.displayText;
+
                 label.setAttribute("for", id);
 
                 itemContainer.appendChild(checkboxElement);
+
                 itemContainer.appendChild(label);
             },
             (itemDiv, item) => {
                 const checkboxElement = itemDiv.querySelector(
                     "input[type='checkbox']",
                 ) as HTMLInputElement;
+
                 console.log(checkboxElement);
+
                 checkboxElement.checked = !checkboxElement.checked;
+
                 console.log(checkboxElement.checked);
+
                 this._listData[item.index].checked = checkboxElement.checked;
+
                 item.checked = checkboxElement.checked;
             },
             {
@@ -408,8 +494,10 @@ export class HeaderFilter<T extends Slick.SlickData> {
             if (!this._listData[i].isVisible) {
                 continue;
             }
+
             this._listData[i].checked = select;
         }
+
         this._list.updateItems(this._listData.filter((i) => i.isVisible));
     }
 
@@ -420,6 +508,7 @@ export class HeaderFilter<T extends Slick.SlickData> {
 
         // Update the column filter values
         this.columnDef.filterValues = selectedValues;
+
         this.onFilterApplied.notify({
             grid: this.grid,
             column: this.columnDef,
@@ -427,19 +516,27 @@ export class HeaderFilter<T extends Slick.SlickData> {
 
         // Refresh the grid or apply filtering logic based on the selected values
         this.grid.invalidate();
+
         this.grid.render();
     }
 
     private async handleApply(columnDef: Slick.Column<T>, clear?: boolean) {
         let columnFilterState: ColumnFilterState;
+
         const dataView = this.grid.getData() as IDisposableDataProvider<T>;
+
         if (instanceOfIDisposableDataProvider(dataView)) {
             await dataView.filter(this.grid.getColumns());
+
             this.grid.invalidateAllRows();
+
             this.grid.updateRowCount();
+
             this.grid.render();
         }
+
         this.onFilterApplied.notify({ grid: this.grid, column: columnDef });
+
         this.setFocusToColumn(columnDef);
         // clear filterValues if clear is true
         if (clear) {
@@ -455,6 +552,7 @@ export class HeaderFilter<T extends Slick.SlickData> {
                 sorted: this.columnDef.sorted,
             };
         }
+
         this.updateState(columnFilterState);
     }
 
@@ -467,12 +565,14 @@ export class HeaderFilter<T extends Slick.SlickData> {
         columnDef: Slick.Column<T>,
     ) {
         const dataView = this.grid.getData();
+
         if (command === "sort-asc" || command === "sort-desc") {
             this.grid.setSortColumn(
                 columnDef.id as string,
                 command === "sort-asc",
             );
         }
+
         if (
             instanceOfIDisposableDataProvider<T>(dataView) &&
             (command === "sort-asc" || command === "sort-desc")
@@ -483,8 +583,11 @@ export class HeaderFilter<T extends Slick.SlickData> {
                 sortCol: this.columnDef,
                 sortAsc: command === "sort-asc",
             });
+
             this.grid.invalidateAllRows();
+
             this.grid.updateRowCount();
+
             this.grid.render();
         }
 
@@ -501,16 +604,21 @@ export class HeaderFilter<T extends Slick.SlickData> {
         this.columnDef.filterValues = this.columnDef.filterValues || [];
         // WorkingFilters is a copy of the filters to enable apply/cancel behaviour
         const workingFilters = this.columnDef.filterValues.slice(0);
+
         let filterItems: Array<string>;
+
         const dataView = this.grid.getData() as IDisposableDataProvider<T>;
+
         if (instanceOfIDisposableDataProvider(dataView)) {
             filterItems = await dataView.getColumnValues(this.columnDef);
         } else {
             const filterApplied =
                 this.grid.getColumns().findIndex((col) => {
                     const filterableColumn = col as FilterableColumn<T>;
+
                     return filterableColumn.filterValues?.length! > 0;
                 }) !== -1;
+
             if (!filterApplied) {
                 // Filter based all available values
                 filterItems = this.getFilterValues(
@@ -531,18 +639,25 @@ export class HeaderFilter<T extends Slick.SlickData> {
         filterItems.sort();
         // Promote undefined (NULL) to be always at the top of the list
         const nullValueIndex = filterItems.indexOf("");
+
         if (nullValueIndex !== -1) {
             filterItems.splice(nullValueIndex, 1);
+
             filterItems.unshift("");
         }
+
         this._listData = [];
+
         for (let i = 0; i < filterItems.length; i++) {
             const filtered = workingFilters.some((x) => x === filterItems[i]);
             // work item to remove the 'Error:' string check: https://github.com/microsoft/azuredatastudio/issues/15206
             const filterItem = filterItems[i];
+
             if (!filterItem || filterItem.indexOf("Error:") < 0) {
                 let element = new TableFilterListElement(filterItem, filtered);
+
                 element.index = i;
+
                 this._listData.push(element);
             }
         }
@@ -553,9 +668,12 @@ export class HeaderFilter<T extends Slick.SlickData> {
         column: Slick.Column<T>,
     ): Array<any> {
         const seen: Set<string> = new Set();
+
         dataView.getItems().forEach((items) => {
             const value = items[column.field!];
+
             const valueArr = value instanceof Array ? value : [value];
+
             valueArr.forEach((v) => seen.add(v));
         });
 
@@ -567,7 +685,9 @@ export class HeaderFilter<T extends Slick.SlickData> {
 
         data.forEach((items) => {
             const value = items[column.field!];
+
             const valueArr = value instanceof Array ? value : [value];
+
             valueArr.forEach((v) => seen.add(v));
         });
 
@@ -588,6 +708,7 @@ export class HeaderFilter<T extends Slick.SlickData> {
             const column = this.grid
                 .getColumns()
                 .findIndex((col) => col.id === columnDef.id);
+
             if (column >= 0) {
                 this.grid.setActiveCell(0, column);
             }
@@ -596,11 +717,13 @@ export class HeaderFilter<T extends Slick.SlickData> {
 
     private setButtonImage($el: JQuery<HTMLElement>, filtered: boolean) {
         const element: HTMLElement | undefined = $el.get(0);
+
         if (element) {
             if (filtered) {
                 element.className += " filtered";
             } else {
                 const classList = element.classList;
+
                 if (classList.contains("filtered")) {
                     classList.remove("filtered");
                 }
@@ -611,14 +734,20 @@ export class HeaderFilter<T extends Slick.SlickData> {
 
 export class TableFilterListElement {
     private _checked: boolean;
+
     private _isVisible: boolean;
+
     private _index: number = 0;
+
     public displayText: string;
+
     public value: string;
 
     constructor(val: string, checked: boolean) {
         this.value = val;
+
         this._checked = checked;
+
         this._isVisible = true;
         // Handle the values that are visually hard to differentiate.
         if (val === undefined) {
@@ -635,6 +764,7 @@ export class TableFilterListElement {
     public get checked(): boolean {
         return this._checked;
     }
+
     public set checked(val: boolean) {
         if (this._checked !== val) {
             this._checked = val;

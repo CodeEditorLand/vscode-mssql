@@ -8,6 +8,7 @@ import { FilterableColumn } from "./interfaces";
 
 export interface IFindPosition {
 	col: number;
+
 	row: number;
 }
 
@@ -40,6 +41,7 @@ export function defaultSort<T extends Slick.SlickData>(
 	if (!args.sortCol || !args.sortCol.field || data.length === 0) {
 		return data;
 	}
+
 	const field = args.sortCol.field;
 
 	const sign = args.sortAsc ? 1 : -1;
@@ -79,6 +81,7 @@ export function defaultFilter<T extends Slick.SlickData>(
 	cellValueGetter: CellValueGetter = defaultCellValueGetter,
 ): T[] {
 	let filteredData = data;
+
 	columns?.forEach((column) => {
 		if (column.filterValues!?.length > 0 && column.field) {
 			filteredData = filteredData.filter((item) => {
@@ -99,9 +102,13 @@ export class TableDataView<T extends Slick.SlickData>
 	private _data: Array<T>;
 	//Used when filtering is enabled, _allData holds the complete set of data.
 	private _allData!: Array<T>;
+
 	private _findArray?: Array<IFindPosition>;
+
 	private _findIndex?: number;
+
 	private _filterEnabled: boolean;
+
 	private _currentColumnFilters: FilterableColumn<T>[] = [];
 
 	// private _onFilterStateChange = new vscode.EventEmitter<void>();
@@ -129,12 +136,15 @@ export class TableDataView<T extends Slick.SlickData>
 			: (args, data) => {
 					return defaultSort(args, data, _cellValueGetter);
 				};
+
 		this._filterFn = _filterFn
 			? _filterFn
 			: (data, columns) => {
 					return defaultFilter(data, columns, _cellValueGetter);
 				};
+
 		this._filterEnabled = false;
+
 		this._cellValueGetter = this._cellValueGetter
 			? this._cellValueGetter
 			: (cellValue) => cellValue?.toString();
@@ -150,10 +160,12 @@ export class TableDataView<T extends Slick.SlickData>
 
 	public async getColumnValues(column: Slick.Column<T>): Promise<string[]> {
 		const distinctValues: Set<string> = new Set();
+
 		this._data.forEach((items) => {
 			const value = items[column.field!];
 
 			const valueArr = value instanceof Array ? value : [value];
+
 			valueArr.forEach((v) =>
 				distinctValues.add(this._cellValueGetter(v)),
 			);
@@ -169,9 +181,12 @@ export class TableDataView<T extends Slick.SlickData>
 	public async filter(columns?: Slick.Column<T>[]) {
 		if (!this.filterEnabled) {
 			this._allData = new Array(...this._data);
+
 			this._filterEnabled = true;
 		}
+
 		this._currentColumnFilters = columns!;
+
 		this._data = this._filterFn!(this._allData, columns!);
 
 		if (this._data.length === this._allData.length) {
@@ -185,8 +200,11 @@ export class TableDataView<T extends Slick.SlickData>
 	public clearFilter() {
 		if (this._filterEnabled) {
 			this._data = this._allData;
+
 			this._allData = [];
+
 			this._filterEnabled = false;
+
 			console.log("filterstatechange");
 			// this._onFilterStateChange.fire();
 		}
@@ -194,6 +212,7 @@ export class TableDataView<T extends Slick.SlickData>
 
 	async sort(args: Slick.OnSortEventArgs<T>): Promise<void> {
 		this._data = this._sortFn!(args, this._data);
+
 		console.log(args);
 		// this._onSortComplete.fire(args);
 	}
@@ -215,7 +234,9 @@ export class TableDataView<T extends Slick.SlickData>
 	}
 
 	push(items: Array<T>): void;
+
 	push(item: T): void;
+
 	push(input: T | Array<T>): void {
 		let inputArray = new Array();
 
@@ -239,6 +260,7 @@ export class TableDataView<T extends Slick.SlickData>
 		} else {
 			this._data.push(...inputArray);
 		}
+
 		console.log(this.getLength());
 		// this._onRowCountChange.fire(this.getLength());
 	}
@@ -249,6 +271,7 @@ export class TableDataView<T extends Slick.SlickData>
 		if (this._filterEnabled) {
 			this._allData = new Array<T>();
 		}
+
 		console.log(this.getLength());
 		// this._onRowCountChange.fire(this.getLength());
 	}
@@ -257,8 +280,11 @@ export class TableDataView<T extends Slick.SlickData>
 		if (!this._findFn) {
 			return Promise.reject(new Error("no find function provided"));
 		}
+
 		this._findArray = new Array<IFindPosition>();
+
 		this._findIndex = 0;
+
 		console.log(this._findArray.length);
 		// this._onFindCountChange.fire(this._findArray.length);
 
@@ -284,7 +310,9 @@ export class TableDataView<T extends Slick.SlickData>
 					const pos = result[j];
 
 					const index = { col: pos, row: i };
+
 					this._findArray!.push(index);
+
 					console.log(this._findArray!.length);
 					// this._onFindCountChange.fire(this._findArray!.length);
 
@@ -307,7 +335,9 @@ export class TableDataView<T extends Slick.SlickData>
 
 	clearFind() {
 		this._findArray = new Array<IFindPosition>();
+
 		this._findIndex = 0;
+
 		console.log(this._findArray.length);
 		// this._onFindCountChange.fire(this._findArray.length);
 	}
@@ -319,6 +349,7 @@ export class TableDataView<T extends Slick.SlickData>
 			} else {
 				++this._findIndex!;
 			}
+
 			return Promise.resolve(this._findArray[this._findIndex!]);
 		} else {
 			return Promise.reject(new Error("no search running"));
@@ -332,6 +363,7 @@ export class TableDataView<T extends Slick.SlickData>
 			} else {
 				--this._findIndex!;
 			}
+
 			return Promise.resolve(this._findArray[this._findIndex!]);
 		} else {
 			return Promise.reject(new Error("no search running"));
@@ -357,7 +389,9 @@ export class TableDataView<T extends Slick.SlickData>
 
 	dispose() {
 		this._data = [];
+
 		this._allData = [];
+
 		this._findArray = [];
 	}
 }

@@ -41,6 +41,7 @@ export class MsalAzureDeviceCode extends MsalAzureAuth {
 
 	protected async login(tenant: ITenant): Promise<{
 		response: AuthenticationResult;
+
 		authComplete: IDeferred<void, Error>;
 	}> {
 		let authCompleteDeferred: IDeferred<void, Error>;
@@ -50,6 +51,7 @@ export class MsalAzureDeviceCode extends MsalAzureAuth {
 		);
 
 		let authority = this.loginEndpointUrl + tenant.id;
+
 		this.logger.info(`Authority URL set to: ${authority}`);
 
 		const deviceCodeRequest: DeviceCodeRequest = {
@@ -68,9 +70,11 @@ export class MsalAzureDeviceCode extends MsalAzureAuth {
 			await this.clientApplication.acquireTokenByDeviceCode(
 				deviceCodeRequest,
 			);
+
 		this.logger.pii(
 			`Authentication completed for account: ${authResult?.account!.name}, tenant: ${authResult?.tenantId}`,
 		);
+
 		this.closeOnceComplete(authCompletePromise).catch(this.logger.error);
 
 		return {
@@ -96,11 +100,16 @@ export class MsalAzureDeviceCode extends MsalAzureAuth {
 
 		if (selection === LocalizedConstants.msgCopyAndOpenWebpage) {
 			this.vscodeWrapper.clipboardWriteText(userCode);
+
 			await vscode.env.openExternal(vscode.Uri.parse(verificationUrl));
+
 			console.log(msg);
+
 			console.log(userCode);
+
 			console.log(verificationUrl);
 		}
+
 		return;
 	}
 }

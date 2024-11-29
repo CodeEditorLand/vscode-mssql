@@ -23,11 +23,14 @@ import { EmptyHistoryNode, QueryHistoryNode } from "./queryHistoryNode";
 export class QueryHistoryProvider implements vscode.TreeDataProvider<any> {
 	private _onDidChangeTreeData: vscode.EventEmitter<any | undefined> =
 		new vscode.EventEmitter<any | undefined>();
+
 	readonly onDidChangeTreeData: vscode.Event<any | undefined> =
 		this._onDidChangeTreeData.event;
 
 	private _queryHistoryNodes: vscode.TreeItem[] = [new EmptyHistoryNode()];
+
 	private _queryHistoryLimit: number;
+
 	private _queryHistoryUI: QueryHistoryUI;
 
 	constructor(
@@ -41,12 +44,15 @@ export class QueryHistoryProvider implements vscode.TreeDataProvider<any> {
 		const config = this._vscodeWrapper.getConfiguration(
 			Constants.extensionConfigSectionName,
 		);
+
 		this._queryHistoryLimit = config.get(Constants.configQueryHistoryLimit);
+
 		this._queryHistoryUI = new QueryHistoryUI(this._prompter);
 	}
 
 	clearAll(): void {
 		this._queryHistoryNodes = [new EmptyHistoryNode()];
+
 		this._onDidChangeTreeData.fire(undefined);
 	}
 
@@ -79,6 +85,7 @@ export class QueryHistoryProvider implements vscode.TreeDataProvider<any> {
 				this._queryHistoryNodes = [];
 			}
 		}
+
 		this._queryHistoryNodes.push(node);
 		// sort the query history sorted by timestamp
 		this._queryHistoryNodes.sort((a, b) => {
@@ -92,6 +99,7 @@ export class QueryHistoryProvider implements vscode.TreeDataProvider<any> {
 		if (this._queryHistoryNodes.length > this._queryHistoryLimit) {
 			this._queryHistoryNodes.shift();
 		}
+
 		this._onDidChangeTreeData.fire(undefined);
 	}
 
@@ -103,6 +111,7 @@ export class QueryHistoryProvider implements vscode.TreeDataProvider<any> {
 		if (this._queryHistoryNodes.length === 0) {
 			this._queryHistoryNodes.push(new EmptyHistoryNode());
 		}
+
 		return this._queryHistoryNodes;
 	}
 
@@ -124,6 +133,7 @@ export class QueryHistoryProvider implements vscode.TreeDataProvider<any> {
 					QueryHistoryAction.RunQueryHistoryAction,
 			);
 		}
+
 		return undefined;
 	}
 
@@ -171,20 +181,25 @@ export class QueryHistoryProvider implements vscode.TreeDataProvider<any> {
 		let credentials = this._connectionManager.getConnectionInfo(
 			node.ownerUri,
 		).credentials;
+
 		await this._connectionManager.connect(
 			uri,
 			credentials,
 			queryUriPromise,
 		);
+
 		await queryUriPromise;
+
 		this._statusView.languageFlavorChanged(
 			uri,
 			Constants.mssqlProviderName,
 		);
+
 		this._statusView.sqlCmdModeChanged(uri, false);
 
 		if (isExecute) {
 			const queryPromise = new Deferred<boolean>();
+
 			await this._outputContentProvider.runQuery(
 				this._statusView,
 				uri,
@@ -193,7 +208,9 @@ export class QueryHistoryProvider implements vscode.TreeDataProvider<any> {
 				{}, // empty execution plan options
 				queryPromise,
 			);
+
 			await queryPromise;
+
 			await this._connectionManager.connectionStore.removeRecentlyUsed(
 				<IConnectionProfile>credentials,
 			);
@@ -209,7 +226,9 @@ export class QueryHistoryProvider implements vscode.TreeDataProvider<any> {
 
 			return historyNode === node;
 		});
+
 		this._queryHistoryNodes.splice(index, 1);
+
 		this._onDidChangeTreeData.fire(undefined);
 	}
 
@@ -258,6 +277,7 @@ export class QueryHistoryProvider implements vscode.TreeDataProvider<any> {
 		if (credentials.authenticationType === Constants.sqlAuthentication) {
 			connString = `${connString} : ${credentials.user}`;
 		}
+
 		return connString;
 	}
 

@@ -71,8 +71,11 @@ export interface Divider {
 
 export interface UserSurveyContextProps {
 	state: UserSurveyState;
+
 	submit(answers: Answers): void;
+
 	cancel(): void;
+
 	openPrivacyStatement(): void;
 }
 
@@ -80,7 +83,9 @@ export interface UserSurveyReducers {
 	submit: {
 		answers: Answers;
 	};
+
 	cancel: {};
+
 	openPrivacyStatement: {};
 }
 

@@ -39,6 +39,7 @@ const displayCodes = {
 @Injectable()
 export class ShortcutService {
 	shortcuts: { [key: string]: string };
+
 	private waitPromise: Promise<void>;
 
 	constructor(
@@ -104,6 +105,7 @@ export class ShortcutService {
 					}
 				}
 			}
+
 			return keyString;
 		}
 	}
@@ -126,6 +128,7 @@ export class ShortcutService {
 				}
 			}
 		}
+
 		return undefined;
 	}
 	/**
@@ -135,9 +138,13 @@ export class ShortcutService {
 	 */
 	buildEventString(e): string {
 		let resString = "";
+
 		resString += e.ctrlKey || e.metaKey ? "ctrl+" : "";
+
 		resString += e.altKey ? "alt+" : "";
+
 		resString += e.shiftKey ? "shift+" : "";
+
 		resString +=
 			e.which >= 65 && e.which <= 90
 				? String.fromCharCode(e.which)

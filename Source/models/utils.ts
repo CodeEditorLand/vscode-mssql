@@ -41,7 +41,9 @@ const configLogFilesRemovalLimit = "logFilesRemovalLimit";
 // Interface for package.json information
 export interface IPackageInfo {
 	name: string;
+
 	version: string;
+
 	aiKey: string;
 }
 
@@ -74,6 +76,7 @@ export function generateGuid(): string {
 	/* tslint:disable:no-bitwise */
 	for (let a = 0; a < 4; a++) {
 		tmp = (4294967296 * Math.random()) | 0;
+
 		oct +=
 			hexValues[tmp & 0xf] +
 			hexValues[(tmp >> 4) & 0xf] +
@@ -136,6 +139,7 @@ export function isEditingSqlFile(): boolean {
 			sqlFile = true;
 		}
 	}
+
 	return sqlFile;
 }
 
@@ -146,6 +150,7 @@ export function getActiveTextEditor(): vscode.TextEditor {
 	if (vscode.window && vscode.window.activeTextEditor) {
 		editor = vscode.window.activeTextEditor;
 	}
+
 	return editor;
 }
 
@@ -157,6 +162,7 @@ export function getActiveTextEditorUri(): string {
 	) {
 		return vscode.window.activeTextEditor.document.uri.toString(true);
 	}
+
 	return "";
 }
 
@@ -172,6 +178,7 @@ export function logDebug(msg: any): void {
 		let currentTime = new Date().toLocaleTimeString();
 
 		let outputMsg = "[" + currentTime + "]: " + msg ? msg.toString() : "";
+
 		console.log(outputMsg);
 	}
 }
@@ -228,6 +235,7 @@ export function formatString(str: string, ...args: any[]): string {
 			return typeof args[index] !== "undefined" ? args[index] : match;
 		});
 	}
+
 	return result;
 }
 
@@ -252,9 +260,11 @@ function isSameDatabase(
 	if (isEmpty(currentDatabase)) {
 		currentDatabase = Constants.defaultDatabase;
 	}
+
 	if (isEmpty(expectedDatabase)) {
 		expectedDatabase = Constants.defaultDatabase;
 	}
+
 	return currentDatabase === expectedDatabase;
 }
 
@@ -269,9 +279,11 @@ function isSameAuthenticationType(
 	if (isEmpty(currentAuthenticationType)) {
 		currentAuthenticationType = Constants.sqlAuthentication;
 	}
+
 	if (isEmpty(expectedAuthenticationType)) {
 		expectedAuthenticationType = Constants.sqlAuthentication;
 	}
+
 	return currentAuthenticationType === expectedAuthenticationType;
 }
 
@@ -292,6 +304,7 @@ export function isSameProfile(
 	if (currentProfile === undefined) {
 		return false;
 	}
+
 	if (expectedProfile.profileName) {
 		// Can match on profile name
 		return expectedProfile.profileName === currentProfile.profileName;
@@ -319,6 +332,7 @@ export function isSameProfile(
 			)
 		);
 	}
+
 	return (
 		expectedProfile.server === currentProfile.server &&
 		isSameDatabase(expectedProfile.database, currentProfile.database) &&
@@ -382,6 +396,7 @@ export function isFileExisting(filePath: string): boolean {
 // One-time use timer for performance testing
 export class Timer {
 	private _startTime: number[];
+
 	private _endTime: number[];
 
 	constructor() {
@@ -423,6 +438,7 @@ export function parseTimeString(value: string): number | boolean {
 	if (!value) {
 		return false;
 	}
+
 	let tempVal = value.split(".");
 
 	if (tempVal.length === 1) {
@@ -466,12 +482,15 @@ export function parseNumAsTimeString(value: number): string {
 	let tempVal = value;
 
 	let h = Math.floor(tempVal / msInH);
+
 	tempVal %= msInH;
 
 	let m = Math.floor(tempVal / msInM);
+
 	tempVal %= msInM;
 
 	let s = Math.floor(tempVal / msInS);
+
 	tempVal %= msInS;
 
 	let hs = h < 10 ? "0" + h : "" + h;
@@ -553,26 +572,33 @@ export function getCommonLaunchArgsAndCleanupOldLogFiles(
 	fileName: string,
 ): string[] {
 	let launchArgs = [];
+
 	launchArgs.push("--log-file");
 
 	let logFile = path.join(logPath, fileName);
+
 	launchArgs.push(logFile);
 
 	console.log(`logFile for ${path.basename(executablePath)} is ${logFile}`);
 	// Delete old log files
 	let deletedLogFiles = removeOldLogFiles(logPath, fileName);
+
 	console.log(
 		`Old log files deletion report: ${JSON.stringify(deletedLogFiles)}`,
 	);
+
 	console.log(
 		`This process (ui Extenstion Host) for ${path.basename(executablePath)} is pid: ${process.pid}`,
 	);
+
 	launchArgs.push("--tracing-level");
+
 	launchArgs.push(getConfigTracingLevel());
 
 	if (getConfigPiiLogging()) {
 		launchArgs.push("--pii-logging");
 	}
+
 	return launchArgs;
 }
 
@@ -617,6 +643,7 @@ export function limitStringSize(
 			return `${input.substr(0, 45)}...${input.substr(input.length - 45, input.length)}`;
 		}
 	}
+
 	return input;
 }
 
@@ -639,11 +666,14 @@ export function deepClone<T>(obj: T): T {
 	if (!obj || typeof obj !== "object") {
 		return obj;
 	}
+
 	if (obj instanceof RegExp) {
 		// See https://github.com/microsoft/TypeScript/issues/10990
 		return obj as any;
 	}
+
 	const result: any = Array.isArray(obj) ? [] : {};
+
 	Object.keys(<any>obj).forEach((key: string) => {
 		if ((<any>obj)[key] && typeof (<any>obj)[key] === "object") {
 			result[key] = deepClone((<any>obj)[key]);

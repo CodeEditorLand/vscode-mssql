@@ -21,11 +21,13 @@ export default class ExtConfig implements IConfig {
 		if (this._config === undefined) {
 			this._config = new Config();
 		}
+
 		if (this._extensionConfig === undefined) {
 			this._extensionConfig = workspace.getConfiguration(
 				Constants.extensionConfigSectionName,
 			);
 		}
+
 		if (this._workspaceConfig === undefined) {
 			this._workspaceConfig = workspace.getConfiguration();
 		}
@@ -73,6 +75,7 @@ export default class ExtConfig implements IConfig {
 		if (!configValue) {
 			configValue = this._config.getSqlToolsConfigValue(configKey);
 		}
+
 		return configValue;
 	}
 
@@ -82,6 +85,7 @@ export default class ExtConfig implements IConfig {
 		if (configValue === undefined) {
 			configValue = defaultValue;
 		}
+
 		return configValue;
 	}
 
@@ -91,6 +95,7 @@ export default class ExtConfig implements IConfig {
 		if (configValue === undefined) {
 			configValue = defaultValue;
 		}
+
 		return configValue;
 	}
 }

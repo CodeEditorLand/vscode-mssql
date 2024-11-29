@@ -48,6 +48,7 @@ export default class ServerProvider {
 				}
 			}
 		}
+
 		return undefined;
 	}
 

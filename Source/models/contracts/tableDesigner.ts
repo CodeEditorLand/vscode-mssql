@@ -9,6 +9,7 @@ import * as designer from "../../sharedInterfaces/tableDesigner";
 
 export interface ITableDesignerEditRequestParams {
 	tableInfo: designer.TableInfo;
+
 	tableChangeInfo: designer.DesignerEdit;
 }
 

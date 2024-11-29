@@ -19,14 +19,19 @@ export class SimpleWebServer {
 	private hasStarted: boolean;
 
 	private readonly pathMappings = new Map<string, WebHandler>();
+
 	private readonly server: http.Server;
+
 	private lastUsed: number;
+
 	private shutoffInterval: NodeJS.Timeout;
 
 	constructor(private readonly autoShutoffTimer = 5 * 60 * 1000) {
 		// Default to five minutes.
 		this.bumpLastUsed();
+
 		this.autoShutoff();
+
 		this.server = http.createServer((req, res) => {
 			this.bumpLastUsed();
 
@@ -39,6 +44,7 @@ export class SimpleWebServer {
 			}
 
 			res.writeHead(404);
+
 			res.end();
 		});
 	}
@@ -65,6 +71,7 @@ export class SimpleWebServer {
 		if (this.hasStarted) {
 			throw new AlreadyRunningError();
 		}
+
 		this.hasStarted = true;
 
 		let portTimeout: NodeJS.Timeout;
@@ -81,6 +88,7 @@ export class SimpleWebServer {
 				if (address!.port === undefined) {
 					reject(new Error("Port was not defined"));
 				}
+
 				resolve(address.port.toString());
 			});
 
@@ -114,6 +122,7 @@ export class SimpleWebServer {
 
 			if (time - this.lastUsed > this.autoShutoffTimer) {
 				console.log("Shutting off webserver...");
+
 				this.shutdown().catch(console.error);
 			}
 		}, 1000);

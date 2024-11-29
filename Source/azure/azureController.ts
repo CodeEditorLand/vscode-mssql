@@ -35,9 +35,13 @@ import * as azureUtils from "./utils";
 
 export abstract class AzureController {
 	protected _providerSettings: IProviderSettings;
+
 	protected _vscodeWrapper: VscodeWrapper;
+
 	protected _credentialStoreInitialized = false;
+
 	protected logger: Logger;
+
 	protected _isSqlAuthProviderEnabled: boolean = false;
 
 	constructor(
@@ -55,9 +59,11 @@ export abstract class AzureController {
 		let channel = this._vscodeWrapper.createOutputChannel(
 			LocalizedConstants.azureLogChannelName,
 		);
+
 		this.logger = Logger.create(channel);
 
 		this._providerSettings = providerSettings;
+
 		vscode.workspace.onDidChangeConfiguration((changeEvent) => {
 			const impactsProvider = changeEvent.affectsConfiguration(
 				AzureConstants.accountsAzureAuthSection,
@@ -114,7 +120,9 @@ export abstract class AzureController {
 		let config = azureUtils.getAzureActiveDirectoryConfig();
 
 		let account = await this.login(config!);
+
 		await accountStore.addAccount(account!);
+
 		this.logger.verbose("Account added successfully.");
 
 		return account;
@@ -135,6 +143,7 @@ export abstract class AzureController {
 
 			throw new Error(LocalizedConstants.msgAccountNotFound);
 		}
+
 		if (!this._isSqlAuthProviderEnabled) {
 			this.logger.verbose(
 				`Account found, refreshing access token for tenant ${profile.tenantId}`,
@@ -172,14 +181,18 @@ export abstract class AzureController {
 			}
 
 			profile.azureAccountToken = azureAccountToken.token;
+
 			profile.expiresOn = azureAccountToken.expiresOn;
+
 			profile.email = account.displayInfo.email;
+
 			profile.accountId = account.key.id;
 		} else {
 			this.logger.verbose(
 				"Account found and SQL Authentication Provider is enabled, access token will not be refreshed by extension.",
 			);
 		}
+
 		return profile;
 	}
 
@@ -217,6 +230,7 @@ export abstract class AzureController {
 					token: token,
 				};
 			});
+
 			sessions.push(...array);
 		}
 
@@ -248,7 +262,9 @@ export abstract class AzureController {
 				undefined,
 				providerSettings.resources.azureManagementResource,
 			);
+
 			session.token = token!;
+
 			this.logger.verbose(
 				`Access Token refreshed for account: ${session?.account?.key.id}`,
 			);
@@ -276,6 +292,7 @@ export abstract class AzureController {
 		if (!expiresOn) {
 			return true;
 		}
+
 		const currentTime = Date.now() / 1000;
 
 		const maxTolerance = 2 * 60; // two minutes
@@ -295,6 +312,7 @@ export abstract class AzureController {
 
 			return;
 		}
+
 		let tenantQuestion: IQuestion = {
 			type: QuestionTypes.expand,
 			name: LocalizedConstants.tenant,
@@ -306,6 +324,7 @@ export abstract class AzureController {
 				profile.tenantId = value.id;
 			},
 		};
+
 		await this.prompter.promptSingle(tenantQuestion, true);
 	}
 
@@ -335,6 +354,7 @@ export abstract class AzureController {
 				this.logger.error(
 					`Initialization of vscode-mssql storage failed: ${e}`,
 				);
+
 				this.logger.error("Azure accounts will not be available");
 
 				return undefined;

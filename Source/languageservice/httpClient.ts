@@ -104,6 +104,7 @@ export default class HttpClient implements IHttpClient {
 				agent: undefined,
 				rejectUnauthorized: true,
 			};
+
 			options = httpsOptions;
 		}
 
@@ -131,6 +132,7 @@ export default class HttpClient implements IHttpClient {
 				statusView.updateServiceDownloadingProgress(
 					progress.downloadPercentage,
 				);
+
 				progress.downloadPercentage = newPercentage;
 			}
 
@@ -139,9 +141,11 @@ export default class HttpClient implements IHttpClient {
 
 			if (newDots > progress.dots) {
 				logger.append(".".repeat(newDots - progress.dots));
+
 				progress.dots = newDots;
 			}
 		}
+
 		return;
 	}
 
@@ -158,7 +162,9 @@ export default class HttpClient implements IHttpClient {
 				downloadedBytes: 0,
 				downloadPercentage: 0,
 			};
+
 			logger.append(`(${Math.ceil(progress.packageSize / 1024)} KB) `);
+
 			response.on("data", (data) => {
 				this.handleDataReceivedEvent(
 					progress,
@@ -169,6 +175,7 @@ export default class HttpClient implements IHttpClient {
 			});
 
 			let tmpFile = fs.createWriteStream("", { fd: pkg.tmpFile.fd });
+
 			response.on("end", () => {
 				resolve();
 			});

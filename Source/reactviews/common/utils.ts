@@ -22,6 +22,7 @@ export function formatString(str: string, ...args: any[]): string {
 			return typeof args[index] !== "undefined" ? args[index] : match;
 		});
 	}
+
 	return result;
 }
 
@@ -48,6 +49,7 @@ export function themeType(themeKind: ColorThemeKind): string {
 	if (themeType !== "light") {
 		return "dark";
 	}
+
 	return themeType;
 }
 

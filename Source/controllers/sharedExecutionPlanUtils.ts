@@ -107,6 +107,7 @@ export async function createExecutionPlanGraphs(
 			newState.executionPlanGraphs = newState.executionPlanGraphs.concat(
 				(await executionPlanService.getExecutionPlan(planFile)).graphs,
 			);
+
 			newState.loadState = ApiStatus.Loaded;
 
 			sendActionEvent(
@@ -122,10 +123,13 @@ export async function createExecutionPlanGraphs(
 		} catch (e) {
 			// malformed xml
 			newState.loadState = ApiStatus.Error;
+
 			newState.errorMessage = getErrorMessage(e);
 		}
 	}
+
 	state.executionPlanState = newState;
+
 	state.executionPlanState.totalCost = calculateTotalCost(state);
 
 	return state;
@@ -145,6 +149,7 @@ export function calculateTotalCost(
 	for (const graph of state.executionPlanState.executionPlanGraphs) {
 		sum += graph.root.cost + graph.root.subTreeCost;
 	}
+
 	return sum;
 }
 
@@ -161,6 +166,7 @@ export function formatXml(xmlContents: string): string {
 				// Closing tag: decrement the level
 				currentLevel--;
 			}
+
 			formattedXml += "\t".repeat(currentLevel) + element + "\n";
 
 			if (
@@ -172,6 +178,7 @@ export function formatXml(xmlContents: string): string {
 				currentLevel++;
 			}
 		}
+
 		return formattedXml;
 	} catch {
 		return xmlContents;

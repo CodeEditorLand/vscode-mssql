@@ -24,13 +24,16 @@ export interface IServerProxy extends Disposable {
 		rowStart: number,
 		numberOfRows: number,
 	): Promise<ResultSetSubset>;
+
 	saveResults(
 		batchId: number,
 		resultId: number,
 		format: string,
 		selection: ISlickRange[],
 	): void;
+
 	openLink(content: string, columnName: string, linkType: string): void;
+
 	copyResults(
 		batchId: number,
 		resultsId: number,
@@ -41,13 +44,17 @@ export interface IServerProxy extends Disposable {
 	getConfig(): Promise<IResultsConfig>;
 
 	setEditorSelection(selectionData: ISelectionData): void;
+
 	showWarning(message: string): void;
+
 	showError(message: string): void;
 
 	getLocalizedTexts(): Promise<{ [key: string]: any }>;
+
 	sendReadyEvent(uri: string): Promise<boolean>;
 
 	getNewColumnWidth(current: number): Promise<number | undefined>;
+
 	sendActionEvent(
 		view: TelemetryViews,
 		action: TelemetryActions,
@@ -58,17 +65,21 @@ export interface IServerProxy extends Disposable {
 
 export interface IMessageProtocol {
 	sendMessage(message: string): void;
+
 	onMessage: Event<string>;
 }
 
 export class Deferred<T> {
 	promise: Promise<T>;
+
 	resolve: (value?: T | PromiseLike<T>) => void;
+
 	reject: (reason?: any) => void;
 
 	constructor() {
 		this.promise = new Promise<T>((resolve, reject) => {
 			this.resolve = resolve;
+
 			this.reject = reject;
 		});
 	}
@@ -77,6 +88,7 @@ export class Deferred<T> {
 		onfulfilled?: (value: T) => TResult | Thenable<TResult>,
 		onrejected?: (reason: any) => TResult | Thenable<TResult>,
 	): Thenable<TResult>;
+
 	then<TResult>(
 		onfulfilled?: (value: T) => TResult | Thenable<TResult>,
 		onrejected?: (reason: any) => TResult | Thenable<TResult>,
@@ -87,12 +99,15 @@ export class Deferred<T> {
 
 interface IResponse {
 	originalMessageId: number;
+
 	response: any;
 }
 
 interface IRequest {
 	messageId: number;
+
 	method: string;
+
 	passArguments: any[];
 }
 
@@ -124,7 +139,9 @@ class MessageProxy implements Disposable {
 							}
 						}),
 					);
+
 					first.dispose();
+
 					self.ready.resolve();
 				}
 			});
@@ -132,7 +149,9 @@ class MessageProxy implements Disposable {
 			this.disposables.push(
 				this.protocol.onMessage((val) => this.onReceive(val)),
 			);
+
 			this.ready.resolve();
+
 			this.protocol.sendMessage("ready");
 		}
 	}
@@ -143,6 +162,7 @@ class MessageProxy implements Disposable {
 		const messageId = this.messageid++;
 
 		const deferred = new Deferred<any>();
+
 		this.responseMap.set(messageId, deferred);
 
 		const request: IRequest = {
@@ -150,6 +170,7 @@ class MessageProxy implements Disposable {
 			method: methodName,
 			passArguments: args,
 		};
+
 		this.protocol.sendMessage(JSON.stringify(request));
 
 		return deferred.promise;
@@ -176,6 +197,7 @@ class MessageProxy implements Disposable {
 					originalMessageId: message.messageId,
 					response: r,
 				};
+
 				this.protocol.sendMessage(JSON.stringify(response));
 			});
 		}
@@ -216,6 +238,7 @@ export function createProxy(
 					return messageProxy.sendRequest(name, myArgs);
 				};
 			}
+
 			return target[name];
 		},
 		dispose: () => {

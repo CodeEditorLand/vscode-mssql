@@ -62,6 +62,7 @@ export class QueryResultWebviewPanelController extends ReactWebviewPanelControll
 		);
 
 		void this.initialize();
+
 		if (!this._vscodeWrapper) {
 			this._vscodeWrapper = new VscodeWrapper();
 		}
@@ -75,11 +76,13 @@ export class QueryResultWebviewPanelController extends ReactWebviewPanelControll
 		this.registerRequestHandler("getWebviewLocation", async () => {
 			return qr.QueryResultWebviewLocation.Document;
 		});
+
 		registerCommonRequestHandlers(this, this._correlationId);
 	}
 
 	public override dispose(): void {
 		super.dispose();
+
 		this._queryResultWebviewViewController.removePanel(this._uri);
 	}
 

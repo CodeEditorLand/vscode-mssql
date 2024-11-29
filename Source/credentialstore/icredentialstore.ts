@@ -16,6 +16,8 @@ import { Credential } from "../models/contracts";
  */
 export interface ICredentialStore {
 	readCredential(credentialId: string): Promise<Credential>;
+
 	saveCredential(credentialId: string, password: any): Promise<boolean>;
+
 	deleteCredential(credentialId: string): Promise<boolean>;
 }

@@ -17,9 +17,13 @@ import "./contextMenu.css";
 
 export class ContextMenu<T extends Slick.SlickData> {
 	private grid!: Slick.Grid<T>;
+
 	private handler = new Slick.EventHandler();
+
 	private uri: string;
+
 	private resultSetSummary: ResultSetSummary;
+
 	private webViewState: VscodeWebviewContext<
 		QueryResultWebviewState,
 		QueryResultReducers
@@ -34,12 +38,15 @@ export class ContextMenu<T extends Slick.SlickData> {
 		>,
 	) {
 		this.uri = uri;
+
 		this.resultSetSummary = resultSetSummary;
+
 		this.webViewState = webViewState;
 	}
 
 	public init(grid: Slick.Grid<T>): void {
 		this.grid = grid;
+
 		this.handler.subscribe(this.grid.onContextMenu, (e: Event) =>
 			this.handleContextMenu(e),
 		);
@@ -81,6 +88,7 @@ export class ContextMenu<T extends Slick.SlickData> {
 
 		$contextMenu.on("click", "li", async (event) => {
 			const action = jQuery(event.target).data("action");
+
 			await this.handleMenuAction(action);
 			$contextMenu.hide(); // Hide the menu after an action is clicked
 		});
@@ -98,6 +106,7 @@ export class ContextMenu<T extends Slick.SlickData> {
 				const data = this.grid.getData() as HybridDataProvider<T>;
 
 				let selectionModel = this.grid.getSelectionModel();
+
 				selectionModel.setSelectedRanges([
 					new Slick.Range(
 						0,
@@ -140,6 +149,7 @@ export class ContextMenu<T extends Slick.SlickData> {
 					resultId: this.resultSetSummary.id,
 					selection: selection,
 				});
+
 				console.log("Copy Headers action triggered");
 
 				break;

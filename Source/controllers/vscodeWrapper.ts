@@ -72,6 +72,7 @@ export default class VscodeWrapper {
 		) {
 			return vscode.window.activeTextEditor.document.uri.toString(true);
 		}
+
 		return undefined;
 	}
 
@@ -120,6 +121,7 @@ export default class VscodeWrapper {
 				resource = undefined;
 			}
 		}
+
 		return vscode.workspace.getConfiguration(
 			extensionName,
 			resource as vscode.Uri,
@@ -139,6 +141,7 @@ export default class VscodeWrapper {
 				sqlFile = true;
 			}
 		}
+
 		return sqlFile;
 	}
 

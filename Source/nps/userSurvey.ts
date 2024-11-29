@@ -28,11 +28,15 @@ const NEVER_KEY = "nps/never";
 
 export class UserSurvey {
 	private static _instance: UserSurvey;
+
 	private _webviewController: UserSurveyWebviewController;
+
 	private constructor(private _context: vscode.ExtensionContext) {}
+
 	public static createInstance(_context: vscode.ExtensionContext): void {
 		UserSurvey._instance = new UserSurvey(_context);
 	}
+
 	public static getInstance(): UserSurvey {
 		return UserSurvey._instance;
 	}
@@ -42,6 +46,7 @@ export class UserSurvey {
 
 		// If the user has opted out of the survey, don't prompt for feedback
 		const isNeverUser = globalState.get(NEVER_KEY, false);
+
 		if (isNeverUser) {
 			return;
 		}
@@ -50,12 +55,15 @@ export class UserSurvey {
 		const extensionVersion =
 			vscode.extensions.getExtension(constants.extensionId).packageJSON
 				.version || "unknown";
+
 		const skipVersion = globalState.get(SKIP_VERSION_KEY, "");
+
 		if (skipVersion === extensionVersion) {
 			return;
 		}
 
 		const date = new Date().toDateString();
+
 		const lastSessionDate = globalState.get(
 			LAST_SESSION_DATE_KEY,
 			new Date(0).toDateString(),
@@ -66,7 +74,9 @@ export class UserSurvey {
 		}
 
 		const sessionCount = globalState.get(SESSION_COUNT_KEY, 0) + 1;
+
 		await globalState.update(LAST_SESSION_DATE_KEY, date);
+
 		await globalState.update(SESSION_COUNT_KEY, sessionCount);
 
 		// don't prompt for feedback from users until they've had a chance to use the extension a few times
@@ -82,6 +92,7 @@ export class UserSurvey {
 
 		if (!isCandidate) {
 			await globalState.update(SKIP_VERSION_KEY, extensionVersion);
+
 			return;
 		}
 
@@ -89,6 +100,7 @@ export class UserSurvey {
 			title: locConstants.UserSurvey.takeSurvey,
 			run: async () => {
 				const state: UserSurveyState = getStandardNPSQuestions();
+
 				if (
 					!this._webviewController ||
 					this._webviewController.isDisposed
@@ -100,6 +112,7 @@ export class UserSurvey {
 				} else {
 					this._webviewController.updateState(state);
 				}
+
 				this._webviewController.revealToForeground();
 
 				const answers = await new Promise<Answers>((resolve) => {
@@ -111,17 +124,22 @@ export class UserSurvey {
 						resolve({});
 					});
 				});
+
 				sendSurveyTelemetry("nps", answers);
+
 				await globalState.update(IS_CANDIDATE_KEY, false);
+
 				await globalState.update(SKIP_VERSION_KEY, extensionVersion);
 			},
 		};
+
 		const remind = {
 			title: locConstants.Common.remindMeLater,
 			run: async () => {
 				await globalState.update(SESSION_COUNT_KEY, sessionCount - 3);
 			},
 		};
+
 		const never = {
 			title: locConstants.Common.dontShowAgain,
 			isSecondary: true,
@@ -136,6 +154,7 @@ export class UserSurvey {
 			remind,
 			never,
 		);
+
 		await (button || remind).run();
 	}
 
@@ -144,6 +163,7 @@ export class UserSurvey {
 		survey: UserSurveyState,
 	): Promise<Answers> {
 		const state: UserSurveyState = survey;
+
 		if (!this._webviewController || this._webviewController.isDisposed) {
 			this._webviewController = new UserSurveyWebviewController(
 				this._context,
@@ -152,6 +172,7 @@ export class UserSurvey {
 		} else {
 			this._webviewController.updateState(state);
 		}
+
 		this._webviewController.revealToForeground();
 
 		const answers = await new Promise<Answers>((resolve) => {
@@ -163,7 +184,9 @@ export class UserSurvey {
 				resolve({});
 			});
 		});
+
 		sendSurveyTelemetry(surveyId, answers);
+
 		return answers;
 	}
 }
@@ -174,12 +197,15 @@ export function sendSurveyTelemetry(surveyId: string, answers: Answers): void {
 		if (typeof answers[key] === "string") {
 			acc[key] = answers[key];
 		}
+
 		return acc;
 	}, {});
+
 	const numericalAnswers = Object.keys(answers).reduce((acc, key) => {
 		if (typeof answers[key] === "number") {
 			acc[key] = answers[key];
 		}
+
 		return acc;
 	}, {});
 
@@ -201,10 +227,12 @@ class UserSurveyWebviewController extends ReactWebviewPanelController<
 	private _onSubmit: vscode.EventEmitter<Answers> = new vscode.EventEmitter<
 		Record<string, string>
 	>();
+
 	public readonly onSubmit: vscode.Event<Answers> = this._onSubmit.event;
 
 	private _onCancel: vscode.EventEmitter<void> =
 		new vscode.EventEmitter<void>();
+
 	public readonly onCancel: vscode.Event<void> = this._onCancel.event;
 
 	constructor(context: vscode.ExtensionContext, state?: UserSurveyState) {
@@ -227,13 +255,17 @@ class UserSurveyWebviewController extends ReactWebviewPanelController<
 
 		this.registerReducer("submit", async (state, payload) => {
 			this._onSubmit.fire(payload.answers);
+
 			this.panel.dispose();
+
 			return state;
 		});
 
 		this.registerReducer("cancel", async (state) => {
 			this._onCancel.fire();
+
 			this.panel.dispose();
+
 			return state;
 		});
 
@@ -241,8 +273,10 @@ class UserSurveyWebviewController extends ReactWebviewPanelController<
 			vscode.env.openExternal(
 				vscode.Uri.parse(constants.microsoftPrivacyStatementUrl),
 			);
+
 			return state;
 		});
+
 		this.panel.onDidDispose(() => {
 			this._onCancel.fire();
 		});

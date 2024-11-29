@@ -61,6 +61,7 @@ export class ConnectionUI {
 		if (!this._vscodeWrapper) {
 			this._vscodeWrapper = new VscodeWrapper();
 		}
+
 		this._errorOutputChannel = this._vscodeWrapper.createOutputChannel(
 			LocalizedConstants.connectionErrorChannelName,
 		);
@@ -87,7 +88,9 @@ export class ConnectionUI {
 	// Show connection errors in an output window
 	public showConnectionErrors(errorMessages: string): void {
 		this._errorOutputChannel.clear();
+
 		this._errorOutputChannel.append(errorMessages);
+
 		this._errorOutputChannel.show(true);
 	}
 
@@ -107,26 +110,38 @@ export class ConnectionUI {
 			// We have recent connections - show them in a prompt for connection profiles
 			const connectionProfileQuickPick =
 				this.vscodeWrapper.createQuickPick<IConnectionCredentialsQuickPickItem>();
+
 			connectionProfileQuickPick.items = connectionProfileList;
+
 			connectionProfileQuickPick.placeholder =
 				LocalizedConstants.recentConnectionsPlaceholder;
+
 			connectionProfileQuickPick.matchOnDescription = true;
+
 			connectionProfileQuickPick.ignoreFocusOut = ignoreFocusOut;
+
 			connectionProfileQuickPick.canSelectMany = false;
+
 			connectionProfileQuickPick.busy = false;
+
 			connectionProfileQuickPick.show();
+
 			connectionProfileQuickPick.onDidChangeSelection((selection) => {
 				if (selection[0]) {
 					// add progress notification and hide quickpick after user chooses an item from the quickpick
 					connectionProfileQuickPick.busy = true;
+
 					connectionProfileQuickPick.hide();
+
 					resolve(this.handleSelectedConnection(selection[0]));
 				} else {
 					resolve(undefined);
 				}
 			});
+
 			connectionProfileQuickPick.onDidHide(() => {
 				connectionProfileQuickPick.dispose();
+
 				resolve(undefined);
 			});
 		});
@@ -148,6 +163,7 @@ export class ConnectionUI {
 					providerId: constants.noneProviderName,
 				},
 			];
+
 			self.promptItemChoice(
 				{
 					placeHolder: LocalizedConstants.flavorChooseLanguage,
@@ -211,7 +227,9 @@ export class ConnectionUI {
 
 		return new Promise((resolve, reject) => {
 			let timer: Timer = new Timer();
+
 			timer.start();
+
 			self.waitForLanguageModeToBeSqlHelper(resolve, timer);
 		});
 	}
@@ -228,6 +246,7 @@ export class ConnectionUI {
 				name: LocalizedConstants.msgPromptCancelConnect,
 				message: LocalizedConstants.msgPromptCancelConnect,
 			};
+
 			self._prompter
 				.promptSingle(question)
 				.then((result) => {
@@ -252,6 +271,7 @@ export class ConnectionUI {
 				message: LocalizedConstants.passwordPrompt,
 				placeHolder: LocalizedConstants.passwordPlaceholder,
 			};
+
 			self._prompter
 				.promptSingle(question)
 				.then((result: string) => {
@@ -276,6 +296,7 @@ export class ConnectionUI {
 				name: LocalizedConstants.msgChangeLanguageMode,
 				message: LocalizedConstants.msgChangeLanguageMode,
 			};
+
 			self._prompter
 				.promptSingle(question)
 				.then((value) => {
@@ -312,6 +333,7 @@ export class ConnectionUI {
 			const pickListItems: vscode.QuickPickItem[] = databaseNames.map(
 				(name) => {
 					let newCredentials: IConnectionInfo = <any>{};
+
 					Object.assign<IConnectionInfo, IConnectionInfo>(
 						newCredentials,
 						currentCredentials,
@@ -320,6 +342,7 @@ export class ConnectionUI {
 					if (newCredentials["profileName"]) {
 						delete newCredentials["profileName"];
 					}
+
 					newCredentials.database = name;
 
 					return <IConnectionCredentialsQuickPickItem>{
@@ -337,6 +360,7 @@ export class ConnectionUI {
 				label: LocalizedConstants.disconnectOptionLabel,
 				description: LocalizedConstants.disconnectOptionDescription,
 			};
+
 			pickListItems.push(disconnectItem);
 
 			const pickListOptions: vscode.QuickPickOptions = {
@@ -376,6 +400,7 @@ export class ConnectionUI {
 				name: LocalizedConstants.disconnectConfirmationMsg,
 				message: LocalizedConstants.disconnectConfirmationMsg,
 			};
+
 			self._prompter.promptSingle<boolean>(question).then(
 				(result) => {
 					if (result === true) {
@@ -408,6 +433,7 @@ export class ConnectionUI {
 								emptyPasswordInput: false,
 							},
 						);
+
 						ConnectionCredentials.ensureRequiredPropertiesSet(
 							connectionWithoutCredentials, // connection profile
 							true, // isProfile
@@ -455,6 +481,7 @@ export class ConnectionUI {
 						if (!resolvedConnectionCreds) {
 							resolve(undefined);
 						}
+
 						resolve(resolvedConnectionCreds);
 					},
 					(err) =>
@@ -476,6 +503,7 @@ export class ConnectionUI {
 				name: LocalizedConstants.msgPromptClearRecentConnections,
 				message: LocalizedConstants.msgPromptClearRecentConnections,
 			};
+
 			self._prompter
 				.promptSingle(question)
 				.then((result) => {
@@ -543,6 +571,7 @@ export class ConnectionUI {
 														LocalizedConstants.msgClearedRecentConnectionsWithErrors,
 													);
 												}
+
 												resolve(true);
 											});
 									} else {
@@ -611,6 +640,7 @@ export class ConnectionUI {
 					);
 				}
 			}
+
 			return savedProfile;
 		}
 	}
@@ -626,6 +656,7 @@ export class ConnectionUI {
 		if (!uri || !this.vscodeWrapper.isEditingSqlFile) {
 			uri = ObjectExplorerUtils.getNodeUriFromProfile(profile);
 		}
+
 		return await this.connectionManager
 			.connect(uri, profile)
 			.then(async (result) => {
@@ -642,6 +673,7 @@ export class ConnectionUI {
 						if (success) {
 							return await this.validateAndSaveProfile(profile);
 						}
+
 						return undefined;
 					} else if (
 						this.connectionManager.failedUriToSSLMap.has(uri)
@@ -658,6 +690,7 @@ export class ConnectionUI {
 								updatedConn as IConnectionProfile,
 							);
 						}
+
 						return undefined;
 					} else {
 						// Normal connection error! Let the user try again, prefilling values that they already entered
@@ -701,6 +734,7 @@ export class ConnectionUI {
 				return true;
 			}
 		}
+
 		return false;
 	}
 
@@ -717,6 +751,7 @@ export class ConnectionUI {
 		// Try to match accountId to an account in account storage
 		if (profile.accountId) {
 			let account = this._accountStore.getAccount(profile.accountId);
+
 			this.connectionManager.accountService.setAccount(account);
 			// take that account from account storage and refresh tokens and create firewall rule
 		} else {
@@ -734,9 +769,12 @@ export class ConnectionUI {
 						providerSettings.resources.azureManagementResource,
 					);
 			}
+
 			let account = this._accountStore.getAccount(profile.accountId);
+
 			this.connectionManager.accountService.setAccount(account!);
 		}
+
 		let success = await this.createFirewallRule(profile.server, ipAddress);
 
 		return success;
@@ -886,6 +924,7 @@ export class ConnectionUI {
 					if (!value.match(constants.ruleNameRegex)) {
 						return LocalizedConstants.msgInvalidRuleName;
 					}
+
 					firewallRuleNameAnswer = value;
 				},
 				default: defaultFirewallRuleName,
@@ -899,6 +938,7 @@ export class ConnectionUI {
 					accountAnswer = value;
 
 					let account = value;
+
 					tenantChoices.push(
 						...account?.properties?.tenants!.map((t) => ({
 							name: t.displayName,
@@ -1063,6 +1103,7 @@ export class ConnectionUI {
 				LocalizedConstants.msgProfileRemoved,
 			);
 		}
+
 		return profileRemoved;
 	}
 

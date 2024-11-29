@@ -72,6 +72,7 @@ export async function promptForAzureSubscriptionFilter(
 		);
 	} catch (error) {
 		state.formError = l10n.t("Error loading Azure subscriptions.");
+
 		console.error(state.formError + "\n" + getErrorMessage(error));
 
 		return;
@@ -80,6 +81,7 @@ export async function promptForAzureSubscriptionFilter(
 
 export interface SubscriptionPickItem extends vscode.QuickPickItem {
 	tenantId: string;
+
 	subscriptionId: string;
 }
 

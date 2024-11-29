@@ -58,12 +58,15 @@ export class ExecutionPlanWebviewController extends ReactWebviewPanelController<
 				},
 			},
 		);
+
 		void this.initialize();
 	}
 
 	private async initialize() {
 		this.state.executionPlanState.loadState = ApiStatus.Loading;
+
 		this.updateState();
+
 		this.registerRpcHandlers();
 	}
 
@@ -84,15 +87,19 @@ export class ExecutionPlanWebviewController extends ReactWebviewPanelController<
 				},
 			};
 		});
+
 		this.registerReducer("saveExecutionPlan", async (state, payload) => {
 			return saveExecutionPlan(state, payload);
 		});
+
 		this.registerReducer("showPlanXml", async (state, payload) => {
 			return showPlanXml(state, payload);
 		});
+
 		this.registerReducer("showQuery", async (state, payload) => {
 			return showQuery(state, payload, this.untitledSqlDocumentService);
 		});
+
 		this.registerReducer("updateTotalCost", async (state, payload) => {
 			return updateTotalCost(state, payload);
 		});

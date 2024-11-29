@@ -61,6 +61,7 @@ declare namespace Slick {
 		 * @param fn {Function} Event handler.
 		 */
 		public subscribe(fn: (e: EventData, data: T) => any): void;
+
 		public subscribe(fn: (e: DOMEvent, data: T) => any): void;
 
 		/***
@@ -69,6 +70,7 @@ declare namespace Slick {
 		 * @param fn {Function} Event handler to be removed.
 		 */
 		public unsubscribe(fn?: (e: EventData, data: T) => any): void;
+
 		public unsubscribe(fn?: (e: DOMEvent, data: T) => any): void;
 
 		/***
@@ -87,6 +89,7 @@ declare namespace Slick {
 		 * @note slick.core.Event.notify shows this method as returning a value, type is unknown.
 		 */
 		public notify(args?: T, e?: EventData, scope?: any): any;
+
 		public notify(args?: T, e?: DOMEvent, scope?: any): any;
 	}
 
@@ -98,10 +101,12 @@ declare namespace Slick {
 			event: Event<T>,
 			handler: (event: DOMEvent, args: T) => void,
 		): EventHandler;
+
 		public unsubscribe<T>(
 			event: Event<T>,
 			handler: (event: DOMEvent, args: T) => void,
 		): EventHandler;
+
 		public unsubscribeAll(): EventHandler;
 	}
 
@@ -1223,60 +1228,95 @@ declare namespace Slick {
 		// #region Events
 
 		public onScroll: Slick.Event<OnScrollEventArgs<T>>;
+
 		public onSort: Slick.Event<OnSortEventArgs<T>>;
+
 		public onHeaderMouseEnter: Slick.Event<OnHeaderMouseEventArgs<T>>;
+
 		public onHeaderMouseLeave: Slick.Event<OnHeaderMouseEventArgs<T>>;
+
 		public onHeaderContextMenu: Slick.Event<
 			OnHeaderContextMenuEventArgs<T>
 		>;
+
 		public onHeaderClick: Slick.Event<OnHeaderClickEventArgs<T>>;
+
 		public onHeaderCellRendered: Slick.Event<
 			OnHeaderCellRenderedEventArgs<T>
 		>;
+
 		public onBeforeAppendCell: Slick.Event<OnBeforeAppendCellArgs<T>>;
+
 		public onBeforeHeaderCellDestroy: Slick.Event<
 			OnBeforeHeaderCellDestroyEventArgs<T>
 		>;
+
 		public onHeaderRowCellRendered: Slick.Event<
 			OnHeaderRowCellRenderedEventArgs<T>
 		>;
+
 		public onBeforeHeaderRowCellDestroy: Slick.Event<
 			OnBeforeHeaderRowCellDestroyEventArgs<T>
 		>;
+
 		public onMouseEnter: Slick.Event<OnMouseEnterEventArgs<T>>;
+
 		public onMouseLeave: Slick.Event<OnMouseLeaveEventArgs<T>>;
+
 		public onClick: Slick.Event<OnClickEventArgs<T>>;
+
 		public onDblClick: Slick.Event<OnDblClickEventArgs<T>>;
+
 		public onContextMenu: Slick.Event<OnContextMenuEventArgs<T>>;
+
 		public onKeyDown: Slick.Event<OnKeyDownEventArgs<T>>;
+
 		public onAddNewRow: Slick.Event<OnAddNewRowEventArgs<T>>;
+
 		public onValidationError: Slick.Event<OnValidationErrorEventArgs<T>>;
+
 		public onColumnsReordered: Slick.Event<OnColumnsReorderedEventArgs<T>>;
+
 		public onColumnsResized: Slick.Event<OnColumnsResizedEventArgs<T>>;
+
 		public onCellChange: Slick.Event<OnCellChangeEventArgs<T>>;
+
 		public onBeforeEditCell: Slick.Event<OnBeforeEditCellEventArgs<T>>;
+
 		public onBeforeCellEditorDestroy: Slick.Event<
 			OnBeforeCellEditorDestroyEventArgs<T>
 		>;
+
 		public onBeforeDestroy: Slick.Event<OnBeforeDestroyEventArgs<T>>;
+
 		public onActiveCellChanged: Slick.Event<
 			OnActiveCellChangedEventArgs<T>
 		>;
+
 		public onActiveCellPositionChanged: Slick.Event<
 			OnActiveCellPositionChangedEventArgs<T>
 		>;
+
 		public onDragInit: Slick.Event<OnDragInitEventArgs<T>>;
+
 		public onDragStart: Slick.Event<OnDragStartEventArgs<T>>;
+
 		public onDrag: Slick.Event<OnDragEventArgs<T>>;
+
 		public onDragEnd: Slick.Event<OnDragEndEventArgs<T>>;
+
 		public onSelectedRowsChanged: Slick.Event<
 			OnSelectedRowsChangedEventArgs<T>
 		>;
+
 		public onCellCssStylesChanged: Slick.Event<
 			OnCellCssStylesChangedEventArgs<T>
 		>;
+
 		public onViewportChanged: Slick.Event<OnViewportChangedEventArgs<T>>;
+
 		public onRendered: Slick.Event<OnRenderedEventArgs<T>>;
+
 		public onAfterKeyboardNavigation: Slick.Event<
 			OnAfterKeyboardNavigationEventArgs<T>
 		>;
@@ -1285,7 +1325,9 @@ declare namespace Slick {
 		// #region Plugins
 
 		public getPlugins(): Plugin<T>[];
+
 		public registerPlugin(plugin: Plugin<T>): void;
+
 		public unregisterPlugin(plugin: Plugin<T>): void;
 
 		// #endregion Plugins
@@ -1293,31 +1335,47 @@ declare namespace Slick {
 		// #region Rendering
 
 		public render(): void;
+
 		public invalidate(): void;
+
 		public invalidateRow(row: number): void;
+
 		public invalidateRows(rows: number[], keepEditor?: boolean): void;
+
 		public invalidateAllRows(): void;
+
 		public updateCell(row: number, cell: number): void;
+
 		public updateRow(row: number): void;
+
 		public getViewport(
 			viewportTop?: number,
 			viewportLeft?: number,
 		): Viewport;
+
 		public getRenderedRange(
 			viewportTop?: number,
 			viewportLeft?: number,
 		): Viewport;
+
 		public resizeCanvas(): void;
+
 		public updateRowCount(): void;
+
 		public scrollRowIntoView(row: number, doPaging?: boolean): void;
+
 		public scrollRowToTop(row: number): void;
+
 		public scrollCellIntoView(
 			row: number,
 			cell: number,
 			doPaging: boolean,
 		): void;
+
 		public scrollTo(y: number): void;
+
 		public getCanvasNode(): HTMLCanvasElement;
+
 		public focus(): void;
 
 		// #endregion Rendering
@@ -1325,8 +1383,10 @@ declare namespace Slick {
 		// #region Editors
 
 		public getEditorLock(): EditorLock<any>;
+
 		public getEditController(): {
 			commitCurrentEdit(): boolean;
+
 			cancelCurrentEdit(): boolean;
 		};
 
@@ -1340,6 +1400,7 @@ declare namespace Slick {
 	export interface OnCellCssStylesChangedEventArgs<T extends SlickData>
 		extends GridEventArgs<T> {
 		key: string;
+
 		hash: CellCssStylesHash;
 	}
 
@@ -1367,7 +1428,9 @@ declare namespace Slick {
 		// todo: need to understand $canvas drag event parameter's 'dd' object
 		// the documentation is not enlightening
 		startX: number;
+
 		startY: number;
+
 		range: { start: Slick.Cell; end?: Slick.Cell };
 	}
 
@@ -1383,12 +1446,14 @@ declare namespace Slick {
 	export interface OnActiveCellChangedEventArgs<T extends SlickData>
 		extends GridEventArgs<T> {
 		row: number;
+
 		cell: number;
 	}
 
 	export interface OnBeforeAppendCellArgs<T extends SlickData>
 		extends GridEventArgs<T> {
 		row: number;
+
 		cell: number;
 	}
 
@@ -1403,15 +1468,20 @@ declare namespace Slick {
 	export interface OnBeforeEditCellEventArgs<T extends SlickData>
 		extends GridEventArgs<T> {
 		row: number;
+
 		cell: number;
+
 		item: T;
+
 		column: Column<T>;
 	}
 
 	export interface OnCellChangeEventArgs<T extends SlickData>
 		extends GridEventArgs<T> {
 		row: number;
+
 		cell: number;
+
 		item: T;
 	}
 
@@ -1424,22 +1494,29 @@ declare namespace Slick {
 	export interface OnValidationErrorEventArgs<T extends SlickData>
 		extends GridEventArgs<T> {
 		editor: Editors.Editor<T>;
+
 		cellNode: HTMLElement;
+
 		validationResults: ValidateResults;
+
 		row: number;
+
 		cell: number;
+
 		column: Column<T>;
 	}
 
 	export interface OnAddNewRowEventArgs<T extends SlickData>
 		extends GridEventArgs<T> {
 		item: T;
+
 		column: Column<T>;
 	}
 
 	export interface OnKeyDownEventArgs<T extends SlickData>
 		extends GridEventArgs<T> {
 		row: number;
+
 		cell: number;
 	}
 
@@ -1449,12 +1526,14 @@ declare namespace Slick {
 	export interface OnDblClickEventArgs<T extends SlickData>
 		extends GridEventArgs<T> {
 		row: number;
+
 		cell: number;
 	}
 
 	export interface OnClickEventArgs<T extends SlickData>
 		extends GridEventArgs<T> {
 		row: number;
+
 		cell: number;
 	}
 
@@ -1509,6 +1588,7 @@ declare namespace Slick {
 
 		// Single column returned
 		sortCol?: Column<T>;
+
 		sortAsc: boolean;
 
 		// Multiple columns returned
@@ -1518,6 +1598,7 @@ declare namespace Slick {
 	export interface OnScrollEventArgs<T extends SlickData>
 		extends GridEventArgs<T> {
 		scrollLeft: number;
+
 		scrollTop: number;
 	}
 
@@ -1527,6 +1608,7 @@ declare namespace Slick {
 	export interface OnRenderedEventArgs<T extends SlickData>
 		extends GridEventArgs<T> {
 		startRow: number;
+
 		endRow: number;
 	}
 
@@ -1535,24 +1617,31 @@ declare namespace Slick {
 
 	export interface SortColumn<T extends SlickData> {
 		sortCol: Column<T>;
+
 		sortAsc: boolean;
 	}
 
 	export interface Cell {
 		row: number;
+
 		cell: number;
 	}
 
 	export interface CellPosition extends Position {
 		bottom: number;
+
 		height: number;
+
 		right: number;
+
 		visible: boolean;
+
 		width: number;
 	}
 
 	export interface Position {
 		top: number;
+
 		left: number;
 	}
 
@@ -1564,32 +1653,44 @@ declare namespace Slick {
 
 	export interface Viewport {
 		top: number;
+
 		bottom: number;
+
 		leftPx: number;
+
 		rightPx: number;
 	}
 
 	export interface ValidateResults {
 		valid: boolean;
+
 		msg: string;
 	}
 
 	export module Editors {
 		export interface EditorOptions<T extends Slick.SlickData> {
 			column: Column<T>;
+
 			container: HTMLElement;
+
 			grid: Grid<T>;
 		}
 
 		export class Editor<T extends Slick.SlickData> {
 			constructor(args: EditorOptions<T>);
+
 			public init(): void;
+
 			public destroy(): void;
+
 			public focus(): void;
+
 			public loadValue(item: any): void; // todo: typeof(item)
 			public applyValue(item: any, state: string): void; // todo: typeof(item)
 			public isValueChanged(): boolean;
+
 			public serializeValue(): any;
+
 			public validate(): ValidateResults;
 		}
 
@@ -1597,7 +1698,9 @@ declare namespace Slick {
 			constructor(args: EditorOptions<T>);
 
 			public getValue(): string;
+
 			public setValue(val: string): void;
+
 			public serializeValue(): string;
 		}
 
@@ -1611,8 +1714,11 @@ declare namespace Slick {
 			constructor(args: EditorOptions<T>);
 
 			public show(): void;
+
 			public hide(): void;
+
 			public position(position: Position): void;
+
 			public serializeValue(): string;
 		}
 
@@ -1627,6 +1733,7 @@ declare namespace Slick {
 
 			public serializeValue(): boolean;
 		}
+
 		export class PercentComplete<
 			T extends Slick.SlickData,
 		> extends Editor<T> {
@@ -1639,11 +1746,17 @@ declare namespace Slick {
 			constructor(args: EditorOptions<T>);
 
 			public handleKeyDown(e: DOMEvent): void;
+
 			public save(): void;
+
 			public cancel(): void;
+
 			public hide(): void;
+
 			public show(): void;
+
 			public position(position: Position): void;
+
 			public serializeValue(): string;
 		}
 	}
@@ -1671,6 +1784,7 @@ declare namespace Slick {
 	export module Data {
 		export interface DataViewOptions<T extends Slick.SlickData> {
 			groupItemMetadataProvider?: GroupItemMetadataProvider<T>;
+
 			inlineFilters?: boolean;
 		}
 
@@ -1684,20 +1798,29 @@ declare namespace Slick {
 			constructor(options?: DataViewOptions<T>);
 
 			public beginUpdate(): void;
+
 			public endUpdate(): void;
+
 			public setPagingOptions(args: PagingOptions): void;
+
 			public getPagingInfo(): PagingOptions;
+
 			public getItems(): T[];
+
 			public getFilteredItems(): T[]; // manually adding this type - it's present in the definition but not the typings file from DefinitelyTyped
 			public setItems(data: T[], objectIdProperty?: string): void;
+
 			public setFilter(filterFn: (item: T, args: any) => boolean): void; // todo: typeof(args)
 			public sort(comparer: Function, ascending: boolean): void; // todo: typeof(comparer), should be the same callback as Array.sort
 			public fastSort(field: string, ascending: boolean): void;
+
 			public fastSort(field: Function, ascending: boolean): void; // todo: typeof(field), should be the same callback as Array.sort
 			public reSort(): void;
+
 			public setGrouping(
 				groupingInfos: GroupingOptions<T> | GroupingOptions<T>[],
 			): void;
+
 			public getGrouping(): GroupingOptions<T>[];
 
 			/**
@@ -1742,31 +1865,50 @@ declare namespace Slick {
 			 *     the 'high' setGrouping.
 			 */
 			public expandGroup(...varArgs: string[]): void;
+
 			public getGroups(): Group<T>[];
+
 			public getIdxById(id: string): number;
+
 			public getRowById(id: string): number;
+
 			public getItemById(id: any): T;
+
 			public getItemByIdx(idx: number): T;
+
 			public mapRowsToIds(rowArray: T[]): string[];
+
 			public setRefreshHints(hints: RefreshHints): void;
+
 			public setFilterArgs(args: any): void;
+
 			public refresh(): void;
+
 			public updateItem(id: string, item: T): void;
+
 			public insertItem(insertBefore: number, item: T): void;
+
 			public addItem(item: T): void;
+
 			public deleteItem(id: string): void;
+
 			public syncGridSelection(
 				grid: Grid<T>,
 				preserveHidden: boolean,
 			): void;
+
 			public syncGridCellCssStyles(grid: Grid<T>, key: string): void;
 
 			public getLength(): number;
+
 			public getItem(index: number): T;
+
 			public getItemMetadata(index: number): RowMetadata<T>;
 
 			public onRowCountChanged: Slick.Event<OnRowCountChangedEventData>;
+
 			public onRowsChanged: Slick.Event<OnRowsChangedEventData>;
+
 			public onPagingInfoChanged: Slick.Event<OnPagingInfoChangedEventData>;
 		}
 
@@ -1774,44 +1916,63 @@ declare namespace Slick {
 			getter?: ((item?: T) => any) | string;
 
 			formatter?: (item?: T) => string;
+
 			comparer?: (a: Group<T>, b: Group<T>) => number;
+
 			predefinedValues?: any[]; // todo
 			aggregators?: Aggregators.Aggregator<T>[];
+
 			aggregateEmpty?: boolean;
+
 			aggregateCollapsed?: boolean;
+
 			aggregateChildGroups?: boolean;
+
 			collapsed?: boolean;
+
 			displayTotalsRow?: boolean;
 		}
 
 		export interface PagingOptions {
 			pageSize?: number;
+
 			pageNum?: number;
+
 			totalRows?: number;
+
 			totalPages?: number;
 		}
 
 		export interface RefreshHints {
 			isFilterNarrowing?: boolean;
+
 			isFilterExpanding?: boolean;
+
 			isFilterUnchanged?: boolean;
+
 			ignoreDiffsBefore?: boolean;
+
 			ignoreDiffsAfter?: boolean;
 		}
 
 		export interface OnRowCountChangedEventData {
 			// empty
 		}
+
 		export interface OnRowsChangedEventData {
 			rows: number[];
 		}
+
 		export interface OnPagingInfoChangedEventData extends PagingOptions {}
 
 		export module Aggregators {
 			export class Aggregator<T extends Slick.SlickData> {
 				public field: string;
+
 				public init(): void;
+
 				public accumulate(item: T): void;
+
 				public storeResult(groupTotals: GroupTotals<T>): void;
 			}
 
@@ -1840,20 +2001,31 @@ declare namespace Slick {
 		 */
 		export class GroupItemMetadataProvider<T extends Slick.SlickData> {
 			public init(): void;
+
 			public destroy(): void;
+
 			public getGroupRowMetadata(item?: Group<T>): RowMetadata<T>;
+
 			public getTotalsRowMetadata(item?: GroupTotals<T>): RowMetadata<T>;
 		}
 
 		export interface GroupItemMetadataProviderOptions {
 			groupCssClass?: string;
+
 			groupTitleCssClass?: string;
+
 			totalsCssClass?: string;
+
 			groupFocusable?: boolean;
+
 			totalsFocusable?: boolean;
+
 			toggleCssClass?: string;
+
 			toggleExpandedCssCass?: string;
+
 			toggleCollapsedCssClass?: string;
+
 			enableExpandCollapse?: boolean;
 		}
 
@@ -1883,7 +2055,9 @@ declare namespace Slick {
 
 	export class Plugin<T extends Slick.SlickData> {
 		constructor(options?: PluginOptions);
+
 		public init(grid: Grid<T>): void;
+
 		public destroy(): void;
 	}
 

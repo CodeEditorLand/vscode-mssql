@@ -310,6 +310,7 @@ export interface DesignerTab {
 	 * the components to be displayed in this tab.
 	 */
 	components: DesignerDataPropertyInfo[];
+
 	id: string;
 }
 
@@ -624,8 +625,11 @@ export interface GeneratePreviewReportResult {
 
 export interface TableDesignerComponentProperties {
 	title?: string;
+
 	ariaLabel?: string;
+
 	width?: number;
+
 	enabled?: boolean;
 }
 
@@ -635,7 +639,9 @@ export interface CheckBoxProperties extends TableDesignerComponentProperties {
 
 export interface DropDownProperties extends TableDesignerComponentProperties {
 	values: string[];
+
 	value: string;
+
 	isEditable?: boolean;
 }
 
@@ -646,20 +652,31 @@ export enum InputBoxType {
 
 export interface InputBoxProperties extends TableDesignerComponentProperties {
 	value: string;
+
 	inputType?: InputType;
 }
 
 export interface TableProperties extends TableDesignerComponentProperties {
 	columns: string[];
+
 	objectTypeDisplayName?: string;
+
 	itemProperties: DesignerDataPropertyInfo[];
+
 	data: DesignerTableComponentDataItem[];
+
 	canAddRows: boolean;
+
 	canRemoveRows: boolean;
+
 	canMoveRows: boolean;
+
 	canInsertRows: boolean;
+
 	showRemoveRowConfirmation: boolean;
+
 	removeRowConfirmationMessage: string;
+
 	labelForAddNewButton: string;
 }
 
@@ -686,35 +703,53 @@ export enum DesignerResultPaneTabs {
 
 export interface DesignerAPIState {
 	initializeState: LoadState;
+
 	editState: LoadState;
+
 	publishState: LoadState;
+
 	previewState: LoadState;
+
 	generateScriptState: LoadState;
 }
 
 export interface DesignerTabStates {
 	mainPaneTab: DesignerMainPaneTabs;
+
 	resultPaneTab: DesignerResultPaneTabs;
 }
 
 export interface PropertiesPaneData {
 	componentPath: (string | number)[];
+
 	component: DesignerDataPropertyInfo;
+
 	model: DesignerTableProperties;
 }
 
 export interface TableDesignerWebviewState {
 	tableInfo?: TableInfo;
+
 	view?: DesignerView;
+
 	model?: DesignerViewModel;
+
 	issues?: DesignerIssue[];
+
 	isValid?: boolean;
+
 	generateScriptResult?: string;
+
 	generatePreviewReportResult?: GeneratePreviewReportResult;
+
 	publishChangesResult?: PublishChangesResult;
+
 	apiState?: DesignerAPIState;
+
 	tabStates?: DesignerTabStates;
+
 	propertiesPaneData?: PropertiesPaneData;
+
 	publishingError?: string;
 }
 
@@ -730,21 +765,28 @@ export enum InputType {
 export interface TableDesignerReducers {
 	processTableEdit: {
 		table: TableInfo;
+
 		tableChangeInfo: DesignerEdit;
 	};
+
 	publishChanges: {
 		table: TableInfo;
 	};
+
 	generateScript: {
 		table: TableInfo;
 	};
+
 	generatePreviewReport: {
 		table: TableInfo;
 	};
+
 	initializeTableDesigner: {
 		table: TableInfo;
 	};
+
 	scriptAsCreate: {};
+
 	copyScriptAsCreateToClipboard: {};
 
 	setTab: {
@@ -758,9 +800,11 @@ export interface TableDesignerReducers {
 	setResultTab: {
 		tabId: DesignerResultPaneTabs;
 	};
+
 	closeDesigner: {};
 
 	continueEditing: {};
+
 	copyPublishErrorToClipboard: {};
 }
 

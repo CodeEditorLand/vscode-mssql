@@ -21,8 +21,11 @@ export class RowSelectionModel<T extends Slick.SlickData>
 	implements Slick.SelectionModel<T, Array<Slick.Range>>
 {
 	private _options: IRowSelectionModelOptions;
+
 	private _grid!: Slick.Grid<T>;
+
 	private _handler = new Slick.EventHandler();
+
 	private _ranges: Array<Slick.Range> = [];
 
 	public onSelectedRangesChanged = new Slick.Event<Array<Slick.Range>>();
@@ -33,6 +36,7 @@ export class RowSelectionModel<T extends Slick.SlickData>
 
 	public init(grid: Slick.Grid<T>) {
 		this._grid = grid;
+
 		this._handler
 			.subscribe(
 				this._grid.onActiveCellChanged,
@@ -55,6 +59,7 @@ export class RowSelectionModel<T extends Slick.SlickData>
 				rows.push(j);
 			}
 		}
+
 		return rows;
 	}
 
@@ -66,6 +71,7 @@ export class RowSelectionModel<T extends Slick.SlickData>
 		for (let i = 0; i < rows.length; i++) {
 			ranges.push(new Slick.Range(rows[i], 0, rows[i], lastCell));
 		}
+
 		return ranges;
 	}
 
@@ -85,7 +91,9 @@ export class RowSelectionModel<T extends Slick.SlickData>
 		) {
 			return;
 		}
+
 		this._ranges = ranges;
+
 		this.onSelectedRangesChanged.notify(this._ranges);
 	}
 
@@ -171,9 +179,11 @@ export class RowSelectionModel<T extends Slick.SlickData>
 
 		if (idx === -1 && (e.ctrlKey || e.metaKey)) {
 			selection.push(cell.row);
+
 			this._grid.setActiveCell(cell.row, cell.cell);
 		} else if (idx !== -1 && (e.ctrlKey || e.metaKey)) {
 			selection = selection.filter((o) => o !== cell.row);
+
 			this._grid.setActiveCell(cell.row, cell.cell);
 		} else if (selection.length && e.shiftKey) {
 			const last = selection.pop();
@@ -182,6 +192,7 @@ export class RowSelectionModel<T extends Slick.SlickData>
 				const from = Math.min(cell.row, last);
 
 				const to = Math.max(cell.row, last);
+
 				selection = [];
 
 				for (let i = from; i <= to; i++) {
@@ -189,13 +200,17 @@ export class RowSelectionModel<T extends Slick.SlickData>
 						selection.push(i);
 					}
 				}
+
 				selection.push(last);
 			}
+
 			this._grid.setActiveCell(cell.row, cell.cell);
 		}
 
 		const tempRanges = this.rowsToRanges(selection);
+
 		this.setSelectedRanges(tempRanges);
+
 		e.stopImmediatePropagation();
 
 		return true;

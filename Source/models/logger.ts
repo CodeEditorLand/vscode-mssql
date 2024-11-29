@@ -25,12 +25,17 @@ export enum LogLevel {
  */
 export class Logger implements ILogger {
 	private _writer: (message: string) => void;
+
 	private _piiLogging: boolean = false;
+
 	private _prefix: string;
+
 	private _logLevel: LogLevel;
 
 	private _indentLevel: number = 0;
+
 	private _indentSize: number = 4;
+
 	private _atLineStart: boolean = false;
 
 	constructor(
@@ -40,8 +45,11 @@ export class Logger implements ILogger {
 		prefix?: string,
 	) {
 		this._writer = writer;
+
 		this._logLevel = logLevel;
+
 		this._piiLogging = piiLogging;
+
 		this._prefix = prefix;
 	}
 
@@ -77,6 +85,7 @@ export class Logger implements ILogger {
 					(str) => `${str.name}=${shorten(str.value)}`,
 				),
 			].join(" ");
+
 			this.write(LogLevel.Pii, msg, vals);
 		}
 	}
@@ -107,6 +116,7 @@ export class Logger implements ILogger {
 	private write(logLevel: LogLevel, msg: any, ...vals: any[]): void {
 		if (this.shouldLog(logLevel) || logLevel === LogLevel.Pii) {
 			const fullMessage = `[${LogLevel[logLevel]}]: ${msg} - ${vals.map((v) => JSON.stringify(v)).join(" - ")}`;
+
 			this.appendLine(fullMessage);
 		}
 	}
@@ -135,6 +145,7 @@ export class Logger implements ILogger {
 		if (this._atLineStart) {
 			if (this._indentLevel > 0) {
 				const indent = " ".repeat(this._indentLevel * this._indentSize);
+
 				this._writer(indent);
 			}
 
@@ -160,12 +171,15 @@ export class Logger implements ILogger {
 
 	public append(message?: string): void {
 		message = message || "";
+
 		this.appendCore(message);
 	}
 
 	public appendLine(message?: string): void {
 		message = message || "";
+
 		this.appendCore(message + os.EOL);
+
 		this._atLineStart = true;
 	}
 }
@@ -185,12 +199,17 @@ function sanitize(objOrArray: any): string {
 
 function sanitizeImpl(obj: any): string {
 	obj = Object.assign({}, obj);
+
 	delete obj.domains; // very long and not really useful
 	// shorten all tokens since we don't usually need the exact values and there's security concerns if they leaked
 	shortenIfExists(obj, "token");
+
 	shortenIfExists(obj, "refresh_token");
+
 	shortenIfExists(obj, "access_token");
+
 	shortenIfExists(obj, "code");
+
 	shortenIfExists(obj, "id_token");
 
 	return JSON.stringify(obj);
@@ -219,5 +238,6 @@ function shorten(str?: string): string | undefined {
 	if (!str || str.length < 10) {
 		return str;
 	}
+
 	return `${str.substr(0, 3)}...${str.slice(-3)}`;
 }

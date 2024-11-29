@@ -5,6 +5,7 @@
 
 export interface DBCellValue {
 	displayValue: string;
+
 	isNull: boolean;
 }
 
@@ -13,7 +14,9 @@ export interface DBCellValue {
  */
 export interface ExecuteCommandInfo {
 	id: string;
+
 	displayText?: string;
+
 	args?: string[];
 }
 
@@ -22,6 +25,7 @@ export interface ExecuteCommandInfo {
  */
 export interface TextCellValue {
 	text: string;
+
 	ariaLabel: string;
 }
 
@@ -30,11 +34,13 @@ export interface TextCellValue {
  */
 export interface HyperlinkCellValue {
 	displayText: string;
+
 	linkOrCommand: string | ExecuteCommandInfo;
 }
 
 export interface CssIconCellValue {
 	iconCssClass: string;
+
 	title: string;
 }
 
@@ -85,12 +91,14 @@ export function hyperLinkFormatter(
 
 		if (!value.isNull) {
 			valueToDisplay = getCellDisplayValue(value.displayValue);
+
 			isHyperlink = true;
 		} else {
 			cellClasses += " missing-value";
 		}
 	} else if (isHyperlinkCellValue(value)) {
 		valueToDisplay = getCellDisplayValue(value.displayText);
+
 		isHyperlink = true;
 	}
 
@@ -125,6 +133,7 @@ export function textFormatter(
 
 		if (!value.isNull) {
 			valueToDisplay = getCellDisplayValue(value.displayValue);
+
 			titleValue = valueToDisplay;
 		} else {
 			cellClasses += " missing-value";
@@ -139,7 +148,9 @@ export function textFormatter(
 		} else {
 			valueToDisplay = value;
 		}
+
 		valueToDisplay = getCellDisplayValue(valueToDisplay);
+
 		titleValue = valueToDisplay;
 	} else if (value && value.title) {
 		if (value.title) {
@@ -149,7 +160,9 @@ export function textFormatter(
 				cellStyle = value.style;
 			}
 		}
+
 		valueToDisplay = getCellDisplayValue(valueToDisplay);
+
 		titleValue = valueToDisplay;
 	}
 
@@ -181,6 +194,7 @@ export function iconCssFormatter(
 	if (isCssIconCellValue(value)) {
 		return `<div role="image" title="${escape(value.title ?? "")}" aria-label="${escape(value.title ?? "")}" class="grid-cell-value-container icon codicon slick-icon-cell-content ${value.iconCssClass}"></div>`;
 	}
+
 	return textFormatter(row, cell, value, columnDef, dataContext);
 }
 
@@ -230,6 +244,7 @@ export function slickGridDataItemColumnValueWithNoData(
 	if (typeof displayValue === "number") {
 		displayValue = displayValue.toString();
 	}
+
 	if (displayValue instanceof Array) {
 		displayValue = displayValue.toString();
 	}
@@ -297,6 +312,7 @@ export const hyperLinkFormatter: Slick.Formatter<any> = (row, cell, value, colum
 				class: classes.join(' '),
 				title: displayValue
 			});
+
 			linkContainer.innerText = displayValue;
 
 			return linkContainer.outerHTML;
@@ -306,6 +322,7 @@ export const hyperLinkFormatter: Slick.Formatter<any> = (row, cell, value, colum
 	}
 
 	let cellContainer = $('span', { class: classes.join(' '), title: displayValue });
+
 	cellContainer.innerText = displayValue;
 
 	return cellContainer.outerHTML;
@@ -321,11 +338,13 @@ export const textFormatter: Slick.Formatter<any> = (row, cell, value, columnDef,
 			displayValue = value.displayValue.replace(/(\r\n|\n|\r)/g, ' ');
 		} else {
 			classes.push('missing-value');
+
 			displayValue = 'NULL';
 		}
 	}
 
 	let cellContainer = $('span', { class: classes.join(' '), title: displayValue });
+
 	cellContainer.innerText = displayValue;
 
 	return cellContainer.outerHTML;

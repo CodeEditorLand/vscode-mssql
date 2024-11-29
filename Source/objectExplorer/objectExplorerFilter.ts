@@ -25,11 +25,13 @@ export class ObjectExplorerFilterReactWebviewController extends ReactWebviewPane
 > {
 	private _onSubmit: vscode.EventEmitter<vscodeMssql.NodeFilter[]> =
 		new vscode.EventEmitter<vscodeMssql.NodeFilter[]>();
+
 	public readonly onSubmit: vscode.Event<vscodeMssql.NodeFilter[]> =
 		this._onSubmit.event;
 
 	private _onCancel: vscode.EventEmitter<void> =
 		new vscode.EventEmitter<void>();
+
 	public readonly onCancel: vscode.Event<void> = this._onCancel.event;
 
 	constructor(
@@ -64,6 +66,7 @@ export class ObjectExplorerFilterReactWebviewController extends ReactWebviewPane
 
 		this.registerReducer("submit", (state, payload) => {
 			this._onSubmit.fire(payload.filters);
+
 			this.panel.dispose();
 
 			return state;
@@ -71,6 +74,7 @@ export class ObjectExplorerFilterReactWebviewController extends ReactWebviewPane
 
 		this.registerReducer("cancel", (state) => {
 			this._onCancel.fire();
+
 			this.panel.dispose();
 
 			return state;
@@ -96,6 +100,7 @@ export class ObjectExplorerFilter {
 	): Promise<vscodeMssql.NodeFilter[] | undefined> {
 		return await new Promise((resolve, _reject) => {
 			const correlationId = randomUUID();
+
 			sendActionEvent(
 				TelemetryViews.ObjectExplorerFilter,
 				TelemetryActions.Open,
@@ -122,7 +127,9 @@ export class ObjectExplorerFilter {
 					nodePath: treeNode.nodePath,
 				});
 			}
+
 			this._filterWebviewController.revealToForeground();
+
 			this._filterWebviewController.onSubmit((e) => {
 				if (e) {
 					sendActionEvent(
@@ -138,8 +145,10 @@ export class ObjectExplorerFilter {
 						},
 					);
 				}
+
 				resolve(e);
 			});
+
 			this._filterWebviewController.onCancel(() => {
 				sendActionEvent(
 					TelemetryViews.ObjectExplorerFilter,
@@ -149,8 +158,10 @@ export class ObjectExplorerFilter {
 						correlationId,
 					},
 				);
+
 				resolve(undefined);
 			});
+
 			this._filterWebviewController.onDisposed(() => {
 				sendActionEvent(
 					TelemetryViews.ObjectExplorerFilter,
@@ -160,6 +171,7 @@ export class ObjectExplorerFilter {
 						correlationId,
 					},
 				);
+
 				resolve(undefined);
 			});
 		});

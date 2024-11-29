@@ -19,6 +19,7 @@ export function formatString(str: string, ...args: any[]): string {
 			return typeof args[index] !== "undefined" ? args[index] : match;
 		});
 	}
+
 	return result;
 }
 
@@ -41,6 +42,7 @@ export function htmlEntities(str: string): string {
 	let newStr = str.replace(/[\u00A0-\u9999<>\&"']/gim, (i) => {
 		return `&#${i.charCodeAt(0)};`;
 	});
+
 	newStr = newStr.replace(/\s/g, "&nbsp;");
 
 	return newStr;

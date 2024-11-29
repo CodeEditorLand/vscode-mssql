@@ -7,8 +7,11 @@ import * as ep from "./executionPlanInterfaces";
 
 export class ExecutionPlanView {
 	private _diagram: any;
+
 	public expensiveMetricTypes: Set<ep.ExpensiveMetricType> = new Set();
+
 	private _graphElementPropertiesSet: Set<string> = new Set();
+
 	private _executionPlanRootNode: ep.ExecutionPlanNode;
 
 	constructor(node: ep.ExecutionPlanNode) {
@@ -38,9 +41,13 @@ export class ExecutionPlanView {
 		node: ep.ExecutionPlanNode = this._executionPlanRootNode,
 	): ep.AzDataGraphCell {
 		let diagramNode: ep.AzDataGraphCell = <ep.AzDataGraphCell>{};
+
 		diagramNode.label = node.subtext.join("\n");
+
 		diagramNode.tooltipTitle = node.name;
+
 		diagramNode.rowCountDisplayString = node.rowCountDisplayString;
+
 		diagramNode.costDisplayString = node.costDisplayString;
 
 		this.expensiveMetricTypes.add(ep.ExpensiveMetricType.Off);
@@ -48,9 +55,11 @@ export class ExecutionPlanView {
 		if (!node.id.toString().startsWith(`element-`)) {
 			node.id = `element-${node.id}`;
 		}
+
 		diagramNode.id = node.id;
 
 		diagramNode.icon = node.type;
+
 		diagramNode.metrics = this.populateProperties(node.properties);
 
 		diagramNode.badges = [];
@@ -72,6 +81,7 @@ export class ExecutionPlanView {
 		}
 
 		diagramNode.description = node.description;
+
 		diagramNode.cost = node.cost;
 
 		if (node.cost) {
@@ -85,6 +95,7 @@ export class ExecutionPlanView {
 		}
 
 		diagramNode.relativeCost = node.relativeCost;
+
 		diagramNode.elapsedTimeInMs = node.elapsedTimeInMs;
 
 		if (node.elapsedTimeInMs) {
@@ -100,6 +111,7 @@ export class ExecutionPlanView {
 
 			this.loadMetricTypesFromCostMetrics(node.costMetrics[i].name);
 		}
+
 		diagramNode.costMetrics = costMetrics;
 
 		return diagramNode;
@@ -130,6 +142,7 @@ export class ExecutionPlanView {
 	private getBadgeTypeString(badgeType: ep.BadgeType):
 		| {
 				type: string;
+
 				tooltip: string;
 		  }
 		| undefined {
@@ -236,6 +249,7 @@ export class ExecutionPlanView {
 		const drawPolygon = this._diagram.graph.model.getCell(
 			`element-${subtreeRoot}`,
 		);
+
 		this._diagram.drawPolygon(drawPolygon, fillColor, borderColor);
 	}
 
@@ -311,6 +325,7 @@ export class ExecutionPlanView {
 		const resultNodes: ep.ExecutionPlanNode[] = [];
 
 		const nodeStack: ep.ExecutionPlanNode[] = [];
+
 		nodeStack.push(this._executionPlanRootNode);
 
 		while (nodeStack.length !== 0) {
@@ -400,6 +415,7 @@ export class ExecutionPlanView {
 		if (!node) {
 			return;
 		}
+
 		const cell = this._diagram.graph.model.getCell(node.id);
 
 		if (!cell) {
@@ -424,6 +440,7 @@ export class ExecutionPlanView {
 
 		leftTopScrollPoint.x =
 			leftTopScrollPoint.x < 0 ? 0 : leftTopScrollPoint.x;
+
 		leftTopScrollPoint.y =
 			leftTopScrollPoint.y < 0 ? 0 : leftTopScrollPoint.y;
 
@@ -478,6 +495,7 @@ export class ExecutionPlanView {
 		id: string,
 	): ep.InternalExecutionPlanElement | undefined {
 		const nodeStack: ep.ExecutionPlanNode[] = [];
+
 		nodeStack.push(this._executionPlanRootNode);
 
 		while (nodeStack.length !== 0) {

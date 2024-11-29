@@ -136,6 +136,7 @@ export default class SqlToolsServiceClient {
 
 	// VS Code Language Client
 	private _client: LanguageClient = undefined;
+
 	private _resourceClient: LanguageClient = undefined;
 
 	// getter method for the Language Client
@@ -198,6 +199,7 @@ export default class SqlToolsServiceClient {
 			);
 
 			let statusView = new StatusView(vscodeWrapper);
+
 			SqlToolsServiceClient._instance = new SqlToolsServiceClient(
 				config,
 				serviceProvider,
@@ -206,6 +208,7 @@ export default class SqlToolsServiceClient {
 				vscodeWrapper,
 			);
 		}
+
 		return SqlToolsServiceClient._instance;
 	}
 
@@ -215,6 +218,7 @@ export default class SqlToolsServiceClient {
 		context: vscode.ExtensionContext,
 	): Promise<ServerInitializationResult> {
 		this._logger.appendLine(Constants.serviceInitializing);
+
 		this._logPath = context.logPath;
 
 		return PlatformInformation.getCurrent().then((platformInfo) => {
@@ -230,11 +234,14 @@ export default class SqlToolsServiceClient {
 			this._logger.appendLine(
 				Constants.commandsNotAvailableWhileInstallingTheService,
 			);
+
 			this._logger.appendLine();
+
 			this._logger.append(`Platform: ${platformInfo.toString()}`);
 
 			if (!platformInfo.isValidRuntime) {
 				Utils.showErrorMsg(Constants.unsupportedPlatformErrorMessage);
+
 				reject("Invalid Platform");
 			} else {
 				if (platformInfo.runtimeId) {
@@ -244,6 +251,7 @@ export default class SqlToolsServiceClient {
 				} else {
 					this._logger.appendLine();
 				}
+
 				this._logger.appendLine();
 
 				// For macOS we need to ensure the tools service version is set appropriately
@@ -257,18 +265,23 @@ export default class SqlToolsServiceClient {
 							if (_channel !== undefined) {
 								_channel.show();
 							}
+
 							let installedServerPath =
 								await this._server.downloadServerFiles(
 									platformInfo.runtimeId,
 								);
+
 							this._sqlToolsServicePath =
 								path.dirname(installedServerPath);
+
 							await this.initializeLanguageClient(
 								installedServerPath,
 								context,
 								platformInfo.isWindows,
 							);
+
 							await this._client.onReady();
+
 							resolve(
 								new ServerInitializationResult(
 									true,
@@ -279,12 +292,15 @@ export default class SqlToolsServiceClient {
 						} else {
 							this._sqlToolsServicePath =
 								path.dirname(serverPath);
+
 							await this.initializeLanguageClient(
 								serverPath,
 								context,
 								platformInfo.isWindows,
 							);
+
 							await this._client.onReady();
+
 							resolve(
 								new ServerInitializationResult(
 									false,
@@ -298,7 +314,9 @@ export default class SqlToolsServiceClient {
 						Utils.logDebug(
 							Constants.serviceLoadingFailed + " " + err,
 						);
+
 						Utils.showErrorMsg(Constants.serviceLoadingFailed);
+
 						reject(err);
 					});
 			}
@@ -367,6 +385,7 @@ export default class SqlToolsServiceClient {
 			throw new Error(Constants.invalidServiceFilePath);
 		} else {
 			let overridePath: string | undefined = undefined;
+
 			this.initializeLanguageConfiguration();
 			// This env var is used to override the base install location of STS - primarily to be used for debugging scenarios.
 			try {
@@ -380,15 +399,19 @@ export default class SqlToolsServiceClient {
 
 						if (await exists(serverFullPath)) {
 							const overrideMessage = `Using ${exeFile} from ${stsRootPath}`;
+
 							void vscode.window.showInformationMessage(
 								overrideMessage,
 							);
+
 							console.log(overrideMessage);
+
 							overridePath = serverFullPath;
 
 							break;
 						}
 					}
+
 					if (!overridePath) {
 						console.warn(
 							`Could not find valid SQL Tools Service EXE from ${JSON.stringify(exeFiles)} at ${stsRootPath}, falling back to config`,
@@ -407,6 +430,7 @@ export default class SqlToolsServiceClient {
 				this.createServiceLayerServerOptions(
 					overridePath || serverPath,
 				);
+
 			this.client = this.createLanguageClient(serverOptions);
 
 			let executablePath = isWindows
@@ -431,11 +455,15 @@ export default class SqlToolsServiceClient {
 
 				if (resourceClientOverrideExists) {
 					const overrideMessage = `Using ${resourceOverridePath} from ${overrideDir}`;
+
 					void vscode.window.showInformationMessage(overrideMessage);
+
 					console.log(overrideMessage);
+
 					resourcePath = resourceOverridePath;
 				}
 			}
+
 			this._resourceClient = this.createResourceClient(resourcePath);
 
 			if (context !== undefined) {
@@ -448,6 +476,7 @@ export default class SqlToolsServiceClient {
 				// Push the disposable to the context's subscriptions so that the
 				// client can be deactivated on extension deactivation
 				context.subscriptions.push(disposable);
+
 				context.subscriptions.push(resourceDisposable);
 			}
 		}
@@ -473,6 +502,7 @@ export default class SqlToolsServiceClient {
 			serverOptions,
 			clientOptions,
 		);
+
 		void client.onReady().then(() => {
 			client.onNotification(
 				LanguageServiceContracts.StatusChangedNotification.type,
@@ -535,6 +565,7 @@ export default class SqlToolsServiceClient {
 
 		if (servicePath.endsWith(".dll")) {
 			serverArgs = [servicePath];
+
 			serverCommand = "dotnet";
 		}
 		// Get the extenion's configuration
@@ -561,6 +592,7 @@ export default class SqlToolsServiceClient {
 
 			// Send application name and path to determine MSAL cache location
 			serverArgs.push("--application-name", serviceName);
+
 			serverArgs.push("--data-path", getAppDataPath());
 
 			// Enable SQL Auth Provider registration for Azure MFA Authentication
@@ -583,7 +615,9 @@ export default class SqlToolsServiceClient {
 
 			if (applyLocalization) {
 				let locale = vscode.env.language;
+
 				serverArgs.push("--locale");
+
 				serverArgs.push(locale);
 			}
 		}

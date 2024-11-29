@@ -13,17 +13,29 @@ import { ObjectExplorerUtils } from "./objectExplorerUtils";
 
 export class TreeNodeInfo extends vscode.TreeItem implements ITreeNodeInfo {
 	private _nodePath: string;
+
 	private _nodeStatus: string;
+
 	private _nodeType: string;
+
 	private _nodeSubType: string;
+
 	private _isLeaf: boolean;
+
 	private _errorMessage: string;
+
 	private _sessionId: string;
+
 	private _parentNode: TreeNodeInfo;
+
 	private _connectionInfo: IConnectionInfo;
+
 	private _metadata: ObjectMetadata;
+
 	private _filterableProperties: vscodeMssql.NodeFilterProperty[];
+
 	private _filters: vscodeMssql.NodeFilter[];
+
 	private _originalLabel: string;
 
 	constructor(
@@ -41,17 +53,29 @@ export class TreeNodeInfo extends vscode.TreeItem implements ITreeNodeInfo {
 		filters?: vscodeMssql.NodeFilter[],
 	) {
 		super(label, collapsibleState);
+
 		this._originalLabel = label;
+
 		this.context = context;
+
 		this._nodePath = nodePath;
+
 		this._nodeStatus = nodeStatus;
+
 		this._nodeType = nodeType;
+
 		this._sessionId = sessionId;
+
 		this._parentNode = parentNode;
+
 		this._connectionInfo = connectionInfo;
+
 		this._filterableProperties = filterProperties;
+
 		this._metadata = objectMetadata;
+
 		this._filters = filters;
+
 		this.iconPath = ObjectExplorerUtils.iconPath(this.nodeType);
 	}
 
@@ -155,6 +179,7 @@ export class TreeNodeInfo extends vscode.TreeItem implements ITreeNodeInfo {
 
 	public set nodeType(value: string) {
 		this._nodeType = value;
+
 		this._updateContextValue();
 	}
 
@@ -184,12 +209,15 @@ export class TreeNodeInfo extends vscode.TreeItem implements ITreeNodeInfo {
 
 	public set filterableProperties(value: vscodeMssql.NodeFilterProperty[]) {
 		this._filterableProperties = value;
+
 		this._updateContextValue();
 	}
 
 	public set filters(value: vscodeMssql.NodeFilter[]) {
 		this._filters = value;
+
 		this._updateContextValue();
+
 		this.label =
 			value.length > 0
 				? vscode.l10n.t("{0} (filtered)", this._originalLabel)
@@ -202,8 +230,11 @@ export class TreeNodeInfo extends vscode.TreeItem implements ITreeNodeInfo {
 
 	private _updateContextValue() {
 		const contextValue = this.context;
+
 		contextValue.filterable = this.filterableProperties?.length > 0;
+
 		contextValue.hasFilters = this.filters?.length > 0;
+
 		this.context = contextValue;
 	}
 
@@ -219,8 +250,10 @@ export class TreeNodeInfo extends vscode.TreeItem implements ITreeNodeInfo {
 			type: undefined,
 			subType: undefined,
 		};
+
 		contextArray.forEach((element) => {
 			let keyValuePair = element.split("=");
+
 			context[keyValuePair[0]] = keyValuePair[1];
 		});
 
@@ -234,7 +267,9 @@ export class TreeNodeInfo extends vscode.TreeItem implements ITreeNodeInfo {
 		if (context === undefined) {
 			return "";
 		}
+
 		let contextValue = "";
+
 		Object.keys(context).forEach((key) => {
 			contextValue += key + "=" + context[key] + ",";
 		});

@@ -13,10 +13,15 @@ const defaultConfig = {
 
 export class VirtualizedList<T> {
 	private _listId: string = window.crypto.randomUUID();
+
 	private _visibleCount: number;
+
 	private _scrollOffset: number;
+
 	private _eventManager: EventManager = new EventManager();
+
 	private _focusedItemIndex: number = 0;
+
 	constructor(
 		private _container: HTMLElement,
 		private _items: T[],
@@ -25,24 +30,33 @@ export class VirtualizedList<T> {
 		private _config: VirtualizedListConfig,
 	) {
 		this._config = { ...defaultConfig, ..._config };
+
 		this._visibleCount =
 			Math.ceil(_container.clientHeight / _config.itemHeight) +
 			_config.buffer;
+
 		this._scrollOffset = 0;
+
 		this.init();
 	}
 
 	private init() {
 		// Set container styles
 		this._container.style.overflowY = "auto";
+
 		this._container.style.position = "relative";
+
 		this._container.style.height = `${this._visibleCount * this._config.itemHeight}px`;
 
 		// Set total height to create the scroll effect
 		const totalHeight = this._items.length * this._config.itemHeight;
+
 		const spacer = document.createElement("div");
+
 		spacer.style.height = `${totalHeight}px`;
+
 		spacer.style.position = "relative";
+
 		this._container.appendChild(spacer);
 
 		// Set up scroll listener
@@ -59,6 +73,7 @@ export class VirtualizedList<T> {
 
 	private scrollToIndex(index: number) {
 		const itemTop = index * this._config.itemHeight;
+
 		const itemBottom = itemTop + this._config.itemHeight;
 
 		if (itemTop < this._container.scrollTop) {
@@ -76,19 +91,25 @@ export class VirtualizedList<T> {
 		if (newIndex < 0 || newIndex >= this._items.length) {
 			return;
 		}
+
 		const oldItem = document.getElementById(
 			`${this._listId}-${this._focusedItemIndex}`,
 		);
+
 		if (oldItem) {
 			oldItem.setAttribute("tabindex", "-1");
 		}
+
 		const newItem = document.getElementById(`${this._listId}-${newIndex}`);
+
 		if (newItem) {
 			newItem.setAttribute("tabindex", "0");
 		}
 
 		this._focusedItemIndex = newIndex;
+
 		this.scrollToIndex(newIndex);
+
 		newItem?.focus();
 	}
 
@@ -96,8 +117,10 @@ export class VirtualizedList<T> {
 		const newOffset = Math.floor(
 			this._container.scrollTop / this._config.itemHeight,
 		);
+
 		if (newOffset !== this._scrollOffset) {
 			this._scrollOffset = newOffset;
+
 			this.renderList();
 		}
 	}
@@ -107,6 +130,7 @@ export class VirtualizedList<T> {
 			this._scrollOffset - this._config.buffer,
 			0,
 		);
+
 		const endIndex = Math.min(
 			this._scrollOffset + this._visibleCount + this._config.buffer,
 			this._items.length,
@@ -122,14 +146,23 @@ export class VirtualizedList<T> {
 
 		for (let i = startIndex; i < endIndex; i++) {
 			const item = this._items[i];
+
 			const itemDiv = document.createElement("div");
+
 			itemDiv.id = `${this._listId}-${i}`;
+
 			this._renderItem(itemDiv, item);
+
 			itemDiv.style.position = "absolute";
+
 			itemDiv.style.height = `${this._config.itemHeight}px`;
+
 			itemDiv.style.width = "100%";
+
 			itemDiv.style.top = `${i * this._config.itemHeight}px`;
+
 			this._container.appendChild(itemDiv);
+
 			itemDiv.setAttribute(
 				"tabindex",
 				i === this._focusedItemIndex ? "0" : "-1",
@@ -139,30 +172,40 @@ export class VirtualizedList<T> {
 			this._eventManager.addEventListener(itemDiv, "click", (e) => {
 				if (!(e.target instanceof HTMLInputElement)) {
 					this.updateFocusedItemIndex(i);
+
 					this._itemSelected(itemDiv, item);
+
 					e.preventDefault();
 				}
+
 				e.stopPropagation();
 			});
 
 			this._eventManager.addEventListener(itemDiv, "keydown", (e) => {
 				const event = e as KeyboardEvent;
+
 				let handled = false;
+
 				if (event.key === Keys.ArrowDown) {
 					this.updateFocusedItemIndex(i + 1);
+
 					handled = true;
 				} else if (event.key === Keys.ArrowUp) {
 					this.updateFocusedItemIndex(i - 1);
+
 					handled = true;
 				} else if (
 					event.key === Keys.Enter ||
 					event.key === Keys.Space
 				) {
 					this._itemSelected(itemDiv, item);
+
 					handled = true;
 				}
+
 				if (handled) {
 					event.preventDefault();
+
 					event.stopPropagation();
 				}
 			});
@@ -171,18 +214,23 @@ export class VirtualizedList<T> {
 
 	public updateItems(items: T[]) {
 		this._container.scrollTop = 0;
+
 		this._container.innerHTML = "";
+
 		this._items = items;
+
 		this.init();
 	}
 
 	public dispose() {
 		this._eventManager.clearEventListeners();
+
 		this._container.innerHTML = "";
 	}
 }
 
 export interface VirtualizedListConfig {
 	itemHeight: number;
+
 	buffer: number;
 }

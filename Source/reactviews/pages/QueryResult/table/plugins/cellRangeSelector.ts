@@ -20,20 +20,26 @@ const defaultOptions: ICellRangeSelectorOptions = {
 
 export interface ICellRangeSelectorOptions {
 	selectionCss?: { [key: string]: string };
+
 	cellDecorator?: ICellRangeDecorator;
+
 	offset?: { top: number; left: number; height: number; width: number };
+
 	dragClass?: string;
 }
 
 export interface ICellRangeSelector<T extends Slick.SlickData>
 	extends Slick.Plugin<T> {
 	onCellRangeSelected: Slick.Event<Slick.Range>;
+
 	onBeforeCellRangeSelected: Slick.Event<Slick.Cell>;
+
 	onAppendCellRangeSelected: Slick.Event<Slick.Range>;
 }
 
 export interface ICellRangeDecorator {
 	show(range: Slick.Range): void;
+
 	hide(): void;
 }
 
@@ -41,14 +47,21 @@ export class CellRangeSelector<T extends Slick.SlickData>
 	implements ICellRangeSelector<T>
 {
 	private grid!: Slick.Grid<T>;
+
 	private dragging?: boolean;
+
 	private handler = new Slick.EventHandler();
+
 	private decorator!: ICellRangeDecorator;
+
 	private canvas!: HTMLCanvasElement;
+
 	private currentlySelectedRange?: { start: Slick.Cell; end?: Slick.Cell };
 
 	public onBeforeCellRangeSelected = new Slick.Event<Slick.Cell>();
+
 	public onCellRangeSelected = new Slick.Event<Slick.Range>();
+
 	public onAppendCellRangeSelected = new Slick.Event<Slick.Range>();
 
 	constructor(private options: ICellRangeSelectorOptions) {
@@ -59,8 +72,11 @@ export class CellRangeSelector<T extends Slick.SlickData>
 		this.decorator =
 			this.options.cellDecorator ||
 			new (<any>Slick).CellRangeDecorator(grid, this.options);
+
 		this.grid = grid;
+
 		this.canvas = this.grid.getCanvasNode();
+
 		this.handler
 			.subscribe(this.grid.onDragInit, (e) => this.handleDragInit(e))
 			.subscribe(this.grid.onDragStart, (e: Slick.DOMEvent, dd) =>
@@ -97,9 +113,11 @@ export class CellRangeSelector<T extends Slick.SlickData>
 		if (this.onBeforeCellRangeSelected.notify(cell) !== false) {
 			if (this.grid.canCellBeSelected(cell.row, cell.cell)) {
 				this.dragging = true;
+
 				e.stopImmediatePropagation();
 			}
 		}
+
 		if (!this.dragging) {
 			return;
 		}
@@ -114,6 +132,7 @@ export class CellRangeSelector<T extends Slick.SlickData>
 		);
 
 		dd.range = { start: start, end: undefined };
+
 		this.currentlySelectedRange = dd.range;
 
 		return this.decorator.show(new Slick.Range(start.row, start.cell));
@@ -136,7 +155,9 @@ export class CellRangeSelector<T extends Slick.SlickData>
 		}
 
 		dd.range.end = end;
+
 		this.currentlySelectedRange = dd.range;
+
 		this.decorator.show(
 			new Slick.Range(
 				dd.range.start.row,
@@ -153,8 +174,11 @@ export class CellRangeSelector<T extends Slick.SlickData>
 		}
 
 		this.canvas.classList.remove(this.options.dragClass!);
+
 		this.dragging = false;
+
 		e.stopImmediatePropagation();
+
 		this.decorator.hide();
 		// if this happens to fast there is a chance we don't have the necessary information to actually do proper selection
 		if (!dd || !dd.range || !dd.range.start || !dd.range.end) {

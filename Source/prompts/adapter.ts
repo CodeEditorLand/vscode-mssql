@@ -12,6 +12,7 @@ import { IPromptCallback, IPrompter, IQuestion } from "./question";
 // Supports simple pattern for prompting for user input and acting on this
 export default class CodeAdapter implements IPrompter {
 	private outChannel: OutputChannel;
+
 	private messageLevelFormatters = {};
 
 	constructor(private vscodeWrapper: VscodeWrapper) {
@@ -20,6 +21,7 @@ export default class CodeAdapter implements IPrompter {
 
 	public logError(message: any): void {
 		let line = `error: ${message.message}\n    Code - ${message.code}`;
+
 		this.outChannel.appendLine(line);
 	}
 
@@ -38,6 +40,7 @@ export default class CodeAdapter implements IPrompter {
 			if (this.messageLevelFormatters[message.level]) {
 				formatter = this.messageLevelFormatters[message.level];
 			}
+
 			line = formatter(message);
 		} else {
 			line = nodeUtil.format(arguments);
@@ -79,6 +82,7 @@ export default class CodeAdapter implements IPrompter {
 			if (answers) {
 				return answers[question.name] || undefined;
 			}
+
 			return undefined;
 		});
 	}
@@ -120,9 +124,11 @@ export default class CodeAdapter implements IPrompter {
 								if (question.onAnswered) {
 									await question.onAnswered(result);
 								}
+
 								return answers;
 							});
 						}
+
 						return answers;
 					});
 			},

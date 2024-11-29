@@ -22,30 +22,45 @@ export class ConnectionDialogWebviewState
 	get connectionProfile(): IConnectionDialogProfile {
 		return this.formState;
 	}
+
 	set connectionProfile(value: IConnectionDialogProfile) {
 		this.formState = value;
 	}
+
 	public selectedInputMode: ConnectionInputMode;
+
 	public connectionComponents: {
 		components: Record<
 			keyof IConnectionDialogProfile,
 			ConnectionDialogFormItemSpec
 		>;
+
 		mainOptions: (keyof IConnectionDialogProfile)[];
+
 		topAdvancedOptions: (keyof IConnectionDialogProfile)[];
+
 		groupedAdvancedOptions: Record<
 			string,
 			(keyof IConnectionDialogProfile)[]
 		>;
 	};
+
 	public azureSubscriptions: AzureSubscriptionInfo[];
+
 	public azureServers: AzureSqlServerInfo[];
+
 	public savedConnections: IConnectionDialogProfile[];
+
 	public recentConnections: IConnectionDialogProfile[];
+
 	public connectionStatus: ApiStatus;
+
 	public formError: string;
+
 	public loadingAzureSubscriptionsStatus: ApiStatus;
+
 	public loadingAzureServersStatus: ApiStatus;
+
 	public trustServerCertError: string | undefined;
 
 	constructor({
@@ -63,62 +78,93 @@ export class ConnectionDialogWebviewState
 		trustServerCertError,
 	}: {
 		connectionProfile: IConnectionDialogProfile;
+
 		selectedInputMode: ConnectionInputMode;
+
 		connectionComponents: {
 			components: Record<
 				keyof IConnectionDialogProfile,
 				ConnectionDialogFormItemSpec
 			>;
+
 			mainOptions: (keyof IConnectionDialogProfile)[];
+
 			topAdvancedOptions: (keyof IConnectionDialogProfile)[];
+
 			groupedAdvancedOptions: Record<
 				string,
 				(keyof IConnectionDialogProfile)[]
 			>;
 		};
+
 		azureServers: AzureSqlServerInfo[];
+
 		azureSubscriptions: AzureSubscriptionInfo[];
+
 		savedConnections: IConnectionDialogProfile[];
+
 		recentConnections: IConnectionDialogProfile[];
+
 		connectionStatus: ApiStatus;
 
 		formError: string;
+
 		loadingAzureSubscriptionsStatus: ApiStatus;
+
 		loadingAzureServersStatus: ApiStatus;
+
 		trustServerCertError: string | undefined;
 	}) {
 		this.formState = connectionProfile;
+
 		this.selectedInputMode = selectedInputMode;
+
 		this.connectionComponents = connectionComponents;
+
 		this.azureSubscriptions = azureSubscriptions;
+
 		this.azureServers = azureServers;
+
 		this.savedConnections = savedConnections;
+
 		this.recentConnections = recentConnections;
+
 		this.connectionStatus = connectionStatus;
+
 		this.formError = formError;
+
 		this.loadingAzureSubscriptionsStatus = loadingAzureSubscriptionsStatus;
+
 		this.loadingAzureServersStatus = loadingAzureServersStatus;
+
 		this.trustServerCertError = trustServerCertError;
 	}
 }
 
 export interface AzureSubscriptionInfo {
 	name: string;
+
 	id: string;
+
 	loaded: boolean;
 }
 
 export interface AzureSqlServerInfo {
 	server: string;
+
 	databases: string[];
+
 	location: string;
+
 	resourceGroup: string;
+
 	subscription: string;
 }
 
 export interface ConnectionDialogFormItemSpec
 	extends FormItemSpec<IConnectionDialogProfile> {
 	isAdvancedOption: boolean;
+
 	optionCategory?: string;
 }
 
@@ -132,8 +178,11 @@ export enum ConnectionInputMode {
 // optional name and details on whether password should be saved
 export interface IConnectionDialogProfile extends vscodeMssql.IConnectionInfo {
 	profileName?: string;
+
 	savePassword?: boolean;
+
 	emptyPasswordInput?: boolean;
+
 	azureAuthType?: vscodeMssql.AzureAuthType;
 	/** display name for the MRU pane; should be set to the profileName if available, otherwise generated from connection details */
 	displayName?: string;
@@ -147,12 +196,19 @@ export interface ConnectionDialogContextProps
 	loadConnection: (connection: IConnectionDialogProfile) => void;
 
 	setConnectionInputType: (inputType: ConnectionInputMode) => void;
+
 	connect: () => void;
+
 	loadAzureServers: (subscriptionId: string) => void;
+
 	cancelTrustServerCertDialog: () => void;
+
 	filterAzureSubscriptions: () => void;
+
 	refreshConnectionsList: () => void;
+
 	deleteSavedConnection(connection: IConnectionDialogProfile): void;
+
 	removeRecentConnection(connection: IConnectionDialogProfile): void;
 }
 
@@ -170,19 +226,27 @@ export interface ConnectionDialogReducers {
 	formAction: {
 		event: FormEvent<IConnectionDialogProfile>;
 	};
+
 	loadConnection: {
 		connection: IConnectionDialogProfile;
 	};
+
 	connect: {};
+
 	loadAzureServers: {
 		subscriptionId: string;
 	};
+
 	cancelTrustServerCertDialog: {};
+
 	filterAzureSubscriptions: {};
+
 	refreshConnectionsList: {};
+
 	deleteSavedConnection: {
 		connection: IConnectionDialogProfile;
 	};
+
 	removeRecentConnection: {
 		connection: IConnectionDialogProfile;
 	};

@@ -23,7 +23,9 @@ export async function activate(
 	context: vscode.ExtensionContext,
 ): Promise<IExtension> {
 	let vscodeWrapper = new VscodeWrapper();
+
 	controller = new MainController(context, undefined, vscodeWrapper);
+
 	context.subscriptions.push(controller);
 
 	// Checking if localization should be applied
@@ -38,6 +40,7 @@ export async function activate(
 		"mssql.getControllerForTests",
 		() => controller,
 	);
+
 	await controller.activate();
 
 	return {
@@ -86,6 +89,7 @@ export async function activate(
 					`Connection for ${JSON.stringify(connectionInfo)} failed`,
 				);
 			}
+
 			return uri;
 		},
 		listDatabases: (connectionUri: string) => {
@@ -145,6 +149,7 @@ export async function activate(
 export async function deactivate(): Promise<void> {
 	if (controller) {
 		await controller.deactivate();
+
 		controller.dispose();
 	}
 }
@@ -159,5 +164,6 @@ export async function getController(): Promise<MainController> {
 
 		return savedController;
 	}
+
 	return controller;
 }

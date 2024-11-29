@@ -61,9 +61,11 @@ export function sendActionEvent(
 	if (connectionInfo) {
 		actionEvent = actionEvent.withConnectionInfo(connectionInfo);
 	}
+
 	if (serverInfo) {
 		actionEvent = actionEvent.withServerInfo(serverInfo);
 	}
+
 	actionEvent.send();
 }
 
@@ -109,9 +111,11 @@ export function sendErrorEvent(
 	if (connectionInfo) {
 		errorEvent = errorEvent.withConnectionInfo(connectionInfo);
 	}
+
 	if (serverInfo) {
 		errorEvent = errorEvent.withServerInfo(serverInfo);
 	}
+
 	errorEvent.send();
 }
 

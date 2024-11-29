@@ -8,8 +8,11 @@
  */
 export interface ITenant {
 	id: string;
+
 	displayName: string;
+
 	userId?: string;
+
 	tenantCategory?: string;
 }
 
@@ -121,28 +124,43 @@ export interface IAzureAccountProperties {
  */
 export interface IProviderSettings {
 	scopes: string[];
+
 	displayName: string;
+
 	id: string;
+
 	clientId: string;
+
 	loginEndpoint: string;
+
 	portalEndpoint: string;
+
 	redirectUri: string;
+
 	resources: IProviderResources;
 }
 
 export interface IProviderResources {
 	windowsManagementResource: IAADResource;
+
 	azureManagementResource: IAADResource;
+
 	graphResource?: IAADResource;
+
 	databaseResource?: IAADResource;
+
 	ossRdbmsResource?: IAADResource;
+
 	azureKeyVaultResource?: IAADResource;
+
 	azureDevopsResource?: IAADResource;
 }
 
 export interface IAADResource {
 	id: string;
+
 	resource: string;
+
 	endpoint: string;
 }
 /**
@@ -190,25 +208,46 @@ export interface IRefreshToken extends ITokenKey {
 
 export interface ITokenClaims {
 	aud: string;
+
 	iss: string;
+
 	iat: number;
+
 	idp: string;
+
 	nbf: number;
+
 	exp: number;
+
 	home_oid?: string;
+
 	c_hash: string;
+
 	at_hash: string;
+
 	aio: string;
+
 	preferred_username: string;
+
 	email: string;
+
 	name: string;
+
 	nonce: string;
+
 	oid?: string;
+
 	roles: string[];
+
 	rh: string;
+
 	sub: string;
+
 	tid: string;
+
 	unique_name: string;
+
 	uti: string;
+
 	ver: string;
 }

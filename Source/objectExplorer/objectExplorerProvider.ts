@@ -14,10 +14,12 @@ import { TreeNodeInfo } from "./treeNodeInfo";
 export class ObjectExplorerProvider implements vscode.TreeDataProvider<any> {
 	private _onDidChangeTreeData: vscode.EventEmitter<any | undefined> =
 		new vscode.EventEmitter<any | undefined>();
+
 	readonly onDidChangeTreeData: vscode.Event<any | undefined> =
 		this._onDidChangeTreeData.event;
 
 	private _objectExplorerExists: boolean;
+
 	private _objectExplorerService: ObjectExplorerService;
 
 	constructor(connectionManager: ConnectionManager) {
@@ -73,6 +75,7 @@ export class ObjectExplorerProvider implements vscode.TreeDataProvider<any> {
 				sessionId,
 			);
 		}
+
 		return undefined;
 	}
 

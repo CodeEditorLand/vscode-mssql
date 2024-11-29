@@ -41,10 +41,15 @@ export type ErrorResponseBodyWithError = Required<ErrorResponseBody>;
 
 export abstract class MsalAzureAuth {
 	protected readonly loginEndpointUrl: string;
+
 	protected readonly redirectUri: string;
+
 	protected readonly scopes: string[];
+
 	protected readonly scopesString: string;
+
 	protected readonly clientId: string;
+
 	protected readonly resources: Resource[];
 
 	constructor(
@@ -58,16 +63,22 @@ export abstract class MsalAzureAuth {
 		this.loginEndpointUrl =
 			this.providerSettings.loginEndpoint ??
 			"https://login.microsoftonline.com/";
+
 		this.redirectUri = "http://localhost";
+
 		this.clientId = this.providerSettings.clientId;
+
 		this.scopes = [...this.providerSettings.scopes];
+
 		this.scopesString = this.scopes.join(" ");
 	}
 
 	public async startLogin(): Promise<IAccount | IPromptFailedResult> {
 		let loginComplete: IDeferred<void, Error> | undefined = undefined;
+
 		try {
 			this.logger.verbose("Starting login");
+
 			if (!this.providerSettings.resources.windowsManagementResource) {
 				throw new Error(
 					LocalizedConstants.azureNoMicrosoftResource(
@@ -75,36 +86,49 @@ export abstract class MsalAzureAuth {
 					),
 				);
 			}
+
 			const result = await this.login(Constants.organizationTenant);
+
 			loginComplete = result.authComplete;
+
 			if (!result?.response || !result.response?.account) {
 				this.logger.error(`Authentication failed: ${loginComplete}`);
+
 				return {
 					canceled: false,
 				};
 			}
+
 			const token: IToken = {
 				token: result.response.accessToken,
 				key: result.response.account.homeAccountId,
 				tokenType: result.response.tokenType,
 			};
+
 			const tokenClaims = <ITokenClaims>result.response.idTokenClaims;
+
 			const account = await this.hydrateAccount(token, tokenClaims);
+
 			loginComplete?.resolve();
+
 			return account;
 		} catch (ex) {
 			this.logger.error(`Login failed: ${ex}`);
+
 			if (ex instanceof AzureAuthError) {
 				if (loginComplete) {
 					loginComplete.reject(ex);
+
 					this.logger.error(ex);
 				} else {
 					void vscode.window.showErrorMessage(ex.message);
+
 					this.logger.error(ex.originalMessageAndException);
 				}
 			} else {
 				this.logger.error(ex);
 			}
+
 			return {
 				canceled: false,
 			};
@@ -116,12 +140,15 @@ export abstract class MsalAzureAuth {
 		tokenClaims: ITokenClaims,
 	): Promise<IAccount> {
 		const tenants = await this.getTenants(token.token);
+
 		let account = this.createAccount(tokenClaims, token.key, tenants);
+
 		return account;
 	}
 
 	protected abstract login(tenant: ITenant): Promise<{
 		response: AuthenticationResult | null;
+
 		authComplete: IDeferred<void, Error>;
 	}>;
 
@@ -138,6 +165,7 @@ export abstract class MsalAzureAuth {
 		settings: IAADResource,
 	): Promise<AuthenticationResult | null> {
 		let accountInfo: AccountInfo | null;
+
 		try {
 			accountInfo = await this.getAccountFromMsalCache(account.key.id);
 		} catch (e) {
@@ -149,6 +177,7 @@ export abstract class MsalAzureAuth {
 				id: tenantId,
 				displayName: "",
 			};
+
 			return this.handleInteractionRequired(tenant, settings, false);
 		}
 		// Resource endpoint must end with '/' to form a valid scope for MSAL token request.
@@ -158,6 +187,7 @@ export abstract class MsalAzureAuth {
 
 		if (!account) {
 			this.logger.error("Error: Account not received.");
+
 			return null;
 		}
 
@@ -166,6 +196,7 @@ export abstract class MsalAzureAuth {
 		}
 
 		let newScope: string[];
+
 		if (
 			settings.id ===
 			this.providerSettings.resources.windowsManagementResource.id
@@ -176,6 +207,7 @@ export abstract class MsalAzureAuth {
 		}
 
 		let authority = this.loginEndpointUrl + tenantId;
+
 		this.logger.info(`Authority URL set to: ${authority}`);
 
 		// construct request
@@ -187,18 +219,21 @@ export abstract class MsalAzureAuth {
 			scopes: newScope,
 			forceRefresh: true,
 		};
+
 		try {
 			return await this.clientApplication.acquireTokenSilent(
 				tokenRequest,
 			);
 		} catch (e) {
 			this.logger.error("Failed to acquireTokenSilent", e);
+
 			if (e instanceof AuthError && this.accountNeedsRefresh(e)) {
 				// build refresh token request
 				const tenant: ITenant = {
 					id: tenantId,
 					displayName: "",
 				};
+
 				return this.handleInteractionRequired(tenant, settings);
 			} else if (e.name === "ClientAuthError") {
 				this.logger.verbose(
@@ -209,6 +244,7 @@ export abstract class MsalAzureAuth {
 			this.logger.error(
 				`Failed to silently acquire token, not InteractionRequiredAuthError: ${e.message}`,
 			);
+
 			throw e;
 		}
 	}
@@ -239,16 +275,20 @@ export abstract class MsalAzureAuth {
 					tenantId,
 					settings,
 				);
+
 				if (!tokenResult) {
 					account.isStale = true;
+
 					return account;
 				}
 
 				const tokenClaims = this.getTokenClaims(
 					tokenResult.accessToken,
 				);
+
 				if (!tokenClaims) {
 					account.isStale = true;
+
 					return account;
 				}
 
@@ -262,18 +302,21 @@ export abstract class MsalAzureAuth {
 				return await this.hydrateAccount(token, tokenClaims);
 			} catch (ex) {
 				account.isStale = true;
+
 				throw ex;
 			}
 		} else {
 			this.logger.error(
 				`refreshAccessToken: Account not received for refreshing access token.`,
 			);
+
 			throw Error(LocalizedConstants.msgAccountNotFound);
 		}
 	}
 
 	public async loadTokenCache(): Promise<void> {
 		let tokenCache = this.clientApplication.getTokenCache();
+
 		void tokenCache.getAllAccounts();
 	}
 
@@ -281,8 +324,10 @@ export abstract class MsalAzureAuth {
 		accountId: string,
 	): Promise<AccountInfo | null> {
 		const cache = this.clientApplication.getTokenCache();
+
 		if (!cache) {
 			this.logger.error("Error: Could not fetch token cache.");
+
 			return null;
 		}
 
@@ -293,9 +338,11 @@ export abstract class MsalAzureAuth {
 		} else {
 			account = await cache.getAccountByLocalId(accountId);
 		}
+
 		if (!account) {
 			throw new Error("Error: Could not find account from MSAL Cache.");
 		}
+
 		return account;
 	}
 
@@ -304,32 +351,41 @@ export abstract class MsalAzureAuth {
 			this.providerSettings.resources.azureManagementResource.endpoint,
 			"tenants?api-version=2019-11-01",
 		);
+
 		try {
 			this.logger.verbose("Fetching tenants with uri {0}", tenantUri);
+
 			let tenantList: string[] = [];
+
 			const tenantResponse =
 				await this.makeGetRequest<GetTenantsResponseData>(
 					tenantUri,
 					token,
 				);
+
 			const data = tenantResponse.data;
+
 			if (this.isErrorResponseBodyWithError(data)) {
 				this.logger.error(
 					`Error fetching tenants :${data.error.code} - ${data.error.message}`,
 				);
+
 				throw new Error(`${data.error.code} - ${data.error.message}`);
 			}
+
 			const tenants: ITenant[] = data.value.map(
 				(tenantInfo: ITenantResponse) => {
 					if (tenantInfo.displayName) {
 						tenantList.push(tenantInfo.displayName);
 					} else {
 						tenantList.push(tenantInfo.tenantId);
+
 						this.logger.info(
 							"Tenant display name found empty: {0}",
 							tenantInfo.tenantId,
 						);
 					}
+
 					return {
 						id: tenantInfo.tenantId,
 						displayName: tenantInfo.displayName
@@ -340,19 +396,25 @@ export abstract class MsalAzureAuth {
 					} as ITenant;
 				},
 			);
+
 			this.logger.verbose(`Tenants: ${tenantList}`);
+
 			const homeTenantIndex = tenants.findIndex(
 				(tenant) => tenant.tenantCategory === Constants.homeCategory,
 			);
 			// remove home tenant from list of tenants
 			if (homeTenantIndex >= 0) {
 				const homeTenant = tenants.splice(homeTenantIndex, 1);
+
 				tenants.unshift(homeTenant[0]);
 			}
+
 			this.logger.verbose(`Filtered Tenants: ${tenantList}`);
+
 			return tenants;
 		} catch (ex) {
 			this.logger.error(`Error fetching tenants :${ex}`);
+
 			throw ex;
 		}
 	}
@@ -376,6 +438,7 @@ export abstract class MsalAzureAuth {
 		};
 
 		const response: AxiosResponse = await axios.get<T>(uri, config);
+
 		this.logger.piiSanitized(
 			"GET request ",
 			[
@@ -389,6 +452,7 @@ export abstract class MsalAzureAuth {
 			[],
 			uri,
 		);
+
 		return response;
 	}
 
@@ -399,16 +463,22 @@ export abstract class MsalAzureAuth {
 		promptUser: boolean = true,
 	): Promise<AuthenticationResult | null> {
 		let shouldOpen: boolean;
+
 		if (promptUser) {
 			shouldOpen = await this.askUserForInteraction(tenant, settings);
+
 			if (shouldOpen) {
 				const result = await this.login(tenant);
+
 				result?.authComplete?.resolve();
+
 				return result?.response;
 			}
 		} else {
 			const result = await this.login(tenant);
+
 			result?.authComplete?.resolve();
+
 			return result?.response;
 		}
 
@@ -430,6 +500,7 @@ export abstract class MsalAzureAuth {
 
 		interface IConsentMessageItem extends vscode.MessageItem {
 			booleanResult: boolean;
+
 			action?: (tenantId: string) => Promise<void>;
 		}
 
@@ -447,6 +518,7 @@ export abstract class MsalAzureAuth {
 		const messageBody = LocalizedConstants.azureConsentDialogBodyAccount(
 			settings.id,
 		);
+
 		const result = await vscode.window.showInformationMessage(
 			messageBody,
 			{ modal: true },
@@ -472,6 +544,7 @@ export abstract class MsalAzureAuth {
 		this.logger.verbose(
 			`Token Claims acccount: ${tokenClaims.name}, TID: ${tokenClaims.tid}`,
 		);
+
 		tenants.forEach((tenant) => {
 			this.logger.verbose(
 				`Tenant ID: ${tenant.id}, Tenant Name: ${tenant.displayName}`,
@@ -489,6 +562,7 @@ export abstract class MsalAzureAuth {
 		) {
 			accountIssuer = Constants.AccountIssuer.Corp;
 		}
+
 		if (tokenClaims?.idp === "live.com") {
 			accountIssuer = Constants.AccountIssuer.Msft;
 		}
@@ -498,6 +572,7 @@ export abstract class MsalAzureAuth {
 			tokenClaims.preferred_username ??
 			tokenClaims.email ??
 			tokenClaims.unique_name;
+
 		const email =
 			tokenClaims.preferred_username ??
 			tokenClaims.email ??
@@ -518,20 +593,26 @@ export abstract class MsalAzureAuth {
 		}
 
 		let displayName = name;
+
 		if (email) {
 			displayName = `${displayName} - ${email}`;
 		}
 
 		let contextualDisplayName: string;
+
 		switch (accountIssuer) {
 			case Constants.AccountIssuer.Corp:
 				contextualDisplayName =
 					LocalizedConstants.azureMicrosoftCorpAccount;
+
 				break;
+
 			case Constants.AccountIssuer.Msft:
 				contextualDisplayName =
 					LocalizedConstants.azureMicrosoftAccount;
+
 				break;
+
 			default:
 				contextualDisplayName = displayName;
 		}
@@ -574,6 +655,7 @@ export abstract class MsalAzureAuth {
 	protected getTokenClaims(accessToken: string): ITokenClaims {
 		try {
 			const split = accessToken.split(".");
+
 			return JSON.parse(Buffer.from(split[1], "base64").toString("utf8"));
 		} catch (ex) {
 			throw new Error(
@@ -592,8 +674,10 @@ export abstract class MsalAzureAuth {
 	public async clearCredentials(account: IAccount): Promise<void> {
 		try {
 			const tokenCache = this.clientApplication.getTokenCache();
+
 			let accountInfo: AccountInfo | null =
 				await this.getAccountFromMsalCache(account.key.id);
+
 			await tokenCache.removeAccount(accountInfo!);
 		} catch (ex) {
 			// We need not prompt user for error if token could not be removed from cache.
@@ -633,8 +717,11 @@ export interface IRefreshToken extends IAccountKey {
 export interface ITenantResponse {
 	// https://docs.microsoft.com/en-us/rest/api/resources/tenants/list
 	id: string;
+
 	tenantId: string;
+
 	displayName?: string;
+
 	tenantCategory?: string;
 }
 
@@ -705,6 +792,7 @@ export interface ITokenClaims {
 	 * or a token revocation has been detected.
 	 */
 	exp: number;
+
 	home_oid?: string;
 	/**
 	 * The code hash is included in ID tokens only when the ID token is issued with an
@@ -802,8 +890,11 @@ export interface ITokenClaims {
 
 export type OAuthTokenResponse = {
 	accessToken: IAccessToken;
+
 	refreshToken: IRefreshToken | undefined;
+
 	tokenClaims: ITokenClaims;
+
 	expiresOn: string;
 };
 
@@ -812,21 +903,29 @@ export interface ITokenPostData {
 		| "refresh_token"
 		| "authorization_code"
 		| "urn:ietf:params:oauth:grant-type:device_code";
+
 	client_id: string;
+
 	resource: string;
 }
 
 export interface IRefreshTokenPostData extends ITokenPostData {
 	grant_type: "refresh_token";
+
 	refresh_token: string;
+
 	client_id: string;
+
 	tenant: string;
 }
 
 export interface IAuthorizationCodePostData extends ITokenPostData {
 	grant_type: "authorization_code";
+
 	code: string;
+
 	code_verifier: string;
+
 	redirect_uri: string;
 }
 
@@ -836,7 +935,9 @@ export interface IDeviceCodeStartPostData
 export interface IDeviceCodeCheckPostData
 	extends Omit<ITokenPostData, "resource"> {
 	grant_type: "urn:ietf:params:oauth:grant-type:device_code";
+
 	tenant: string;
+
 	code: string;
 }
 //#endregion

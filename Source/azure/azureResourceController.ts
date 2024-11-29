@@ -77,6 +77,7 @@ export class AzureResourceController {
 				return result.fullyQualifiedDomainName;
 			}
 		}
+
 		return undefined;
 	}
 

@@ -59,11 +59,17 @@ export const contentTypes = [
 // optional name and details on whether password should be saved
 export interface IConnectionProfile extends vscodeMssql.IConnectionInfo {
 	profileName: string;
+
 	savePassword: boolean;
+
 	emptyPasswordInput: boolean;
+
 	azureAuthType: AzureAuthType;
+
 	accountStore: AccountStore;
+
 	isValidProfile(): boolean;
+
 	isAzureActiveDirectory(): boolean;
 }
 
@@ -75,89 +81,140 @@ export enum CredentialsQuickPickItemType {
 export interface IConnectionCredentialsQuickPickItem
 	extends vscode.QuickPickItem {
 	connectionCreds: vscodeMssql.IConnectionInfo;
+
 	quickPickItemType: CredentialsQuickPickItemType;
 }
 
 // Obtained from an active connection to show in the status bar
 export interface IConnectionProperties {
 	serverVersion: string;
+
 	currentUser: string;
+
 	currentDatabase: string;
 }
 
 export interface IDbColumn {
 	allowDBNull?: boolean;
+
 	baseCatalogName: string;
+
 	baseColumnName: string;
+
 	baseSchemaName: string;
+
 	baseServerName: string;
+
 	baseTableName: string;
+
 	columnName: string;
+
 	columnOrdinal?: number;
+
 	columnSize?: number;
+
 	isAliased?: boolean;
+
 	isAutoIncrement?: boolean;
+
 	isExpression?: boolean;
+
 	isHidden?: boolean;
+
 	isIdentity?: boolean;
+
 	isKey?: boolean;
+
 	isBytes?: boolean;
+
 	isChars?: boolean;
+
 	isSqlVariant?: boolean;
+
 	isUdt?: boolean;
+
 	dataType: string;
+
 	isXml?: boolean;
+
 	isJson?: boolean;
+
 	isLong?: boolean;
+
 	isReadOnly?: boolean;
+
 	isUnique?: boolean;
+
 	numericPrecision?: number;
+
 	numericScale?: number;
+
 	udtAssemblyQualifiedName: string;
+
 	dataTypeName: string;
 }
 
 export interface IGridResultSet {
 	columns: IDbColumn[];
+
 	rowsUri: string;
+
 	numberOfRows: number;
 }
 
 export interface ISelectionData {
 	startLine: number;
+
 	startColumn: number;
+
 	endLine: number;
+
 	endColumn: number;
 }
 
 export interface IResultMessage {
 	batchId?: number;
+
 	isError: boolean;
+
 	time: string;
+
 	message: string;
 }
 
 export interface IGridBatchMetaData {
 	resultSets: IGridResultSet[];
+
 	hasError: boolean;
+
 	selection: ISelectionData;
+
 	startTime: string;
+
 	endTime: string;
+
 	totalTime: string;
 }
 
 export interface IResultsConfig {
 	shortcuts: { [key: string]: string };
+
 	messagesDefaultOpen: boolean;
+
 	resultsFontSize: number;
+
 	resultsFontFamily: string;
 }
 
 export interface ILogger {
 	logDebug(message: string): void;
+
 	increaseIndent(): void;
+
 	decreaseIndent(): void;
+
 	append(message?: string): void;
+
 	appendLine(message?: string): void;
 }
 
@@ -167,90 +224,139 @@ export interface IAzureSignInQuickPickItem extends vscode.QuickPickItem {
 
 export class DbCellValue {
 	displayValue: string;
+
 	isNull: boolean;
 }
 
 export class ResultSetSubset {
 	rowCount: number;
+
 	rows: DbCellValue[][];
 }
 
 export interface IDbColumn {
 	allowDBNull?: boolean;
+
 	baseCatalogName: string;
+
 	baseColumnName: string;
+
 	baseSchemaName: string;
+
 	baseServerName: string;
+
 	baseTableName: string;
+
 	columnName: string;
+
 	columnOrdinal?: number;
+
 	columnSize?: number;
+
 	isAliased?: boolean;
+
 	isAutoIncrement?: boolean;
+
 	isExpression?: boolean;
+
 	isHidden?: boolean;
+
 	isIdentity?: boolean;
+
 	isKey?: boolean;
+
 	isBytes?: boolean;
+
 	isChars?: boolean;
+
 	isSqlVariant?: boolean;
+
 	isUdt?: boolean;
+
 	dataType: string;
+
 	isXml?: boolean;
+
 	isJson?: boolean;
+
 	isLong?: boolean;
+
 	isReadOnly?: boolean;
+
 	isUnique?: boolean;
+
 	numericPrecision?: number;
+
 	numericScale?: number;
+
 	udtAssemblyQualifiedName: string;
+
 	dataTypeName: string;
 }
 
 export class ResultSetSummary {
 	id: number;
+
 	rowCount: number;
+
 	columnInfo: IDbColumn[];
 }
 
 export class BatchSummary {
 	id: number;
+
 	selection: ISelectionData;
+
 	resultSetSummaries: ResultSetSummary[];
+
 	executionElapsed: string;
+
 	executionEnd: string;
+
 	executionStart: string;
 }
 
 export interface IGridResultSet {
 	columns: IDbColumn[];
+
 	rowsUri: string;
+
 	numberOfRows: number;
 }
 
 export interface ISelectionData {
 	startLine: number;
+
 	startColumn: number;
+
 	endLine: number;
+
 	endColumn: number;
 }
 
 export interface IMessageLink {
 	uri: string;
+
 	text: string;
 }
 
 export interface IMessage {
 	batchId?: number;
+
 	time: string;
+
 	message: string;
+
 	isError: boolean;
+
 	link?: IMessageLink;
 }
 
 export interface IGridIcon {
 	showCondition: () => boolean;
+
 	icon: () => string;
+
 	hoverText: () => string;
 
 	functionality: (batchId: number, resultId: number, index: number) => void;
@@ -258,30 +364,39 @@ export interface IGridIcon {
 
 export interface IResultsConfig {
 	shortcuts: { [key: string]: string };
+
 	messagesDefaultOpen: boolean;
 }
 
 export class QueryEvent {
 	type: string;
+
 	data: any;
 }
 
 export interface ISlickRange {
 	fromCell: number;
+
 	fromRow: number;
+
 	toCell: number;
+
 	toRow: number;
 }
 
 export interface IResultsConfig {
 	shortcuts: { [key: string]: string };
+
 	messagesDefaultOpen: boolean;
 }
 
 export interface ISelectionData {
 	startLine: number;
+
 	startColumn: number;
+
 	endLine: number;
+
 	endColumn: number;
 }
 
@@ -296,12 +411,19 @@ export enum FieldType {
 
 export interface IColumnDefinition {
 	id?: string;
+
 	field?: string;
+
 	name: string;
+
 	type: FieldType;
+
 	width?: number;
+
 	cssClass?: string;
+
 	focusable?: boolean;
+
 	selectable?: boolean;
 
 	asyncPostRender?: (
@@ -322,6 +444,7 @@ export interface IColumnDefinition {
 
 export interface IGridDataRow {
 	row?: number;
+
 	values: any[];
 }
 
@@ -386,13 +509,17 @@ export enum AzureLoginStatus {
 
 export interface IAzureSession {
 	readonly environment: any;
+
 	readonly userId: string;
+
 	readonly tenantId: string;
+
 	readonly credentials: any;
 }
 
 export interface IAzureResourceFilter {
 	readonly sessions: IAzureSession[];
+
 	readonly subscription: ISubscription;
 }
 
@@ -476,5 +603,6 @@ export type SpendingLimit = "On" | "Off" | "CurrentPeriodOff";
 
 export interface IDeferred<T, E extends Error = Error> {
 	resolve: (result: T | Promise<T>) => void;
+
 	reject: (reason: E) => void;
 }

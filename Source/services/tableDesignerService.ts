@@ -16,6 +16,7 @@ import * as designer from "../sharedInterfaces/tableDesigner";
 
 export class TableDesignerService implements designer.ITableDesignerService {
 	constructor(private _sqlToolsClient: SqlToolsServiceClient) {}
+
 	async initializeTableDesigner(
 		table: designer.TableInfo,
 	): Promise<designer.TableDesignerInfo> {
@@ -30,6 +31,7 @@ export class TableDesignerService implements designer.ITableDesignerService {
 			throw e;
 		}
 	}
+
 	async processTableEdit(
 		table: designer.TableInfo,
 		tableChangeInfo: designer.DesignerEdit,
@@ -45,6 +47,7 @@ export class TableDesignerService implements designer.ITableDesignerService {
 			throw e;
 		}
 	}
+
 	async publishChanges(
 		table: designer.TableInfo,
 	): Promise<designer.PublishChangesResult> {
@@ -59,6 +62,7 @@ export class TableDesignerService implements designer.ITableDesignerService {
 			throw e;
 		}
 	}
+
 	async generateScript(table: designer.TableInfo): Promise<string> {
 		try {
 			return await this._sqlToolsClient.sendRequest(
@@ -71,6 +75,7 @@ export class TableDesignerService implements designer.ITableDesignerService {
 			throw e;
 		}
 	}
+
 	async generatePreviewReport(
 		table: designer.TableInfo,
 	): Promise<designer.GeneratePreviewReportResult> {
@@ -85,6 +90,7 @@ export class TableDesignerService implements designer.ITableDesignerService {
 			throw e;
 		}
 	}
+
 	async disposeTableDesigner(table: designer.TableInfo): Promise<void> {
 		try {
 			return await this._sqlToolsClient.sendRequest(

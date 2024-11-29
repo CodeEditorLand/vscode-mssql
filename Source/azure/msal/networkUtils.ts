@@ -39,9 +39,11 @@ export class NetworkUtils {
 		if (url.port !== "") {
 			options.port = Number(url.port);
 		}
+
 		if (url.username || url.password) {
 			options.auth = `${decodeURIComponent(url.username)}:${decodeURIComponent(url.password)}`;
 		}
+
 		return options;
 	}
 }

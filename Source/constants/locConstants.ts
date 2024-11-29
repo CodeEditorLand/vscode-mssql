@@ -8,11 +8,17 @@ import { l10n } from "vscode";
 // Warning: Only update these strings if you are sure you want to affect _all_ locations they're shared between.
 export class Common {
 	public static remindMeLater = l10n.t("Remind Me Later");
+
 	public static dontShowAgain = l10n.t("Don't Show Again");
+
 	public static learnMore = l10n.t("Learn More");
+
 	public static delete = l10n.t("Delete");
+
 	public static cancel = l10n.t("Cancel");
+
 	public static areYouSure = l10n.t("Are you sure?");
+
 	public static areYouSureYouWantTo = (action: string) =>
 		l10n.t({
 			message: "Are you sure you want to {0}?",
@@ -869,22 +875,37 @@ export let enableRichExperiences = l10n.t("Enable Experiences & Reload");
 
 export class ConnectionDialog {
 	public static connectionDialog = l10n.t("Connection Dialog (Preview)");
+
 	public static azureAccount = l10n.t("Azure Account");
+
 	public static azureAccountIsRequired = l10n.t("Azure Account is required");
+
 	public static selectAnAccount = l10n.t("Select an account");
+
 	public static savePassword = l10n.t("Save Password");
+
 	public static tenantId = l10n.t("Tenant ID");
+
 	public static selectATenant = l10n.t("Select a tenant");
+
 	public static tenantIdIsRequired = l10n.t("Tenant ID is required");
+
 	public static profileName = l10n.t("Profile Name");
+
 	public static serverIsRequired = l10n.t("Server is required");
+
 	public static usernameIsRequired = l10n.t("User name is required");
+
 	public static connectionString = l10n.t("Connection String");
+
 	public static connectionStringIsRequired = l10n.t(
 		"Connection string is required",
 	);
+
 	public static signIn = l10n.t("Sign in");
+
 	public static additionalParameters = l10n.t("Additional parameters");
+
 	public static connect = l10n.t("Connect");
 
 	public static errorLoadingAzureDatabases(
@@ -901,6 +922,7 @@ export class ConnectionDialog {
 			],
 		});
 	}
+
 	public static deleteTheSavedConnection = (connectionName: string) => {
 		return l10n.t({
 			message: "delete the saved connection: {0}?",
@@ -914,18 +936,25 @@ export class UserSurvey {
 	public static overallHowSatisfiedAreYouWithMSSQLExtension = l10n.t(
 		"Overall, how satisfied are you with the MSSQL extension?",
 	);
+
 	public static howlikelyAreYouToRecommendMSSQLExtension = l10n.t(
 		"How likely it is that you would recommend the MSSQL extension to a friend or colleague?",
 	);
+
 	public static whatCanWeDoToImprove = l10n.t("What can we do to improve?");
+
 	public static takeSurvey = l10n.t("Take Survey");
+
 	public static doYouMindTakingAQuickFeedbackSurvey = l10n.t(
 		"Do you mind taking a quick feedback survey about the MSSQL Extension for VS Code?",
 	);
+
 	public static mssqlFeedback = l10n.t("MSSQL Feedback");
+
 	public static privacyDisclaimer = l10n.t(
 		"Microsoft reviews your feedback to improve our products, so don't share any personal data or confidential/proprietary content.",
 	);
+
 	public static overallHowStatisfiedAreYouWithFeature = (
 		featureName: string,
 	) =>
@@ -951,11 +980,14 @@ export class Webview {
 			args: [webviewName],
 			comment: ["{0} is the webview name"],
 		});
+
 	public static Restore = l10n.t("Restore");
 }
 
 export class TableDesigner {
 	public static General = l10n.t("General");
+
 	public static Columns = l10n.t("Columns");
+
 	public static AdvancedOptions = l10n.t("Advanced Options");
 }

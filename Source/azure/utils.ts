@@ -33,8 +33,10 @@ export async function getAllValues<T, TResult>(
 
 	while (!newValue.done) {
 		values.push(convertor(newValue.value)!);
+
 		newValue = await pages.next();
 	}
+
 	return values;
 }
 
@@ -108,6 +110,7 @@ export function getEnableSqlAuthenticationProviderConfig(): boolean {
 			return val;
 		}
 	}
+
 	return true; // default setting
 }
 
@@ -123,6 +126,7 @@ export function getEnableConnectionPoolingConfig(): boolean {
 			return val;
 		}
 	}
+
 	return true; // default setting
 }
 

@@ -33,21 +33,27 @@ export function getNewResultPaneViewColumn(
 		Constants.extensionConfigSectionName,
 		uri,
 	);
+
 	let splitPaneSelection = config[Constants.configSplitPaneSelection];
+
 	let viewColumn: vscode.ViewColumn;
 
 	switch (splitPaneSelection) {
 		case "current":
 			viewColumn = vscodeWrapper.activeTextEditor.viewColumn;
+
 			break;
+
 		case "end":
 			viewColumn = vscode.ViewColumn.Three;
+
 			break;
 		// default case where splitPaneSelection is next or anything else
 		default:
 			// if there's an active text editor
 			if (vscodeWrapper.isEditingSqlFile) {
 				viewColumn = vscodeWrapper.activeTextEditor.viewColumn;
+
 				if (viewColumn === vscode.ViewColumn.One) {
 					viewColumn = vscode.ViewColumn.Two;
 				} else {
@@ -58,6 +64,7 @@ export function getNewResultPaneViewColumn(
 				viewColumn = vscode.ViewColumn.Two;
 			}
 	}
+
 	return viewColumn;
 }
 
@@ -82,9 +89,11 @@ export function registerCommonRequestHandlers(
 				message.rowStart,
 				message.numberOfRows,
 			);
+
 		let currentState = webviewViewController.getQueryResultState(
 			message.uri,
 		);
+
 		if (
 			currentState.isExecutionPlan &&
 			currentState.resultSetSummaries[message.batchId] &&
@@ -112,11 +121,15 @@ export function registerCommonRequestHandlers(
 				!recordLength(currentState.executionPlanState.xmlPlans))
 		) {
 			currentState.isExecutionPlan = false;
+
 			currentState.actualPlanEnabled = false;
 		}
+
 		webviewViewController.setQueryResultState(message.uri, currentState);
+
 		return result;
 	});
+
 	webviewController.registerRequestHandler(
 		"setEditorSelection",
 		async (message) => {
@@ -128,6 +141,7 @@ export function registerCommonRequestHandlers(
 				);
 		},
 	);
+
 	webviewController.registerRequestHandler("saveResults", async (message) => {
 		sendActionEvent(
 			TelemetryViews.QueryResult,
@@ -139,6 +153,7 @@ export function registerCommonRequestHandlers(
 				origin: message.origin,
 			},
 		);
+
 		return await webviewViewController
 			.getSqlOutputContentProvider()
 			.saveResultsRequestHandler(
@@ -149,6 +164,7 @@ export function registerCommonRequestHandlers(
 				message.selection,
 			);
 	});
+
 	webviewController.registerRequestHandler(
 		"copySelection",
 		async (message) => {
@@ -159,6 +175,7 @@ export function registerCommonRequestHandlers(
 					correlationId: correlationId,
 				},
 			);
+
 			return await webviewViewController
 				.getSqlOutputContentProvider()
 				.copyRequestHandler(
@@ -170,6 +187,7 @@ export function registerCommonRequestHandlers(
 				);
 		},
 	);
+
 	webviewController.registerRequestHandler(
 		"copyWithHeaders",
 		async (message) => {
@@ -183,6 +201,7 @@ export function registerCommonRequestHandlers(
 					origin: undefined,
 				},
 			);
+
 			return await webviewViewController
 				.getSqlOutputContentProvider()
 				.copyRequestHandler(
@@ -194,6 +213,7 @@ export function registerCommonRequestHandlers(
 				);
 		},
 	);
+
 	webviewController.registerRequestHandler("copyHeaders", async (message) => {
 		sendActionEvent(
 			TelemetryViews.QueryResult,
@@ -202,6 +222,7 @@ export function registerCommonRequestHandlers(
 				correlationId: correlationId,
 			},
 		);
+
 		return await webviewViewController
 			.getSqlOutputContentProvider()
 			.copyHeadersRequestHandler(
@@ -211,13 +232,16 @@ export function registerCommonRequestHandlers(
 				message.selection,
 			);
 	});
+
 	webviewController.registerReducer(
 		"setResultTab",
 		async (state, payload) => {
 			state.tabStates.resultPaneTab = payload.tabId;
+
 			return state;
 		},
 	);
+
 	webviewController.registerReducer(
 		"setFilterState",
 		async (state, payload) => {
@@ -227,9 +251,11 @@ export function registerCommonRequestHandlers(
 				seachText: payload.filterState.seachText,
 				sorted: payload.filterState.sorted,
 			};
+
 			return state;
 		},
 	);
+
 	webviewController.registerReducer(
 		"getExecutionPlan",
 		async (state, payload) => {
@@ -261,7 +287,9 @@ export function registerCommonRequestHandlers(
 						currentResultState.executionPlanState.xmlPlans,
 					),
 				)) as qr.QueryResultWebviewState;
+
 				state.executionPlanState.loadState = ApiStatus.Loaded;
+
 				state.tabStates.resultPaneTab =
 					qr.QueryResultPaneTabs.ExecutionPlan;
 			}
@@ -269,6 +297,7 @@ export function registerCommonRequestHandlers(
 			return state;
 		},
 	);
+
 	webviewController.registerReducer(
 		"openFileThroughLink",
 		async (state, payload) => {
@@ -283,6 +312,7 @@ export function registerCommonRequestHandlers(
 			return state;
 		},
 	);
+
 	webviewController.registerReducer(
 		"saveExecutionPlan",
 		async (state, payload) => {
@@ -292,12 +322,14 @@ export function registerCommonRequestHandlers(
 			)) as qr.QueryResultWebviewState;
 		},
 	);
+
 	webviewController.registerReducer("showPlanXml", async (state, payload) => {
 		return (await showPlanXml(
 			state,
 			payload,
 		)) as qr.QueryResultWebviewState;
 	});
+
 	webviewController.registerReducer("showQuery", async (state, payload) => {
 		return (await showQuery(
 			state,
@@ -305,6 +337,7 @@ export function registerCommonRequestHandlers(
 			webviewViewController.getUntitledDocumentService(),
 		)) as qr.QueryResultWebviewState;
 	});
+
 	webviewController.registerReducer(
 		"updateTotalCost",
 		async (state, payload) => {

@@ -5,8 +5,11 @@
 
 export interface ISlickRange {
 	fromCell: number;
+
 	fromRow: number;
+
 	toCell: number;
+
 	toRow: number;
 }
 
@@ -47,6 +50,7 @@ export function tryCombineSelections(selections: ISlickRange[]): ISlickRange[] {
 
 	// Verify whether all cells in the combined selection have actually been selected
 	let verifiers: ((cell: [number, number]) => boolean)[] = [];
+
 	selections.forEach((range) => {
 		verifiers.push((cell: [number, number]) => {
 			return (
@@ -60,12 +64,16 @@ export function tryCombineSelections(selections: ISlickRange[]): ISlickRange[] {
 
 	for (
 		let row = unifiedSelection.fromRow;
+
 		row <= unifiedSelection.toRow;
+
 		row++
 	) {
 		for (
 			let column = unifiedSelection.fromCell;
+
 			column <= unifiedSelection.toCell;
+
 			column++
 		) {
 			// If some cell in the combined selection isn't actually selected, return the original selections
@@ -74,5 +82,6 @@ export function tryCombineSelections(selections: ISlickRange[]): ISlickRange[] {
 			}
 		}
 	}
+
 	return [unifiedSelection];
 }

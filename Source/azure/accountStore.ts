@@ -20,6 +20,7 @@ export class AccountStore {
 			this._context.globalState.get<IAccount[]>(
 				Constants.configAzureAccount,
 			) ?? [];
+
 		this._logger.verbose(
 			`Retreived ${configValues?.length} Azure accounts from account store.`,
 		);
@@ -37,6 +38,7 @@ export class AccountStore {
 		if (!configValues) {
 			throw new Error("No Azure accounts stored");
 		}
+
 		for (let value of configValues) {
 			// Compare account IDs considering multi-tenant account ID format with MSAL.
 			if (
@@ -49,6 +51,7 @@ export class AccountStore {
 				break;
 			}
 		}
+
 		return account;
 	}
 
@@ -58,8 +61,11 @@ export class AccountStore {
 				"Azure Account key not received for removal request.",
 			);
 		}
+
 		let configValues = this.getAccounts();
+
 		configValues = configValues.filter((val) => val.key.id !== key);
+
 		this._context.globalState.update(
 			Constants.configAzureAccount,
 			configValues,
@@ -85,7 +91,9 @@ export class AccountStore {
 			} else {
 				configValues = [];
 			}
+
 			configValues.unshift(account);
+
 			await this._context.globalState.update(
 				Constants.configAzureAccount,
 				configValues,
@@ -99,6 +107,7 @@ export class AccountStore {
 
 	public async pruneAccounts(): Promise<void> {
 		let configValues = this.getAccounts();
+
 		configValues = configValues.filter((val) => {
 			if (val.key) {
 				return true;
@@ -110,6 +119,7 @@ export class AccountStore {
 				return false;
 			}
 		});
+
 		await this._context.globalState.update(
 			Constants.configAzureAccount,
 			configValues,
@@ -120,10 +130,12 @@ export class AccountStore {
 
 	public async clearAccounts(): Promise<void> {
 		let configValues = [];
+
 		await this._context.globalState.update(
 			Constants.configAzureAccount,
 			configValues,
 		);
+
 		this._logger.verbose("Cleared all saved Azure accounts");
 	}
 }

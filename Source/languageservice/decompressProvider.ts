@@ -15,17 +15,23 @@ export default class DecompressProvider implements IDecompressProvider {
 
 		return new Promise<void>((resolve, reject) => {
 			let totalFiles = 0;
+
 			unzipper.on("progress", async (index, fileCount) => {
 				totalFiles = fileCount;
 			});
+
 			unzipper.on("extract", async () => {
 				logger.appendLine(`Done! ${totalFiles} files unpacked.\n`);
+
 				resolve();
 			});
+
 			unzipper.on("error", async (decompressErr) => {
 				logger.appendLine(`[ERROR] ${decompressErr}`);
+
 				reject(decompressErr);
 			});
+
 			unzipper.extract({ path: pkg.installPath });
 		});
 	}

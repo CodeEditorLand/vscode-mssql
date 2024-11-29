@@ -471,6 +471,7 @@ declare module "vscode-mssql" {
 			ownerUri: string,
 			taskExecutionMode: TaskExecutionMode,
 		): Thenable<DacFxResult>;
+
 		extractDacpac(
 			databaseName: string,
 			packageFilePath: string,
@@ -479,6 +480,7 @@ declare module "vscode-mssql" {
 			ownerUri: string,
 			taskExecutionMode: TaskExecutionMode,
 		): Thenable<DacFxResult>;
+
 		createProjectFromDatabase(
 			databaseName: string,
 			targetFilePath: string,
@@ -489,6 +491,7 @@ declare module "vscode-mssql" {
 			taskExecutionMode: TaskExecutionMode,
 			includePermissions?: boolean,
 		): Thenable<DacFxResult>;
+
 		deployDacpac(
 			packageFilePath: string,
 			databaseName: string,
@@ -498,6 +501,7 @@ declare module "vscode-mssql" {
 			sqlCommandVariableValues?: Map<string, string>,
 			deploymentOptions?: DeploymentOptions,
 		): Thenable<DacFxResult>;
+
 		generateDeployScript(
 			packageFilePath: string,
 			databaseName: string,
@@ -506,6 +510,7 @@ declare module "vscode-mssql" {
 			sqlCommandVariableValues?: Map<string, string>,
 			deploymentOptions?: DeploymentOptions,
 		): Thenable<DacFxResult>;
+
 		generateDeployPlan(
 			packageFilePath: string,
 			databaseName: string,
@@ -516,10 +521,12 @@ declare module "vscode-mssql" {
 		getOptionsFromProfile(
 			profilePath: string,
 		): Thenable<DacFxOptionsResult>;
+
 		validateStreamingJob(
 			packageFilePath: string,
 			createStreamingJobTsql: string,
 		): Thenable<ValidateStreamingJobResult>;
+
 		savePublishProfile(
 			profilePath: string,
 			databaseName: string,
@@ -981,8 +988,11 @@ declare module "vscode-mssql" {
 	 */
 	export interface ITenant {
 		id: string;
+
 		displayName: string;
+
 		userId?: string;
+
 		tenantCategory?: string;
 	}
 
@@ -1087,28 +1097,43 @@ declare module "vscode-mssql" {
 
 	export interface IProviderSettings {
 		scopes: string[];
+
 		displayName: string;
+
 		id: string;
+
 		clientId: string;
+
 		loginEndpoint: string;
+
 		portalEndpoint: string;
+
 		redirectUri: string;
+
 		resources: IProviderResources;
 	}
 
 	export interface IProviderResources {
 		windowsManagementResource: IAADResource;
+
 		azureManagementResource: IAADResource;
+
 		graphResource?: IAADResource;
+
 		databaseResource?: IAADResource;
+
 		ossRdbmsResource?: IAADResource;
+
 		azureKeyVaultResource?: IAADResource;
+
 		azureDevopsResource?: IAADResource;
 	}
 
 	export interface IAADResource {
 		id: string;
+
 		resource: string;
+
 		endpoint: string;
 	}
 
@@ -1118,6 +1143,7 @@ declare module "vscode-mssql" {
 		 */
 		key: string;
 	}
+
 	export interface IAccessToken extends ITokenKey {
 		/**
 		 * Access Token
@@ -1145,33 +1171,57 @@ declare module "vscode-mssql" {
 
 	export interface ITokenClaims {
 		aud: string;
+
 		iss: string;
+
 		iat: number;
+
 		idp: string;
+
 		nbf: number;
+
 		exp: number;
+
 		home_oid?: string;
+
 		c_hash: string;
+
 		at_hash: string;
+
 		aio: string;
+
 		preferred_username: string;
+
 		email: string;
+
 		name: string;
+
 		nonce: string;
+
 		oid?: string;
+
 		roles: string[];
+
 		rh: string;
+
 		sub: string;
+
 		tid: string;
+
 		unique_name: string;
+
 		uti: string;
+
 		ver: string;
 	}
 
 	export interface IAzureAccountSession {
 		subscription: azure.subscription.Subscription;
+
 		tenantId: string;
+
 		account: IAccount;
+
 		token: IToken | undefined;
 	}
 
@@ -1246,7 +1296,9 @@ declare module "vscode-mssql" {
 	 */
 	export interface DacDeployOptionPropertyBoolean {
 		value: boolean;
+
 		description: string;
+
 		displayName: string;
 	}
 
@@ -1255,7 +1307,9 @@ declare module "vscode-mssql" {
 	 */
 	export interface DacDeployOptionPropertyObject {
 		value: string[];
+
 		description: string;
+
 		displayName: string;
 	}
 
@@ -1278,6 +1332,7 @@ declare module "vscode-mssql" {
 	 */
 	export interface ResultStatus {
 		success: boolean;
+
 		errorMessage: string;
 	}
 
@@ -1297,52 +1352,79 @@ declare module "vscode-mssql" {
 
 	export interface ExportParams {
 		databaseName: string;
+
 		packageFilePath: string;
+
 		ownerUri: string;
+
 		taskExecutionMode: TaskExecutionMode;
 	}
 
 	export interface ImportParams {
 		packageFilePath: string;
+
 		databaseName: string;
+
 		ownerUri: string;
+
 		taskExecutionMode: TaskExecutionMode;
 	}
 
 	export interface ExtractParams {
 		databaseName: string;
+
 		packageFilePath: string;
+
 		applicationName: string;
+
 		applicationVersion: string;
+
 		ownerUri: string;
+
 		extractTarget?: ExtractTarget;
+
 		taskExecutionMode: TaskExecutionMode;
+
 		includePermissions?: boolean;
 	}
 
 	export interface DeployParams {
 		packageFilePath: string;
+
 		databaseName: string;
+
 		upgradeExisting: boolean;
+
 		sqlCommandVariableValues?: Record<string, string>;
+
 		deploymentOptions?: DeploymentOptions;
+
 		ownerUri: string;
+
 		taskExecutionMode: TaskExecutionMode;
 	}
 
 	export interface GenerateDeployScriptParams {
 		packageFilePath: string;
+
 		databaseName: string;
+
 		sqlCommandVariableValues?: Record<string, string>;
+
 		deploymentOptions?: DeploymentOptions;
+
 		ownerUri: string;
+
 		taskExecutionMode: TaskExecutionMode;
 	}
 
 	export interface GenerateDeployPlanParams {
 		packageFilePath: string;
+
 		databaseName: string;
+
 		ownerUri: string;
+
 		taskExecutionMode: TaskExecutionMode;
 	}
 
@@ -1352,6 +1434,7 @@ declare module "vscode-mssql" {
 
 	export interface ValidateStreamingJobParams {
 		packageFilePath: string;
+
 		createStreamingJobTsql: string;
 	}
 
@@ -1363,9 +1446,13 @@ declare module "vscode-mssql" {
 
 	export interface SavePublishProfileParams {
 		profilePath: string;
+
 		databaseName: string;
+
 		connectionString: string;
+
 		sqlCommandVariableValues?: Record<string, string>;
+
 		deploymentOptions?: DeploymentOptions;
 	}
 
@@ -1642,11 +1729,13 @@ declare module "vscode-mssql" {
 
 	export interface DatabaseReference {
 		suppressMissingDependencies: boolean;
+
 		databaseVariableLiteralName?: string;
 	}
 
 	interface UserDatabaseReference extends DatabaseReference {
 		databaseVariable?: SqlCmdVariable;
+
 		serverVariable?: SqlCmdVariable;
 	}
 
@@ -1656,6 +1745,7 @@ declare module "vscode-mssql" {
 
 	export interface SqlProjectReference extends UserDatabaseReference {
 		projectPath: string;
+
 		projectGuid?: string;
 	}
 
@@ -1665,11 +1755,13 @@ declare module "vscode-mssql" {
 
 	export interface NugetPackageReference extends UserDatabaseReference {
 		packageName: string;
+
 		packageVersion: string;
 	}
 
 	export interface SqlCmdVariable {
 		varName: string;
+
 		value: string;
 
 		defaultValue: string;
@@ -1681,18 +1773,27 @@ declare module "vscode-mssql" {
 
 	export interface ITreeNodeInfo extends vscode.TreeItem {
 		readonly connectionInfo: IConnectionInfo;
+
 		nodeType: string;
+
 		metadata: ObjectMetadata;
+
 		parentNode: ITreeNodeInfo;
+
 		filterableProperties?: NodeFilterProperty[];
+
 		context?: TreeNodeContextValue;
+
 		filters?: NodeFilter[];
 	}
 
 	export interface TreeNodeContextValue {
 		type: string;
+
 		subType: string;
+
 		filterable: boolean;
+
 		hasFilters: boolean;
 	}
 

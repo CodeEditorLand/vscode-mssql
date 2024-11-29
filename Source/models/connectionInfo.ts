@@ -67,11 +67,13 @@ export function fixupConnectionCredentials(
 			connCreds.connectTimeout = Constants.azureSqlDbConnectionTimeout;
 		}
 	}
+
 	return connCreds;
 }
 
 export function updateEncrypt(connection: IConnectionInfo): {
 	connection: IConnectionInfo;
+
 	updateStatus: boolean;
 } {
 	let updatePerformed = true;
@@ -85,6 +87,7 @@ export function updateEncrypt(connection: IConnectionInfo): {
 	} else {
 		updatePerformed = false;
 	}
+
 	return { connection: resultConnection, updateStatus: updatePerformed };
 }
 
@@ -158,12 +161,15 @@ export function getConnectionDisplayString(creds: IConnectionInfo): string {
 	} else {
 		text = appendIfNotEmpty(text, LocalizedConstants.defaultDatabaseLabel);
 	}
+
 	let user: string = getUserNameOrDomainLogin(creds);
+
 	text = appendIfNotEmpty(text, user);
 
 	// Limit the maximum length of displayed text
 	if (text && text.length > Constants.maxDisplayedStatusTextLength) {
 		text = text.substr(0, Constants.maxDisplayedStatusTextLength);
+
 		text += " \u2026"; // Ellipsis character (...)
 	}
 
@@ -174,6 +180,7 @@ function appendIfNotEmpty(connectionText: string, value: string): string {
 	if (Utils.isNotEmpty(value)) {
 		connectionText += ` : ${value}`;
 	}
+
 	return connectionText;
 }
 
@@ -270,6 +277,7 @@ export function getEncryptionMode(
 				break;
 		}
 	}
+
 	return encryptionMode;
 }
 
@@ -285,11 +293,14 @@ export function getConnectionDisplayName(credentials: IConnectionInfo): string {
 	if (authType === Constants.sqlAuthentication) {
 		userOrAuthType = credentials.user;
 	}
+
 	if (authType === Constants.azureMfa) {
 		userOrAuthType = credentials.email;
 	}
+
 	if (!database || database === "") {
 		database = LocalizedConstants.defaultDatabaseLabel;
 	}
+
 	return `${server}, ${database} (${userOrAuthType})`;
 }

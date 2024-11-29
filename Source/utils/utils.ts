@@ -47,6 +47,7 @@ export async function getUniqueFilePath(
 		while (await exists(`${basename}${counter}.${fileExtension}`, folder)) {
 			counter += 1;
 		}
+
 		uniqueFileName = vscode.Uri.joinPath(
 			folder,
 			`${basename}${counter}.${fileExtension}`,
@@ -57,6 +58,7 @@ export async function getUniqueFilePath(
 			`${basename}.${fileExtension}`,
 		);
 	}
+
 	return uniqueFileName;
 }
 
@@ -72,6 +74,7 @@ export function getNonce(): string {
 	for (let i = 0; i < 32; i++) {
 		text += possible.charAt(Math.floor(Math.random() * possible.length));
 	}
+
 	return text;
 }
 

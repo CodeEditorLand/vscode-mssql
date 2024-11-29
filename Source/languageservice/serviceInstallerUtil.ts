@@ -18,12 +18,15 @@ export class StubStatusView implements IStatusView {
 	installingService(): void {
 		this._log("...");
 	}
+
 	serviceInstalled(): void {
 		this._log("Service installed");
 	}
+
 	serviceInstallationFailed(): void {
 		this._log("Service installation failed");
 	}
+
 	updateServiceDownloadingProgress(downloadPercentage: number): void {
 		if (downloadPercentage === 100) {
 			this._log("100%");
@@ -49,6 +52,7 @@ export class StubLogger implements ILogger {
 	append(message?: string): void {
 		this._log(message);
 	}
+
 	appendLine(message?: string): void {
 		this._log(message);
 	}
@@ -125,7 +129,9 @@ export function getServiceInstallDirectory(runtime: Runtime): Promise<string> {
  */
 export function getServiceInstallDirectoryRoot(): string {
 	let directoryPath: string = downloadProvider.getInstallDirectoryRoot();
+
 	directoryPath = directoryPath.replace("\\{#version#}\\{#platform#}", "");
+
 	directoryPath = directoryPath.replace("/{#version#}/{#platform#}", "");
 
 	return directoryPath;

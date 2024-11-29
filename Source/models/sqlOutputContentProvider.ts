@@ -37,6 +37,7 @@ const MESSAGE_INTERVAL_IN_MS = 300;
 // holds information about the state of a query runner
 export class QueryRunnerState {
 	timeout: NodeJS.Timer;
+
 	flaggedForDeletion: boolean;
 
 	constructor(public queryRunner: QueryRunner) {
@@ -46,8 +47,11 @@ export class QueryRunnerState {
 
 class ResultsConfig implements Interfaces.IResultsConfig {
 	shortcuts: { [key: string]: string };
+
 	messagesDefaultOpen: boolean;
+
 	resultsFontSize: number;
+
 	resultsFontFamily: string;
 }
 
@@ -57,9 +61,13 @@ export class SqlOutputContentProvider {
 		string,
 		QueryRunnerState
 	>();
+
 	private _panels = new Map<string, WebviewPanelController>();
+
 	private _queryResultWebviewController: QueryResultWebviewController;
+
 	private _executionPlanOptions: ExecutionPlanOptions = {};
+
 	private _lastSendMessageTime: number;
 
 	// CONSTRUCTOR /////////////////////////////////////////////////////////
@@ -107,6 +115,7 @@ export class SqlOutputContentProvider {
 		for (let key of Constants.extConfigResultKeys) {
 			config[key] = extConfig[key];
 		}
+
 		return Promise.resolve(config);
 	}
 
@@ -118,6 +127,7 @@ export class SqlOutputContentProvider {
 		selection: Interfaces.ISlickRange[],
 	): void {
 		let saveResults = new ResultsSerializer();
+
 		saveResults.onSaveResults(uri, batchId, resultId, format, selection);
 	}
 
@@ -203,6 +213,7 @@ export class SqlOutputContentProvider {
 							this._panels.get(uri).revealToForeground(uri);
 						}
 					}
+
 					await queryRunner.runQuery(
 						selection,
 						executionPlanOptions,
@@ -280,6 +291,7 @@ export class SqlOutputContentProvider {
 
 				if (panelController.isDisposed) {
 					this._panels.delete(uri);
+
 					await this.createWebviewController(uri, title, queryRunner);
 				} else {
 					queryCallback(queryRunner);
@@ -295,6 +307,7 @@ export class SqlOutputContentProvider {
 			} else {
 				this._executionPlanOptions = {};
 			}
+
 			this._queryResultWebviewController.addQueryResultState(
 				uri,
 				title,
@@ -303,6 +316,7 @@ export class SqlOutputContentProvider {
 					false,
 			);
 		}
+
 		if (queryRunner) {
 			queryCallback(queryRunner);
 		}
@@ -377,6 +391,7 @@ export class SqlOutputContentProvider {
 						} else if (parseInt(value, 10) <= 0) {
 							return LocalizedConstants.columnWidthMustBePositiveError;
 						}
+
 						return undefined;
 					},
 				});
@@ -401,7 +416,9 @@ export class SqlOutputContentProvider {
 			this.context.extensionPath,
 			this._statusView,
 		);
+
 		this._panels.set(uri, controller);
+
 		await controller.init();
 	}
 
@@ -428,6 +445,7 @@ export class SqlOutputContentProvider {
 
 			// If the query is not in progress, we can reuse the query runner
 			queryRunner = existingRunner;
+
 			queryRunner.resetHasCompleted();
 		} else {
 			// We do not have a query runner for this editor, so create a new one
@@ -437,15 +455,18 @@ export class SqlOutputContentProvider {
 				title,
 				statusView ? statusView : this._statusView,
 			);
+
 			queryRunner.eventEmitter.on("start", async (panelUri) => {
 				if (this.shouldUseOldResultPane) {
 					this._panels.get(uri).proxy.sendEvent("start", panelUri);
+
 					sendActionEvent(
 						TelemetryViews.ResultsGrid,
 						TelemetryActions.OpenQueryResult,
 					);
 				} else {
 					this._lastSendMessageTime = Date.now();
+
 					this._queryResultWebviewController.addQueryResultState(
 						uri,
 						title,
@@ -453,6 +474,7 @@ export class SqlOutputContentProvider {
 						this._executionPlanOptions
 							?.includeActualExecutionPlanXml ?? false,
 					);
+
 					this._queryResultWebviewController.getQueryResultState(
 						uri,
 					).tabStates.resultPaneTab = QueryResultPaneTabs.Messages;
@@ -462,6 +484,7 @@ export class SqlOutputContentProvider {
 							uri,
 						);
 					}
+
 					this._queryResultWebviewController.updatePanelState(uri);
 
 					if (!this._queryResultWebviewController.hasPanel(uri)) {
@@ -469,6 +492,7 @@ export class SqlOutputContentProvider {
 							"queryResult.focus",
 						);
 					}
+
 					sendActionEvent(
 						TelemetryViews.QueryResult,
 						TelemetryActions.OpenQueryResult,
@@ -481,6 +505,7 @@ export class SqlOutputContentProvider {
 					);
 				}
 			});
+
 			queryRunner.eventEmitter.on(
 				"resultSet",
 				async (resultSet: ResultSetSummary) => {
@@ -493,12 +518,14 @@ export class SqlOutputContentProvider {
 							uri,
 							resultSet,
 						);
+
 						this._queryResultWebviewController.updatePanelState(
 							uri,
 						);
 					}
 				},
 			);
+
 			queryRunner.eventEmitter.on("batchStart", (batch) => {
 				let time = new Date().toLocaleTimeString();
 
@@ -526,13 +553,16 @@ export class SqlOutputContentProvider {
 					this._queryResultWebviewController
 						.getQueryResultState(uri)
 						.messages.push(message);
+
 					this._queryResultWebviewController.getQueryResultState(
 						uri,
 					).tabStates.resultPaneTab = QueryResultPaneTabs.Messages;
+
 					this._queryResultWebviewController.state =
 						this._queryResultWebviewController.getQueryResultState(
 							uri,
 						);
+
 					this._queryResultWebviewController.updatePanelState(uri);
 
 					if (!this._queryResultWebviewController.hasPanel(uri)) {
@@ -540,6 +570,7 @@ export class SqlOutputContentProvider {
 					}
 				}
 			});
+
 			queryRunner.eventEmitter.on("message", (message) => {
 				if (this.shouldUseOldResultPane) {
 					this._panels.get(uri).proxy.sendEvent("message", message);
@@ -557,10 +588,12 @@ export class SqlOutputContentProvider {
 							uri,
 						).tabStates.resultPaneTab =
 							QueryResultPaneTabs.Messages;
+
 						this._queryResultWebviewController.state =
 							this._queryResultWebviewController.getQueryResultState(
 								uri,
 							);
+
 						this._queryResultWebviewController.updatePanelState(
 							uri,
 						);
@@ -568,10 +601,12 @@ export class SqlOutputContentProvider {
 						if (!this._queryResultWebviewController.hasPanel(uri)) {
 							vscode.commands.executeCommand("queryResult.focus");
 						}
+
 						this._lastSendMessageTime = Date.now();
 					}
 				}
 			});
+
 			queryRunner.eventEmitter.on(
 				"complete",
 				(totalMilliseconds, hasError, isRefresh?) => {
@@ -583,6 +618,7 @@ export class SqlOutputContentProvider {
 							hasError,
 						);
 					}
+
 					if (this.shouldUseOldResultPane) {
 						this._panels
 							.get(uri)
@@ -606,13 +642,16 @@ export class SqlOutputContentProvider {
 							).length > 0
 								? QueryResultPaneTabs.Results
 								: QueryResultPaneTabs.Messages;
+
 						this._queryResultWebviewController.getQueryResultState(
 							uri,
 						).tabStates.resultPaneTab = tabState;
+
 						this._queryResultWebviewController.state =
 							this._queryResultWebviewController.getQueryResultState(
 								uri,
 							);
+
 						this._queryResultWebviewController.updatePanelState(
 							uri,
 						);
@@ -623,6 +662,7 @@ export class SqlOutputContentProvider {
 					}
 				},
 			);
+
 			this._queryResultsMap.set(uri, new QueryRunnerState(queryRunner));
 		}
 
@@ -686,10 +726,12 @@ export class SqlOutputContentProvider {
 
 		// Remap the query runner in the map
 		let savedResultUri = decodeURIComponent(savedUri);
+
 		this._queryResultsMap.set(
 			savedResultUri,
 			this._queryResultsMap.get(untitledResultsUri),
 		);
+
 		this._queryResultsMap.delete(untitledResultsUri);
 	}
 
@@ -733,6 +775,7 @@ export class SqlOutputContentProvider {
 			// first ready event
 			panelController.rendered = true;
 		}
+
 		return false;
 	}
 
@@ -782,6 +825,7 @@ export class SqlOutputContentProvider {
 			} catch (e) {
 				// If Json fails to parse, fall back on original Json content
 			}
+
 			if (jsonContent) {
 				// If Json content was valid and parsed, pretty print content to a string
 				content = JSON.stringify(jsonContent, undefined, 4);
@@ -846,6 +890,7 @@ export class SqlOutputContentProvider {
 				return result;
 			});
 		}
+
 		return Promise.resolve(false);
 	}
 

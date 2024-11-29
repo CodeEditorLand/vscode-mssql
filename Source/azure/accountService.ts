@@ -19,7 +19,9 @@ import { AzureController } from "./azureController";
 
 export class AccountService {
 	private _account: IAccount = undefined;
+
 	private _isStale: boolean;
+
 	protected readonly commonTenant: ITenant = {
 		id: "common",
 		displayName: "common",
@@ -89,6 +91,7 @@ export class AccountService {
 	): Promise<any> {
 		// TODO: match type for mapping in mssql and sqltoolsservice
 		let mapping = {};
+
 		mapping[tenantId] = {
 			token: (await this.refreshToken(account, tenantId)).token,
 		};

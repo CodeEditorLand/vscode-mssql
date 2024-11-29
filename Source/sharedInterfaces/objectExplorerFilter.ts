@@ -9,7 +9,9 @@ import { ColorThemeKind } from "../reactviews/common/vscodeWebviewProvider";
 
 export interface ObjectExplorerFilterState {
 	filterProperties: vscodeMssql.NodeFilterProperty[];
+
 	existingFilters: vscodeMssql.NodeFilter[];
+
 	nodePath?: string;
 }
 
@@ -17,15 +19,21 @@ export interface ObjectExplorerReducers {
 	submit: {
 		filters: vscodeMssql.NodeFilter[];
 	};
+
 	cancel: {};
 }
 
 export interface ObjectExplorerFilterContextProps {
 	isLocalizationLoaded: boolean;
+
 	state: ObjectExplorerFilterState | undefined;
+
 	themeKind: ColorThemeKind;
+
 	submit: (filters: vscodeMssql.NodeFilter[]) => void;
+
 	clearAllFilters: () => void;
+
 	cancel: () => void;
 }
 
@@ -56,15 +64,24 @@ export enum NodeFilterOperator {
 
 export interface ObjectExplorerPageFilter {
 	index: number;
+
 	name: string;
+
 	displayName: string;
+
 	value: string | string[] | number | number[] | boolean | undefined;
+
 	type: NodeFilterPropertyDataType;
+
 	choices?: {
 		name: string;
+
 		displayName: string;
 	}[];
+
 	operatorOptions: string[];
+
 	selectedOperator: string;
+
 	description: string;
 }

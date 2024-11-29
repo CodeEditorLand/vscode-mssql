@@ -26,8 +26,11 @@ type SaveAsRequestParams =
  */
 export default class ResultsSerializer {
 	private _client: SqlToolsServerClient;
+
 	private _vscodeWrapper: VscodeWrapper;
+
 	private _uri: string;
+
 	private _filePath: string;
 
 	constructor(client?: SqlToolsServerClient, vscodeWrapper?: VscodeWrapper) {
@@ -36,6 +39,7 @@ export default class ResultsSerializer {
 		} else {
 			this._client = SqlToolsServerClient.instance;
 		}
+
 		if (vscodeWrapper) {
 			this._vscodeWrapper = vscodeWrapper;
 		} else {
@@ -51,6 +55,7 @@ export default class ResultsSerializer {
 		} else {
 			defaultUri = vscode.Uri.parse(path.dirname(this._uri));
 		}
+
 		let fileTypeFilter: { [name: string]: string[] } = {};
 
 		if (format === "csv") {
@@ -60,6 +65,7 @@ export default class ResultsSerializer {
 		} else if (format === "excel") {
 			fileTypeFilter[LocalizedConstants.fileTypeExcelLabel] = ["xlsx"];
 		}
+
 		let options = <vscode.SaveDialogOptions>{
 			defaultUri: defaultUri,
 			filters: fileTypeFilter,
@@ -69,6 +75,7 @@ export default class ResultsSerializer {
 			if (!uri) {
 				return undefined;
 			}
+
 			return uri.scheme === "file" ? uri.fsPath : uri.path;
 		});
 	}
@@ -89,19 +96,24 @@ export default class ResultsSerializer {
 			if (saveConfig.includeHeaders !== undefined) {
 				saveResultsParams.includeHeaders = saveConfig.includeHeaders;
 			}
+
 			if (saveConfig.delimiter !== undefined) {
 				saveResultsParams.delimiter = saveConfig.delimiter;
 			}
+
 			if (saveConfig.lineSeparator !== undefined) {
 				saveResultsParams.lineSeperator = saveConfig.lineSeparator;
 			}
+
 			if (saveConfig.textIdentifier !== undefined) {
 				saveResultsParams.textIdentifier = saveConfig.textIdentifier;
 			}
+
 			if (saveConfig.encoding !== undefined) {
 				saveResultsParams.encoding = saveConfig.encoding;
 			}
 		}
+
 		return saveResultsParams;
 	}
 
@@ -119,6 +131,7 @@ export default class ResultsSerializer {
 		if (saveConfig) {
 			// TODO: assign config
 		}
+
 		return saveResultsParams;
 	}
 
@@ -141,6 +154,7 @@ export default class ResultsSerializer {
 				saveResultsParams.includeHeaders = saveConfig.includeHeaders;
 			}
 		}
+
 		return saveResultsParams;
 	}
 
@@ -154,6 +168,7 @@ export default class ResultsSerializer {
 		const self = this;
 
 		let saveResultsParams: SaveAsRequestParams;
+
 		this._filePath = filePath;
 
 		if (format === "csv") {
@@ -165,16 +180,23 @@ export default class ResultsSerializer {
 		}
 
 		saveResultsParams.filePath = this._filePath;
+
 		saveResultsParams.ownerUri = this._uri;
+
 		saveResultsParams.resultSetIndex = resultSetNo;
+
 		saveResultsParams.batchIndex = batchIndex;
 
 		if (this.isSelected(selection)) {
 			saveResultsParams.rowStartIndex = selection.fromRow;
+
 			saveResultsParams.rowEndIndex = selection.toRow;
+
 			saveResultsParams.columnStartIndex = selection.fromCell;
+
 			saveResultsParams.columnEndIndex = selection.toCell;
 		}
+
 		return saveResultsParams;
 	}
 
@@ -237,6 +259,7 @@ export default class ResultsSerializer {
 					self._vscodeWrapper.showErrorMessage(
 						LocalizedConstants.msgSaveFailed + result.messages,
 					);
+
 					self._vscodeWrapper.logToOutputChannel(
 						LocalizedConstants.msgSaveFailed + result.messages,
 					);
@@ -244,9 +267,11 @@ export default class ResultsSerializer {
 					self._vscodeWrapper.showInformationMessage(
 						LocalizedConstants.msgSaveSucceeded + this._filePath,
 					);
+
 					self._vscodeWrapper.logToOutputChannel(
 						LocalizedConstants.msgSaveSucceeded + filePath,
 					);
+
 					self.openSavedFile(self._filePath, format);
 				}
 			},
@@ -254,6 +279,7 @@ export default class ResultsSerializer {
 				self._vscodeWrapper.showErrorMessage(
 					LocalizedConstants.msgSaveFailed + error.message,
 				);
+
 				self._vscodeWrapper.logToOutputChannel(
 					LocalizedConstants.msgSaveFailed + error.message,
 				);
@@ -272,6 +298,7 @@ export default class ResultsSerializer {
 		selection: Interfaces.ISlickRange[],
 	): Thenable<void> {
 		const self = this;
+
 		this._uri = uri;
 
 		// prompt for filepath
@@ -289,6 +316,7 @@ export default class ResultsSerializer {
 			},
 			(error) => {
 				self._vscodeWrapper.showErrorMessage(error.message);
+
 				self._vscodeWrapper.logToOutputChannel(error.message);
 			},
 		);
@@ -310,6 +338,7 @@ export default class ResultsSerializer {
 			});
 		} else {
 			let uri = vscode.Uri.file(filePath);
+
 			self._vscodeWrapper.openTextDocument(uri).then(
 				(doc: vscode.TextDocument) => {
 					// Show open document and set focus

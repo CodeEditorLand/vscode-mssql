@@ -63,14 +63,23 @@ export interface QueryResultTabStates {
 
 export interface QueryResultWebviewState extends ExecutionPlanWebviewState {
 	uri?: string;
+
 	title?: string;
+
 	resultSetSummaries: Record<number, Record<number, ResultSetSummary>>;
+
 	messages: IMessage[];
+
 	tabStates?: QueryResultTabStates;
+
 	isExecutionPlan?: boolean;
+
 	actualPlanEnabled?: boolean;
+
 	selection?: ISlickRange[];
+
 	executionPlanState: ExecutionPlanState;
+
 	filterState: Record<string, ColumnFilterState>;
 }
 
@@ -79,6 +88,7 @@ export interface QueryResultReducers
 	setResultTab: {
 		tabId: QueryResultPaneTabs;
 	};
+
 	setFilterState: {
 		filterState: ColumnFilterState;
 	};
@@ -96,77 +106,121 @@ export interface QueryResultReducers
 	 */
 	openFileThroughLink: {
 		content: string;
+
 		type: string;
 	};
 }
 
 export interface ISelectionData {
 	startLine: number;
+
 	startColumn: number;
+
 	endLine: number;
+
 	endColumn: number;
 }
 
 export interface IMessageLink {
 	uri?: string;
+
 	text: string;
 }
 
 export interface IMessage {
 	batchId?: number;
+
 	time?: string;
+
 	message: string;
+
 	isError: boolean;
+
 	link?: IMessageLink;
+
 	selection?: ISelectionData;
 }
 
 export interface ResultSetSummary {
 	id: number;
+
 	batchId: number;
+
 	rowCount: number;
+
 	columnInfo: IDbColumn[];
 }
 
 export interface IDbColumn {
 	allowDBNull?: boolean;
+
 	baseCatalogName: string;
+
 	baseColumnName: string;
+
 	baseSchemaName: string;
+
 	baseServerName: string;
+
 	baseTableName: string;
+
 	columnName: string;
+
 	columnOrdinal?: number;
+
 	columnSize?: number;
+
 	isAliased?: boolean;
+
 	isAutoIncrement?: boolean;
+
 	isExpression?: boolean;
+
 	isHidden?: boolean;
+
 	isIdentity?: boolean;
+
 	isKey?: boolean;
+
 	isBytes?: boolean;
+
 	isChars?: boolean;
+
 	isSqlVariant?: boolean;
+
 	isUdt?: boolean;
+
 	dataType: string;
+
 	isXml?: boolean;
+
 	isJson?: boolean;
+
 	isLong?: boolean;
+
 	isReadOnly?: boolean;
+
 	isUnique?: boolean;
+
 	numericPrecision?: number;
+
 	numericScale?: number;
+
 	udtAssemblyQualifiedName: string;
+
 	dataTypeName: string;
 }
 
 export interface DbCellValue {
 	displayValue: string;
+
 	isNull: boolean;
+
 	rowId?: number;
 }
 
 export interface ResultSetSubset {
 	rowCount: number;
+
 	rows: DbCellValue[][];
 }

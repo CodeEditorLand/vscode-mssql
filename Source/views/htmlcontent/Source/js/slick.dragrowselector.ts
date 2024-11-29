@@ -29,24 +29,39 @@
 
 		function init(grid): void {
 			_grid = grid;
+
 			_grid.onKeyDown.subscribe(handleKeyDown);
+
 			_grid.onClick.subscribe(handleClick);
+
 			_grid.onDrag.subscribe(handleDrag);
+
 			_grid.onDragInit.subscribe(handleDragInit);
+
 			_grid.onDragStart.subscribe(handleDragStart);
+
 			_grid.onDragEnd.subscribe(handleDragEnd);
+
 			_grid.onHeaderClick.subscribe(handleHeaderClick);
+
 			_grid.onColumnsResized.subscribe(handleColumnsResized);
 		}
 
 		function destroy(): void {
 			_grid.onKeyDown.unsubscribe(handleKeyDown);
+
 			_grid.onClick.unsubscribe(handleClick);
+
 			_grid.onDrag.unsubscribe(handleDrag);
+
 			_grid.onDragInit.unsubscribe(handleDragInit);
+
 			_grid.onDragStart.unsubscribe(handleDragStart);
+
 			_grid.onDragEnd.unsubscribe(handleDragEnd);
+
 			_grid.onHeaderClick.unsubscribe(handleHeaderClick);
+
 			_grid.onColumnsResized.unsubscribe(handleColumnsResized);
 		}
 
@@ -58,6 +73,7 @@
 					rows.push(j);
 				}
 			}
+
 			return rows;
 		}
 
@@ -69,6 +85,7 @@
 			for (let i = 0; i < rows.length; i++) {
 				ranges.push(new Slick.Range(rows[i], 0, rows[i], lastCell));
 			}
+
 			return ranges;
 		}
 
@@ -82,6 +99,7 @@
 
 		function setSelectedRanges(ranges): void {
 			_ranges = ranges;
+
 			_self.onSelectedRangesChanged.notify(_ranges);
 		}
 
@@ -138,6 +156,7 @@
 					let toRow = Math.max(activeCell.row, last.toRow);
 
 					let toCell = Math.max(newRangeColumn, last.toCell);
+
 					_ranges = [
 						new Slick.Range(fromRow, fromCell, toRow, toCell),
 					];
@@ -200,6 +219,7 @@
 						),
 					];
 				}
+
 				_grid.setActiveCell(activeCell.row, newActiveCellColumn);
 
 				setSelectedRanges(_ranges);
@@ -214,6 +234,7 @@
 				if (isColumnResize(e)) {
 					if (e.ctrlKey && e.shiftKey) {
 						let columnIndex = activeCell.cell;
+
 						showResizeDialog(columnIndex);
 					} else {
 						let cell = _grid.getCellFromEvent(e);
@@ -225,14 +246,18 @@
 						if (e.which === $.ui.keyCode.LEFT) {
 							allColumns[activeColumnIndex].width -=
 								keyColResizeIncr;
+
 							_grid.setColumns(allColumns);
 						} else if (e.which === $.ui.keyCode.RIGHT) {
 							allColumns[activeColumnIndex].width +=
 								keyColResizeIncr;
+
 							_grid.setColumns(allColumns);
 						}
+
 						_grid.setActiveCell(cell.row, cell.cell);
 					}
+
 					return;
 				}
 				// navigation keys
@@ -249,6 +274,7 @@
 								altKey: e.altKey,
 							},
 						});
+
 						window.dispatchEvent(event);
 
 						return;
@@ -293,6 +319,7 @@
 							let toRow = Math.max(newRangeRow, last.toRow);
 
 							let toCell = Math.max(activeCell.cell, last.toCell);
+
 							_ranges = [
 								new Slick.Range(
 									fromRow,
@@ -311,6 +338,7 @@
 								),
 							];
 						}
+
 						_grid.setActiveCell(
 							activeCell.row - 1,
 							activeCell.cell,
@@ -352,6 +380,7 @@
 							);
 
 							let toCell = Math.max(activeCell.cell, last.toCell);
+
 							_ranges = [
 								new Slick.Range(
 									fromRow,
@@ -370,6 +399,7 @@
 								),
 							];
 						}
+
 						_grid.setActiveCell(
 							activeCell.row + 1,
 							activeCell.cell,
@@ -440,6 +470,7 @@
 					let from = Math.min(columnIndex, last);
 
 					let to = Math.max(columnIndex, last);
+
 					_ranges = [];
 
 					for (let i = from; i <= to; i++) {
@@ -454,6 +485,7 @@
 							);
 						}
 					}
+
 					_ranges.push(
 						new Slick.Range(
 							0,
@@ -473,6 +505,7 @@
 					];
 				}
 			}
+
 			_grid.setActiveCell(newActiveRow, newActiveColumn);
 
 			setSelectedRanges(_ranges);
@@ -491,6 +524,7 @@
 
 			if (cell.cell === 0) {
 				e.stopImmediatePropagation();
+
 				_grid.setActiveCell(cell.row, 1);
 			}
 
@@ -506,6 +540,7 @@
 					];
 
 					setSelectedRanges(_ranges);
+
 					_grid.setActiveCell(cell.row, cell.cell);
 
 					return true;
@@ -543,6 +578,7 @@
 								cell.cell,
 							),
 						);
+
 						_grid.setActiveCell(cell.row, cell.cell);
 					}
 				} else if (_ranges.length && e.shiftKey) {
@@ -552,6 +588,7 @@
 						let fromRow = Math.min(cell.row, last.fromRow);
 
 						let toRow = Math.max(cell.row, last.fromRow);
+
 						_ranges = [
 							new Slick.Range(
 								fromRow,
@@ -568,6 +605,7 @@
 						let toRow = Math.max(cell.row, last.toRow);
 
 						let toCell = Math.max(cell.cell, last.toCell);
+
 						_ranges = [
 							new Slick.Range(fromRow, fromCell, toRow, toCell),
 						];
@@ -586,11 +624,14 @@
 
 		function handleDragStart(e): void {
 			let cell = _grid.getCellFromEvent(e);
+
 			e.stopImmediatePropagation();
+
 			_dragging = true;
 
 			if (e.ctrlKey || e.metaKey) {
 				_ranges.push(new Slick.Range(cell.row, cell.cell));
+
 				_grid.setActiveCell(cell.row, cell.cell);
 			} else if (_ranges.length && e.shiftKey) {
 				let last = _ranges.pop();
@@ -602,11 +643,14 @@
 				let toRow = Math.max(cell.row, last.toRow);
 
 				let toCell = Math.max(cell.cell, last.toCell);
+
 				_ranges = [new Slick.Range(fromRow, fromCell, toRow, toCell)];
 			} else {
 				_ranges = [new Slick.Range(cell.row, cell.cells)];
+
 				_grid.setActiveCell(cell.row, cell.cell);
 			}
+
 			setSelectedRanges(_ranges);
 		}
 
@@ -628,6 +672,7 @@
 					let firstRow = Math.min(cell.row, activeCell.row);
 
 					let lastRow = Math.max(cell.row, activeCell.row);
+
 					_ranges.push(
 						new Slick.Range(firstRow, 1, lastRow, lastCell),
 					);
@@ -639,6 +684,7 @@
 					let firstColumn = Math.min(cell.cell, activeCell.cell);
 
 					let lastColumn = Math.max(cell.cell, activeCell.cell);
+
 					_ranges.push(
 						new Slick.Range(
 							firstRow,
@@ -648,6 +694,7 @@
 						),
 					);
 				}
+
 				setSelectedRanges(_ranges);
 			}
 		}
@@ -670,69 +717,119 @@
 
 			// Style the dialog
 			dialog.style.position = "fixed";
+
 			dialog.style.left = "50%";
+
 			dialog.style.top = "50%";
+
 			dialog.style.transform = "translate(-50%, -50%)";
+
 			dialog.style.padding = "20px";
+
 			dialog.style.background = "white";
+
 			dialog.style.boxShadow = "0 0 10px rgba(0, 0, 0, 0.2)";
+
 			dialog.style.zIndex = "1000";
+
 			dialog.ariaLabel =
 				"Resize Columns. Enter desired column width, in pixels, then press apply.";
+
 			dialog.tabIndex = 0;
 
 			title.textContent = "Resize Column";
+
 			title.style.fontSize = "18px";
+
 			title.style.marginBottom = "5px";
+
 			title.style.color = "black";
 
 			subtext.textContent = "Enter desired column width";
+
 			subtext.style.fontSize = "14px";
+
 			subtext.style.color = "#666";
+
 			subtext.style.marginBottom = "5px";
 
 			inputBox.type = "number";
+
 			inputBox.placeholder = "Enter column width";
+
 			inputBox.min = "1";
+
 			inputBox.value = allColumns[columnIndex].width.toString();
+
 			inputBox.style.width = "100%";
+
 			inputBox.style.padding = "8px";
+
 			inputBox.style.boxSizing = "border-box";
+
 			inputBox.tabIndex = 0;
+
 			inputBox.ariaLabel = "Input desired column width.";
+
 			inputBox.style.marginBottom = "5px";
 
 			applyButton.textContent = "Apply";
+
 			applyButton.style.marginRight = "10px";
+
 			applyButton.tabIndex = 0;
+
 			applyButton.ariaLabel = "Apply Changes";
+
 			applyButton.textContent = "Apply";
+
 			applyButton.style.padding = "10px 20px";
+
 			applyButton.style.backgroundColor = "#0078d4";
+
 			applyButton.style.color = "white";
+
 			applyButton.style.border = "none";
+
 			applyButton.style.borderRadius = "4px";
+
 			applyButton.style.cursor = "pointer";
+
 			applyButton.style.transition = "background-color 0.3s ease";
+
 			applyButton.style.marginRight = "10px";
 
 			cancelButton.textContent = "Cancel";
+
 			cancelButton.style.backgroundColor = "#ccc";
+
 			cancelButton.tabIndex = 0;
+
 			cancelButton.ariaLabel = "Cancel Changes";
+
 			cancelButton.style.padding = "10px 20px";
+
 			cancelButton.style.backgroundColor = "#6c757d";
+
 			cancelButton.style.color = "white";
+
 			cancelButton.style.border = "none";
+
 			cancelButton.style.borderRadius = "4px";
+
 			cancelButton.style.cursor = "pointer";
+
 			cancelButton.style.transition = "background-color 0.3s ease";
 
 			// Append elements to dialog
 			dialog.appendChild(title);
+
 			dialog.appendChild(subtext);
+
 			dialog.appendChild(inputBox);
+
 			dialog.appendChild(applyButton);
+
 			dialog.appendChild(cancelButton);
 
 			document.body.appendChild(dialog);
@@ -740,6 +837,7 @@
 			// Apply button event listener
 			applyButton.addEventListener("click", function () {
 				allColumns[columnIndex].width = Number(inputBox.value);
+
 				_grid.setColumns(allColumns);
 
 				document.body.removeChild(dialog);

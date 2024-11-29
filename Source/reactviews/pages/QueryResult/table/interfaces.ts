@@ -7,27 +7,45 @@ import { IDisposableDataProvider } from "./dataProvider";
 
 export interface ITableMouseEvent {
     anchor: HTMLElement | { x: number; y: number };
+
     cell?: { row: number; cell: number };
 }
 
 export interface ITableStyles {
     listFocusBackground: string | undefined;
+
     listFocusForeground: string | undefined;
+
     listActiveSelectionBackground: string | undefined;
+
     listActiveSelectionForeground: string | undefined;
+
     listFocusAndSelectionBackground: string | undefined;
+
     listFocusAndSelectionForeground: string | undefined;
+
     listInactiveFocusBackground: string | undefined;
+
     listInactiveSelectionBackground: string | undefined;
+
     listInactiveSelectionForeground: string | undefined;
+
     listHoverBackground: string | undefined;
+
     listHoverForeground: string | undefined;
+
     listDropBackground: string | undefined;
+
     listFocusOutline: string | undefined;
+
     listSelectionOutline: string | undefined;
+
     listHoverOutline: string | undefined;
+
     listInactiveFocusOutline: string | undefined;
+
     tableHeaderBackground: string | undefined;
+
     tableHeaderForeground: string | undefined;
 }
 
@@ -37,7 +55,9 @@ export interface ITableSorter<T extends Slick.SlickData> {
 
 export interface ITableConfiguration<T extends Slick.SlickData> {
     dataProvider?: IDisposableDataProvider<T> | Array<T>;
+
     columns?: Slick.Column<T>[];
+
     sorter?: ITableSorter<T>;
 }
 
@@ -49,24 +69,31 @@ export enum SortProperties {
 
 export interface ColumnFilterState {
     filterValues: string[];
+
     sorted?: SortProperties;
+
     seachText?: string;
+
     columnDef: string;
 }
 
 export interface GridSortState {
     field: string;
+
     sortAsc: boolean;
 }
 export interface FilterableColumn<T extends Slick.SlickData>
     extends Slick.Column<T> {
     filterable?: boolean;
+
     filterValues?: Array<string>;
+
     sorted?: SortProperties;
 }
 
 export interface ITableKeyboardEvent {
     cell?: { row: number; cell: number };
+
     event: KeyboardEvent;
 }
 

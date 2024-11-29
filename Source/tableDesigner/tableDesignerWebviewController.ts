@@ -27,6 +27,7 @@ export class TableDesignerWebviewController extends ReactWebviewPanelController<
 	designer.TableDesignerReducers
 > {
 	private _isEdit: boolean = false;
+
 	private _correlationId: string = randomUUID();
 
 	constructor(
@@ -68,6 +69,7 @@ export class TableDesignerWebviewController extends ReactWebviewPanelController<
 				showRestorePromptAfterClose: false,
 			},
 		);
+
 		void this.initialize();
 	}
 
@@ -93,6 +95,7 @@ export class TableDesignerWebviewController extends ReactWebviewPanelController<
 		const databaseName = targetDatabase ? targetDatabase : "master";
 
 		const connectionInfo = this._targetNode.connectionInfo;
+
 		connectionInfo.database = databaseName;
 
 		const connectionDetails =
@@ -151,14 +154,18 @@ export class TableDesignerWebviewController extends ReactWebviewPanelController<
 					connectionString: connectionString,
 				};
 			}
+
 			this.panel.title = tableInfo.title;
 
 			const initializeResult =
 				await this._tableDesignerService.initializeTableDesigner(
 					tableInfo,
 				);
+
 			endActivity.end(ActivityStatus.Succeeded);
+
 			initializeResult.tableInfo.database = databaseName ?? "master";
+
 			this.state = {
 				tableInfo: tableInfo,
 				view: getDesignerView(initializeResult.view),
@@ -176,7 +183,9 @@ export class TableDesignerWebviewController extends ReactWebviewPanelController<
 			};
 		} catch (e) {
 			endActivity.endFailed(e, false);
+
 			this.state.apiState.initializeState = designer.LoadState.Error;
+
 			this.state = this.state;
 		}
 
@@ -191,6 +200,7 @@ export class TableDesignerWebviewController extends ReactWebviewPanelController<
 				return this.getDatabaseNameForNode(node.parentNode);
 			}
 		}
+
 		return "";
 	}
 
@@ -198,6 +208,7 @@ export class TableDesignerWebviewController extends ReactWebviewPanelController<
 		this._tableDesignerService.disposeTableDesigner(this.state.tableInfo);
 
 		super.dispose();
+
 		sendActionEvent(TelemetryViews.TableDesigner, TelemetryActions.Close, {
 			correlationId: this._correlationId,
 		});
@@ -210,6 +221,7 @@ export class TableDesignerWebviewController extends ReactWebviewPanelController<
 					payload.table,
 					payload.tableChangeInfo,
 				);
+
 			sendActionEvent(
 				TelemetryViews.TableDesigner,
 				TelemetryActions.Edit,
@@ -256,6 +268,7 @@ export class TableDesignerWebviewController extends ReactWebviewPanelController<
 					correlationId: this._correlationId,
 				},
 			);
+
 			this.state = {
 				...this.state,
 				apiState: {
@@ -269,7 +282,9 @@ export class TableDesignerWebviewController extends ReactWebviewPanelController<
 					await this._tableDesignerService.publishChanges(
 						payload.table,
 					);
+
 				endActivity.end(ActivityStatus.Succeeded);
+
 				state = {
 					...state,
 					tableInfo: publishResponse.newTableInfo,
@@ -281,8 +296,11 @@ export class TableDesignerWebviewController extends ReactWebviewPanelController<
 						previewState: designer.LoadState.NotStarted,
 					},
 				};
+
 				this.panel.title = state.tableInfo.title;
+
 				this.showRestorePromptAfterClose = false;
+
 				await UserSurvey.getInstance().promptUserForNPSFeedback();
 			} catch (e) {
 				state = {
@@ -293,6 +311,7 @@ export class TableDesignerWebviewController extends ReactWebviewPanelController<
 					},
 					publishingError: e.toString(),
 				};
+
 				endActivity.endFailed(e, false);
 			}
 
@@ -301,14 +320,18 @@ export class TableDesignerWebviewController extends ReactWebviewPanelController<
 			if (this._targetNode.context.subType !== "Tables") {
 				targetNode = this._targetNode.parentNode; // Setting the target node to the parent node to refresh the tables folder
 			}
+
 			if (targetNode) {
 				await this._objectExplorerTree.reveal(targetNode, {
 					expand: true,
 					select: true,
 				});
+
 				await this._objectExplorerProvider.refreshNode(targetNode);
+
 				await this._objectExplorerProvider.refresh(targetNode);
 			}
+
 			return state;
 		});
 
@@ -324,6 +347,7 @@ export class TableDesignerWebviewController extends ReactWebviewPanelController<
 			const script = await this._tableDesignerService.generateScript(
 				payload.table,
 			);
+
 			sendActionEvent(
 				TelemetryViews.TableDesigner,
 				TelemetryActions.GenerateScript,
@@ -331,6 +355,7 @@ export class TableDesignerWebviewController extends ReactWebviewPanelController<
 					correlationId: this._correlationId,
 				},
 			);
+
 			state = {
 				...state,
 				apiState: {
@@ -338,7 +363,9 @@ export class TableDesignerWebviewController extends ReactWebviewPanelController<
 					generateScriptState: designer.LoadState.Loaded,
 				},
 			};
+
 			await this._untitledSqlDocumentService.newQuery(script);
+
 			await UserSurvey.getInstance().promptUserForNPSFeedback();
 
 			return state;
@@ -361,6 +388,7 @@ export class TableDesignerWebviewController extends ReactWebviewPanelController<
 					await this._tableDesignerService.generatePreviewReport(
 						payload.table,
 					);
+
 				sendActionEvent(
 					TelemetryViews.TableDesigner,
 					TelemetryActions.GenerateScript,
@@ -368,6 +396,7 @@ export class TableDesignerWebviewController extends ReactWebviewPanelController<
 						correlationId: this._correlationId,
 					},
 				);
+
 				state = {
 					...state,
 					apiState: {
@@ -402,6 +431,7 @@ export class TableDesignerWebviewController extends ReactWebviewPanelController<
 				(state.model["script"] as designer.InputBoxProperties).value ??
 					"",
 			);
+
 			await vscode.window.showInformationMessage(scriptCopiedToClipboard);
 
 			return state;
@@ -436,6 +466,7 @@ export class TableDesignerWebviewController extends ReactWebviewPanelController<
 					correlationId: this._correlationId,
 				},
 			);
+
 			this.panel.dispose();
 
 			return state;
@@ -443,6 +474,7 @@ export class TableDesignerWebviewController extends ReactWebviewPanelController<
 
 		this.registerReducer("continueEditing", async (state) => {
 			this.state.apiState.publishState = designer.LoadState.NotStarted;
+
 			sendActionEvent(
 				TelemetryViews.TableDesigner,
 				TelemetryActions.ContinueEditing,
@@ -453,8 +485,10 @@ export class TableDesignerWebviewController extends ReactWebviewPanelController<
 
 			return state;
 		});
+
 		this.registerReducer("copyPublishErrorToClipboard", async (state) => {
 			await vscode.env.clipboard.writeText(state.publishingError ?? "");
+
 			void vscode.window.showInformationMessage(copied);
 
 			return state;

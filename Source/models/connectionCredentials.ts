@@ -20,42 +20,79 @@ import * as utils from "./utils";
 // Concrete implementation of the IConnectionCredentials interface
 export class ConnectionCredentials implements IConnectionInfo {
 	public server: string;
+
 	public database: string;
+
 	public user: string;
+
 	public password: string;
+
 	public email: string | undefined;
+
 	public accountId: string | undefined;
+
 	public tenantId: string | undefined;
+
 	public port: number;
+
 	public authenticationType: string;
+
 	public azureAccountToken: string | undefined;
+
 	public expiresOn: number | undefined;
+
 	public encrypt: string | boolean;
+
 	public trustServerCertificate: boolean | undefined;
+
 	public hostNameInCertificate: string | undefined;
+
 	public persistSecurityInfo: boolean | undefined;
+
 	public columnEncryptionSetting: string | undefined;
+
 	public attestationProtocol: string | undefined;
+
 	public enclaveAttestationUrl: string | undefined;
+
 	public connectTimeout: number | undefined;
+
 	public commandTimeout: number | undefined;
+
 	public connectRetryCount: number | undefined;
+
 	public connectRetryInterval: number | undefined;
+
 	public applicationName: string | undefined;
+
 	public workstationId: string | undefined;
+
 	public applicationIntent: string | undefined;
+
 	public currentLanguage: string | undefined;
+
 	public pooling: boolean | undefined;
+
 	public maxPoolSize: number | undefined;
+
 	public minPoolSize: number | undefined;
+
 	public loadBalanceTimeout: number | undefined;
+
 	public replication: boolean | undefined;
+
 	public attachDbFilename: string | undefined;
+
 	public failoverPartner: string | undefined;
+
 	public multiSubnetFailover: boolean | undefined;
+
 	public multipleActiveResultSets: boolean | undefined;
+
 	public packetSize: number | undefined;
+
 	public typeSystemVersion: string | undefined;
+
 	public connectionString: string | undefined;
 
 	/**
@@ -69,52 +106,85 @@ export class ConnectionCredentials implements IConnectionInfo {
 		};
 
 		details.options["connectionString"] = credentials.connectionString;
+
 		details.options["server"] = credentials.server;
 
 		if (credentials.port && details.options["server"].indexOf(",") === -1) {
 			// Port is appended to the server name in a connection string
 			details.options["server"] += "," + credentials.port;
 		}
+
 		details.options["database"] = credentials.database;
+
 		details.options["databaseDisplayName"] = credentials.database;
+
 		details.options["user"] = credentials.user || credentials.email;
+
 		details.options["password"] = credentials.password;
+
 		details.options["authenticationType"] = credentials.authenticationType;
+
 		details.options["azureAccountToken"] = credentials.azureAccountToken;
+
 		details.options["encrypt"] = credentials.encrypt;
+
 		details.options["trustServerCertificate"] =
 			credentials.trustServerCertificate;
+
 		details.options["hostNameInCertificate"] =
 			credentials.hostNameInCertificate;
+
 		details.options["persistSecurityInfo"] =
 			credentials.persistSecurityInfo;
+
 		details.options["columnEncryptionSetting"] =
 			credentials.columnEncryptionSetting;
+
 		details.options["attestationProtocol"] =
 			credentials.attestationProtocol;
+
 		details.options["enclaveAttestationUrl"] =
 			credentials.enclaveAttestationUrl;
+
 		details.options["connectTimeout"] = credentials.connectTimeout;
+
 		details.options["commandTimeout"] = credentials.commandTimeout;
+
 		details.options["connectRetryCount"] = credentials.connectRetryCount;
+
 		details.options["connectRetryInterval"] =
 			credentials.connectRetryInterval;
+
 		details.options["applicationName"] = credentials.applicationName;
+
 		details.options["workstationId"] = credentials.workstationId;
+
 		details.options["applicationIntent"] = credentials.applicationIntent;
+
 		details.options["currentLanguage"] = credentials.currentLanguage;
+
 		details.options["pooling"] = credentials.pooling;
+
 		details.options["maxPoolSize"] = credentials.maxPoolSize;
+
 		details.options["minPoolSize"] = credentials.minPoolSize;
+
 		details.options["loadBalanceTimeout"] = credentials.loadBalanceTimeout;
+
 		details.options["replication"] = credentials.replication;
+
 		details.options["attachDbFilename"] = credentials.attachDbFilename;
+
 		details.options["failoverPartner"] = credentials.failoverPartner;
+
 		details.options["multiSubnetFailover"] =
 			credentials.multiSubnetFailover;
+
 		details.options["multipleActiveResultSets"] =
 			credentials.multipleActiveResultSets;
+
 		details.options["packetSize"] = credentials.packetSize;
+
 		details.options["typeSystemVersion"] = credentials.typeSystemVersion;
 
 		return details;
@@ -214,6 +284,7 @@ export class ConnectionCredentials implements IConnectionInfo {
 						}
 					}
 				}
+
 				return credentials;
 			} else {
 				return undefined;
@@ -295,6 +366,7 @@ export class ConnectionCredentials implements IConnectionInfo {
 					) {
 						return undefined;
 					}
+
 					return undefined;
 				},
 				onAnswered: (value) => {
@@ -336,6 +408,7 @@ export class ConnectionCredentials implements IConnectionInfo {
 							value,
 						);
 					}
+
 					return undefined;
 				},
 				onAnswered: (value) => {
@@ -363,6 +436,7 @@ export class ConnectionCredentials implements IConnectionInfo {
 									value,
 									true,
 								);
+
 							value.connectionString = connectionString;
 						}
 					} else {
@@ -434,6 +508,7 @@ export class ConnectionCredentials implements IConnectionInfo {
 				AuthenticationTypes.SqlLogin,
 			);
 		}
+
 		return (
 			authenticationType ===
 			utils.authTypeToString(AuthenticationTypes.SqlLogin)
@@ -462,6 +537,7 @@ export class ConnectionCredentials implements IConnectionInfo {
 		if (utils.isEmpty(value)) {
 			return property + LocalizedConstants.msgIsRequired;
 		}
+
 		return undefined;
 	}
 

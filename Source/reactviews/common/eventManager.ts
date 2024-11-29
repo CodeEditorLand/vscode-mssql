@@ -6,7 +6,9 @@
 export class EventManager {
 	private eventListeners: {
 		target: EventTarget;
+
 		type: string;
+
 		handler: EventListenerOrEventListenerObject;
 	}[] = [];
 
@@ -17,6 +19,7 @@ export class EventManager {
 		handler: EventListenerOrEventListenerObject,
 	): void {
 		target.addEventListener(type, handler);
+
 		this.eventListeners.push({ target, type, handler });
 	}
 
@@ -25,6 +28,7 @@ export class EventManager {
 		for (const { target, type, handler } of this.eventListeners) {
 			target.removeEventListener(type, handler);
 		}
+
 		this.eventListeners = []; // Clear the registry
 	}
 }

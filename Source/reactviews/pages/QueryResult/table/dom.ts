@@ -5,6 +5,7 @@
 
 export interface IDimension {
 	readonly width: number;
+
 	readonly height: number;
 }
 
@@ -19,8 +20,11 @@ export function addDisposableListener(
 
 class DomListener {
 	private _handler: (e: any) => void;
+
 	private _node: EventTarget;
+
 	private readonly _type: string;
+
 	private readonly _options: boolean | AddEventListenerOptions;
 
 	constructor(
@@ -30,9 +34,13 @@ class DomListener {
 		options?: boolean | AddEventListenerOptions,
 	) {
 		this._node = node;
+
 		this._type = type;
+
 		this._handler = handler;
+
 		this._options = options || false;
+
 		this._node.addEventListener(this._type, this._handler, this._options);
 	}
 
@@ -50,6 +58,7 @@ class DomListener {
 
 		// Prevent leakers from holding on to the dom or handler func
 		this._node = null!;
+
 		this._handler = null!;
 	}
 }
@@ -89,9 +98,11 @@ export class Dimension implements IDimension {
 		if (a === b) {
 			return true;
 		}
+
 		if (!a || !b) {
 			return false;
 		}
+
 		return a.width === b.width && a.height === b.height;
 	}
 }
@@ -128,6 +139,7 @@ function _$<T extends Element>(
 	if (match[3]) {
 		result.id = match[3];
 	}
+
 	if (match[4]) {
 		result.className = match[4].replace(/\./g, " ").trim();
 	}
@@ -186,9 +198,13 @@ export function createStyleSheet(
 	beforeAppend?: (style: HTMLStyleElement) => void,
 ): HTMLStyleElement {
 	const style = document.createElement("style");
+
 	style.type = "text/css";
+
 	style.media = "screen";
+
 	beforeAppend?.(style);
+
 	container.appendChild(style);
 
 	return style;

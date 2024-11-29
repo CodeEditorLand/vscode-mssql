@@ -22,6 +22,7 @@ export namespace GetExecutionPlanRequest {
 
 export interface ExecutionPlanComparisonParams {
 	firstExecutionPlanGraphInfo: ep.ExecutionPlanGraphInfo;
+
 	secondExecutionPlanGraphInfo: ep.ExecutionPlanGraphInfo;
 }
 

@@ -19,6 +19,7 @@ export default class InputPrompt extends Prompt {
 		super(question, vscodeWrapper, ignoreFocusOut);
 
 		this._options = this.defaultInputBoxOptions;
+
 		this._options.prompt = this._question.message;
 	}
 
@@ -35,6 +36,7 @@ export default class InputPrompt extends Prompt {
 
 		if (this._question.default instanceof Error) {
 			placeHolder = this._question.default.message;
+
 			this._question.default = undefined;
 		}
 

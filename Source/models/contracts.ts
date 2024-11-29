@@ -53,20 +53,31 @@ export namespace DeleteCredentialRequest {
 
 export class SaveResultsRequestParams {
 	ownerUri: string;
+
 	filePath: string;
+
 	batchIndex: number;
+
 	resultSetIndex: number;
+
 	rowStartIndex: number;
+
 	rowEndIndex: number;
+
 	columnStartIndex: number;
+
 	columnEndIndex: number;
 }
 
 export class SaveResultsAsCsvRequestParams extends SaveResultsRequestParams {
 	includeHeaders: boolean = true;
+
 	delimiter: string = ",";
+
 	lineSeperator: string = undefined;
+
 	textIdentifier: string = '"';
+
 	encoding: string = "utf-8";
 }
 

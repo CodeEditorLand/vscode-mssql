@@ -25,20 +25,31 @@ export enum TaskStatus {
 // tslint:disable: interface-name
 export interface TaskProgressInfo {
 	taskId: string;
+
 	status: TaskStatus;
+
 	message: string;
+
 	script?: string | undefined;
 }
 
 export interface TaskInfo {
 	taskId: string;
+
 	status: TaskStatus;
+
 	taskExecutionMode: TaskExecutionMode;
+
 	serverName: string;
+
 	databaseName: string;
+
 	name: string;
+
 	description: string;
+
 	providerName: string;
+
 	isCancelable: boolean;
 }
 
@@ -66,12 +77,16 @@ namespace CancelTaskRequest {
 
 type ActiveTaskInfo = {
 	taskInfo: TaskInfo;
+
 	progressCallback: ProgressCallback;
+
 	completionPromise: Deferred<void>;
+
 	lastMessage?: string;
 };
 type ProgressCallback = (value: {
 	message?: string;
+
 	increment?: number;
 }) => void;
 
@@ -89,6 +104,7 @@ export class SqlTasksService {
 		this._client.onNotification(TaskCreatedNotification.type, (taskInfo) =>
 			this.handleTaskCreatedNotification(taskInfo),
 		);
+
 		this._client.onNotification(
 			TaskStatusChangedNotification.type,
 			(taskProgressInfo) =>
@@ -131,12 +147,15 @@ export class SqlTasksService {
 			async (progress, token): Promise<void> => {
 				newTaskInfo.progressCallback = (value) =>
 					progress.report(value);
+
 				token.onCancellationRequested(() => {
 					this.cancelTask(taskInfo.taskId);
 				});
+
 				await newTaskInfo.completionPromise;
 			},
 		);
+
 		this._activeTasks.set(taskInfo.taskId, newTaskInfo);
 	}
 
@@ -158,6 +177,7 @@ export class SqlTasksService {
 
 			return;
 		}
+
 		const taskStatusString = toTaskStatusDisplayString(
 			taskProgressInfo.status,
 		);
@@ -199,6 +219,7 @@ export class SqlTasksService {
 						taskInfo.taskInfo.name,
 						taskStatusString,
 					);
+
 			showCompletionMessage(taskProgressInfo.status, taskMessage);
 
 			if (
@@ -226,6 +247,7 @@ export class SqlTasksService {
 							taskProgressInfo.message,
 						)
 					: taskStatusString;
+
 			taskInfo.progressCallback({ message: taskMessage });
 		}
 	}

@@ -18,6 +18,7 @@ export enum QueryHistoryAction {
 // tslint:disable-next-line: interface-name
 export interface QueryHistoryQuickPickItem extends vscode.QuickPickItem {
 	node: QueryHistoryNode;
+
 	action: any;
 }
 
@@ -61,6 +62,7 @@ export class QueryHistoryUI {
 				if (answer) {
 					return answer.label;
 				}
+
 				return undefined;
 			});
 	}
@@ -97,10 +99,12 @@ export class QueryHistoryUI {
 								answer.action =
 									QueryHistoryAction.RunQueryHistoryAction;
 							}
+
 							return answer;
 						},
 					);
 				}
+
 				return undefined;
 			});
 	}

@@ -62,20 +62,28 @@ function getParentNode(node: TreeNodeType): TreeNodeInfo {
 
 		throw new Error(`Parent node was not TreeNodeInfo.`);
 	}
+
 	return node;
 }
 
 export class ObjectExplorerService {
 	private _client: SqlToolsServiceClient;
+
 	private _currentNode: TreeNodeInfo;
+
 	private _treeNodeToChildrenMap: Map<vscode.TreeItem, vscode.TreeItem[]>;
+
 	private _nodePathToNodeLabelMap: Map<string, string>;
+
 	private _rootTreeNodeArray: Array<TreeNodeInfo>;
+
 	private _sessionIdToConnectionCredentialsMap: Map<string, IConnectionInfo>;
+
 	private _expandParamsToTreeNodeInfoMap: Map<ExpandParams, TreeNodeInfo>;
 
 	// Deferred promise maps
 	private _sessionIdToPromiseMap: Map<string, Deferred<vscode.TreeItem>>;
+
 	private _expandParamsToPromiseMap: Map<
 		ExpandParams,
 		Deferred<TreeNodeInfo[]>
@@ -86,24 +94,31 @@ export class ObjectExplorerService {
 		private _objectExplorerProvider: ObjectExplorerProvider,
 	) {
 		this._client = this._connectionManager.client;
+
 		this._treeNodeToChildrenMap = new Map<
 			vscode.TreeItem,
 			vscode.TreeItem[]
 		>();
+
 		this._rootTreeNodeArray = new Array<TreeNodeInfo>();
+
 		this._sessionIdToConnectionCredentialsMap = new Map<
 			string,
 			IConnectionInfo
 		>();
+
 		this._nodePathToNodeLabelMap = new Map<string, string>();
+
 		this._sessionIdToPromiseMap = new Map<
 			string,
 			Deferred<vscode.TreeItem>
 		>();
+
 		this._expandParamsToPromiseMap = new Map<
 			ExpandParams,
 			Deferred<TreeNodeInfo[]>
 		>();
+
 		this._expandParamsToTreeNodeInfoMap = new Map<
 			ExpandParams,
 			TreeNodeInfo
@@ -113,6 +128,7 @@ export class ObjectExplorerService {
 			CreateSessionCompleteNotification.type,
 			this.handleSessionCreatedNotification(),
 		);
+
 		this._client.onNotification(
 			ExpandCompleteNotification.type,
 			this.handleExpandSessionNotification(),
@@ -126,6 +142,7 @@ export class ObjectExplorerService {
 			if (self._currentNode instanceof ConnectTreeNode) {
 				self.currentNode = getParentNode(self.currentNode);
 			}
+
 			if (result.success) {
 				let nodeLabel = this._nodePathToNodeLabelMap.get(
 					result.rootNode.nodePath,
@@ -154,6 +171,7 @@ export class ObjectExplorerService {
 						) {
 							nodeLabel = connection.label;
 						}
+
 						break;
 					}
 				}
@@ -169,6 +187,7 @@ export class ObjectExplorerService {
 								self._currentNode.connectionInfo,
 							)
 						: nodeLabel;
+
 					node = TreeNodeInfo.fromNodeInfo(
 						result.rootNode,
 						result.sessionId,
@@ -181,6 +200,7 @@ export class ObjectExplorerService {
 					nodeLabel = !nodeLabel
 						? getConnectionDisplayName(nodeConnection)
 						: nodeLabel;
+
 					node = TreeNodeInfo.fromNodeInfo(
 						result.rootNode,
 						result.sessionId,
@@ -198,10 +218,12 @@ export class ObjectExplorerService {
 					!this._connectionManager.isConnecting(nodeUri)
 				) {
 					const profile = <IConnectionProfile>node.connectionInfo;
+
 					await this._connectionManager.connect(nodeUri, profile);
 				}
 
 				self.updateNode(node);
+
 				self._objectExplorerProvider.objectExplorerExists = true;
 
 				const promise = self._sessionIdToPromiseMap.get(
@@ -211,12 +233,14 @@ export class ObjectExplorerService {
 				if (self._treeNodeToChildrenMap.has(node)) {
 					self._treeNodeToChildrenMap.delete(node);
 				}
+
 				return promise?.resolve(node);
 			} else {
 				// create session failure
 				if (self._currentNode?.connectionInfo?.password) {
 					self._currentNode.connectionInfo.password = "";
 				}
+
 				let error = LocalizedConstants.connectErrorLabel;
 
 				let errorNumber: number;
@@ -224,6 +248,7 @@ export class ObjectExplorerService {
 				if (result.errorNumber) {
 					errorNumber = result.errorNumber;
 				}
+
 				if (result.errorMessage) {
 					error += ` : ${result.errorMessage}`;
 				}
@@ -262,7 +287,9 @@ export class ObjectExplorerService {
 						const profile = <IConnectionProfile>(
 							self._currentNode.connectionInfo
 						);
+
 						self.updateNode(self._currentNode);
+
 						void self._connectionManager.connectionUI.handleFirewallError(
 							nodeUri,
 							profile,
@@ -283,6 +310,7 @@ export class ObjectExplorerService {
 						this._connectionManager.accountStore.getAccount(
 							profile.accountId,
 						);
+
 					await this.refreshAccount(account, profile);
 					// Do not await when performing reconnect to allow
 					// OE node to expand after connection is established.
@@ -292,6 +320,7 @@ export class ObjectExplorerService {
 						error,
 					);
 				}
+
 				const promise = self._sessionIdToPromiseMap.get(
 					result.sessionId,
 				);
@@ -310,6 +339,7 @@ export class ObjectExplorerService {
 		profile: IConnectionInfo,
 	): Promise<void> {
 		node.connectionInfo = profile;
+
 		this.updateNode(node);
 
 		let fileUri = ObjectExplorerUtils.getNodeUri(node);
@@ -372,6 +402,7 @@ export class ObjectExplorerService {
 				return this._expandParamsToTreeNodeInfoMap.get(key);
 			}
 		}
+
 		return undefined;
 	}
 
@@ -400,6 +431,7 @@ export class ObjectExplorerService {
 						credentials,
 					),
 				);
+
 				self._treeNodeToChildrenMap.set(parentNode, children);
 
 				for (let key of self._expandParamsToPromiseMap.keys()) {
@@ -408,13 +440,17 @@ export class ObjectExplorerService {
 						key.nodePath === expandParams.nodePath
 					) {
 						let promise = self._expandParamsToPromiseMap.get(key);
+
 						promise.resolve(children);
+
 						self._expandParamsToPromiseMap.delete(key);
+
 						self._expandParamsToTreeNodeInfoMap.delete(key);
 
 						return;
 					}
 				}
+
 				sendActionEvent(
 					TelemetryViews.ObjectExplorer,
 					TelemetryActions.ExpandNode,
@@ -442,7 +478,9 @@ export class ObjectExplorerService {
 			nodePath: node.nodePath,
 			filters: node.filters,
 		};
+
 		this._expandParamsToPromiseMap.set(expandParams, promise);
+
 		this._expandParamsToTreeNodeInfoMap.set(expandParams, node);
 
 		const response: boolean =
@@ -457,8 +495,11 @@ export class ObjectExplorerService {
 			await this._connectionManager.vscodeWrapper.showErrorMessage(
 				LocalizedConstants.msgUnableToExpand,
 			);
+
 			this._expandParamsToPromiseMap.delete(expandParams);
+
 			this._expandParamsToTreeNodeInfoMap.delete(expandParams);
+
 			promise.resolve(undefined);
 
 			return undefined;
@@ -469,6 +510,7 @@ export class ObjectExplorerService {
 		if (node instanceof ConnectTreeNode) {
 			node = getParentNode(node);
 		}
+
 		for (let rootTreeNode of this._rootTreeNodeArray) {
 			if (
 				Utils.isSameConnection(
@@ -478,12 +520,15 @@ export class ObjectExplorerService {
 				rootTreeNode.label === node.label
 			) {
 				const index = this._rootTreeNodeArray.indexOf(rootTreeNode);
+
 				delete this._rootTreeNodeArray[index];
+
 				this._rootTreeNodeArray[index] = node;
 
 				return;
 			}
 		}
+
 		this._rootTreeNodeArray.push(node);
 	}
 
@@ -501,8 +546,10 @@ export class ObjectExplorerService {
 				if (this._treeNodeToChildrenMap.has(child)) {
 					stack.concat(this._treeNodeToChildrenMap.get(child));
 				}
+
 				this._treeNodeToChildrenMap.delete(child);
 			}
+
 			this._treeNodeToChildrenMap.delete(node);
 		}
 	}
@@ -538,6 +585,7 @@ export class ObjectExplorerService {
 				conn.label === conn.connectionCreds.server
 					? getConnectionDisplayName(conn.connectionCreds)
 					: conn.label;
+
 			this._nodePathToNodeLabelMap.set(
 				conn.connectionCreds.server,
 				nodeLabel,
@@ -560,6 +608,7 @@ export class ObjectExplorerService {
 				undefined,
 				undefined,
 			);
+
 			this._rootTreeNodeArray.push(node);
 		}
 	}
@@ -575,6 +624,7 @@ export class ObjectExplorerService {
 				key.nodePath === node.nodePath
 			) {
 				this._expandParamsToPromiseMap.delete(key);
+
 				this._expandParamsToTreeNodeInfoMap.delete(key);
 			}
 		}
@@ -585,6 +635,7 @@ export class ObjectExplorerService {
 	 */
 	private getAddConnectionNode(): AddConnectionTreeNode[] {
 		this._rootTreeNodeArray = [];
+
 		this._objectExplorerProvider.objectExplorerExists = true;
 
 		return [new AddConnectionTreeNode()];
@@ -596,6 +647,7 @@ export class ObjectExplorerService {
 	 */
 	private createSignInNode(element: TreeNodeInfo): AccountSignInTreeNode[] {
 		const signInNode = new AccountSignInTreeNode(element);
+
 		this._treeNodeToChildrenMap.set(element, [signInNode]);
 
 		return [signInNode];
@@ -607,6 +659,7 @@ export class ObjectExplorerService {
 	 */
 	private createConnectTreeNode(element: TreeNodeInfo): ConnectTreeNode[] {
 		const connectNode = new ConnectTreeNode(element);
+
 		this._treeNodeToChildrenMap.set(element, [connectNode]);
 
 		return [connectNode];
@@ -629,6 +682,7 @@ export class ObjectExplorerService {
 
 					// node expansion
 					let promise = new Deferred<TreeNodeInfo[]>();
+
 					await this.expandNode(element, element.sessionId, promise);
 
 					let children = await promise;
@@ -692,7 +746,9 @@ export class ObjectExplorerService {
 			if (!this._objectExplorerProvider.objectExplorerExists) {
 				// if there are actually saved connections
 				this._rootTreeNodeArray = [];
+
 				this.getSavedConnections();
+
 				this._objectExplorerProvider.objectExplorerExists = true;
 
 				return this.sortByServerName(this._rootTreeNodeArray);
@@ -716,7 +772,9 @@ export class ObjectExplorerService {
 	): Promise<string> {
 		if (!connectionCredentials) {
 			const connectionUI = this._connectionManager.connectionUI;
+
 			connectionCredentials = await connectionUI.createAndSaveProfile();
+
 			sendActionEvent(
 				TelemetryViews.ObjectExplorer,
 				TelemetryActions.CreateConnection,
@@ -726,6 +784,7 @@ export class ObjectExplorerService {
 				this._connectionManager.getServerInfo(connectionCredentials),
 			);
 		}
+
 		if (connectionCredentials) {
 			// connection string based credential
 			if (connectionCredentials.connectionString) {
@@ -738,6 +797,7 @@ export class ObjectExplorerService {
 							connectionCredentials,
 							true,
 						);
+
 					connectionCredentials.connectionString = connectionString;
 				}
 			} else {
@@ -779,6 +839,7 @@ export class ObjectExplorerService {
 									undefined;
 							}
 						}
+
 						connectionCredentials.password = password;
 					}
 				} else if (
@@ -805,6 +866,7 @@ export class ObjectExplorerService {
 					} else if (azureController.isSqlAuthProviderEnabled()) {
 						connectionCredentials.user =
 							account.displayInfo.displayName;
+
 						connectionCredentials.email = account.displayInfo.email;
 						// Update profile after updating user/email
 						await this._connectionManager.connectionUI.saveProfile(
@@ -815,6 +877,7 @@ export class ObjectExplorerService {
 							needsRefresh = true;
 						}
 					}
+
 					if (
 						!connectionCredentials.azureAccountToken &&
 						(!azureController.isSqlAuthProviderEnabled() ||
@@ -827,6 +890,7 @@ export class ObjectExplorerService {
 					}
 				}
 			}
+
 			const connectionDetails =
 				ConnectionCredentials.createConnectionDetails(
 					connectionCredentials,
@@ -853,6 +917,7 @@ export class ObjectExplorerService {
 					response.sessionId,
 					connectionCredentials,
 				);
+
 				this._sessionIdToPromiseMap.set(response.sessionId, promise);
 
 				return response.sessionId;
@@ -893,6 +958,7 @@ export class ObjectExplorerService {
 			);
 
 			let errorMessage = LocalizedConstants.msgAccountRefreshFailed;
+
 			await this._connectionManager.vscodeWrapper
 				.showErrorMessage(
 					errorMessage,
@@ -906,8 +972,10 @@ export class ObjectExplorerService {
 								this._connectionManager.accountStore,
 								providerSettings.resources.databaseResource,
 							);
+
 						connectionCredentials.azureAccountToken =
 							updatedProfile.azureAccountToken;
+
 						connectionCredentials.expiresOn =
 							updatedProfile.expiresOn;
 					} else {
@@ -920,13 +988,16 @@ export class ObjectExplorerService {
 				});
 		} else {
 			connectionCredentials.azureAccountToken = azureAccountToken.token;
+
 			connectionCredentials.expiresOn = azureAccountToken.expiresOn;
 		}
 	}
+
 	public getConnectionCredentials(sessionId: string): IConnectionInfo {
 		if (this._sessionIdToConnectionCredentialsMap.has(sessionId)) {
 			return this._sessionIdToConnectionCredentialsMap.get(sessionId);
 		}
+
 		return undefined;
 	}
 
@@ -937,6 +1008,7 @@ export class ObjectExplorerService {
 		await this.closeSession(node);
 
 		const nodeUri = ObjectExplorerUtils.getNodeUri(node);
+
 		await this._connectionManager.disconnect(nodeUri);
 
 		if (!isDisconnect) {
@@ -947,17 +1019,20 @@ export class ObjectExplorerService {
 			}
 		} else {
 			node.nodeType = Constants.disconnectedServerLabel;
+
 			node.context = {
 				type: Constants.disconnectedServerLabel,
 				filterable: false,
 				hasFilters: false,
 				subType: "",
 			};
+
 			node.sessionId = undefined;
 
 			if (!(<IConnectionProfile>node.connectionInfo).savePassword) {
 				node.connectionInfo.password = "";
 			}
+
 			const label =
 				typeof node.label === "string" ? node.label : node.label.label;
 			// make a new node to show disconnected behavior
@@ -980,13 +1055,18 @@ export class ObjectExplorerService {
 			);
 
 			this.updateNode(disconnectedNode);
+
 			this._currentNode = disconnectedNode;
+
 			this._treeNodeToChildrenMap.set(this._currentNode, [
 				new ConnectTreeNode(this._currentNode),
 			]);
 		}
+
 		this._nodePathToNodeLabelMap.delete(node.nodePath);
+
 		this.cleanNodeChildren(node);
+
 		sendActionEvent(
 			TelemetryViews.ObjectExplorer,
 			isDisconnect
@@ -1071,6 +1151,7 @@ export class ObjectExplorerService {
 			undefined,
 			undefined,
 		);
+
 		this.updateNode(node);
 	}
 
@@ -1098,13 +1179,17 @@ export class ObjectExplorerService {
 				if (this._sessionIdToPromiseMap.has(node.sessionId)) {
 					this._sessionIdToPromiseMap.delete(node.sessionId);
 				}
+
 				const nodeUri = ObjectExplorerUtils.getNodeUri(node);
+
 				await this._connectionManager.disconnect(nodeUri);
+
 				this.cleanNodeChildren(node);
 
 				return;
 			}
 		}
+
 		return;
 	}
 

@@ -88,6 +88,7 @@ export interface MssqlWebviewPanelOptions {
 		| vscode.Uri
 		| {
 				readonly light: vscode.Uri;
+
 				readonly dark: vscode.Uri;
 		  };
 	/**

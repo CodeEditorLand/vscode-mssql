@@ -11,6 +11,7 @@ export interface FormState<T> {
 
 export interface FormContextProps<TState extends FormState<TForm>, TForm> {
 	state: TState;
+
 	themeKind: ColorThemeKind;
 
 	formAction: (event: FormEvent<TForm>) => void;
@@ -79,13 +80,17 @@ export interface FormItemValidationState {
 
 export interface FormItemActionButton {
 	label: string;
+
 	id: string;
+
 	hidden?: boolean;
+
 	callback: () => void;
 }
 
 export interface FormItemOptions {
 	displayName: string;
+
 	value: string;
 }
 

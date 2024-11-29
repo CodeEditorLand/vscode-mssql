@@ -32,10 +32,14 @@ export abstract class ReactWebviewBaseController<State, Reducers>
 	implements vscode.Disposable
 {
 	private _disposables: vscode.Disposable[] = [];
+
 	private _isDisposed: boolean = false;
+
 	private _state: State;
+
 	private _webviewRequestHandlers: { [key: string]: (params: any) => any } =
 		{};
+
 	private _reducers: Record<
 		keyof Reducers,
 		(
@@ -49,15 +53,21 @@ export abstract class ReactWebviewBaseController<State, Reducers>
 			payload: Reducers[keyof Reducers],
 		) => ReducerResponse<State>
 	>;
+
 	private _isFirstLoad: boolean = true;
+
 	private _loadStartTime: number = Date.now();
+
 	private _endLoadActivity = startActivity(
 		TelemetryViews.WebviewController,
 		TelemetryActions.Load,
 	);
+
 	private _onDisposed: vscode.EventEmitter<void> =
 		new vscode.EventEmitter<void>();
+
 	public readonly onDisposed: vscode.Event<void> = this._onDisposed.event;
+
 	protected _webviewMessageHandler = async (message) => {
 		if (message.type === "request") {
 			const endActivity = startActivity(
@@ -70,11 +80,13 @@ export abstract class ReactWebviewBaseController<State, Reducers>
 			if (handler) {
 				try {
 					const result = await handler(message.params);
+
 					this.postMessage({
 						type: "response",
 						id: message.id,
 						result,
 					});
+
 					endActivity.end(ActivityStatus.Succeeded, {
 						type: this._sourceFile,
 						method: message.method,
@@ -105,6 +117,7 @@ export abstract class ReactWebviewBaseController<State, Reducers>
 				const error = new Error(
 					`No handler registered for method ${message.method}`,
 				);
+
 				endActivity.endFailed(
 					error,
 					true,
@@ -135,7 +148,9 @@ export abstract class ReactWebviewBaseController<State, Reducers>
 
 	protected initializeBase() {
 		this.state = this._initialData;
+
 		this._registerDefaultRequestHandlers();
+
 		this.setupTheming();
 	}
 
@@ -169,6 +184,7 @@ export abstract class ReactWebviewBaseController<State, Reducers>
 				<style>
 					html, body {
 						margin: 0;
+
 						padding: 0px;
   						width: 100%;
   						height: 100%;
@@ -195,6 +211,7 @@ export abstract class ReactWebviewBaseController<State, Reducers>
 				);
 			}),
 		);
+
 		this.postNotification(
 			DefaultWebviewNotifications.onDidChangeTheme,
 			vscode.window.activeColorTheme.kind,
@@ -233,9 +250,11 @@ export abstract class ReactWebviewBaseController<State, Reducers>
 						"\n" +
 						`Total time: ${timeToLoad} ms`,
 				);
+
 				this._endLoadActivity.end(ActivityStatus.Succeeded, {
 					type: this._sourceFile,
 				});
+
 				this._isFirstLoad = false;
 			}
 		};
@@ -286,6 +305,7 @@ export abstract class ReactWebviewBaseController<State, Reducers>
 
 				return;
 			}
+
 			const args = message?.args ?? [];
 
 			return await vscode.commands.executeCommand(
@@ -293,6 +313,7 @@ export abstract class ReactWebviewBaseController<State, Reducers>
 				...args,
 			);
 		};
+
 		this._webviewRequestHandlers["getPlatform"] = async () => {
 			return process.platform;
 		};
@@ -341,6 +362,7 @@ export abstract class ReactWebviewBaseController<State, Reducers>
 	 */
 	public set state(value: State) {
 		this._state = value;
+
 		this.postNotification(DefaultWebviewNotifications.updateState, value);
 	}
 
@@ -383,7 +405,9 @@ export abstract class ReactWebviewBaseController<State, Reducers>
 	 */
 	public dispose() {
 		this._onDisposed.fire();
+
 		this._disposables.forEach((d) => d.dispose());
+
 		this._isDisposed = true;
 	}
 }

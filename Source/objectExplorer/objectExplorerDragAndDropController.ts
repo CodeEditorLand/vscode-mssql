@@ -12,6 +12,7 @@ export class ObjectExplorerDragAndDropController
 {
 	// Unique identifier for the drag-and-drop controller
 	readonly dropMimeTypes = ["text/plain"];
+
 	readonly dragMimeTypes = ["text/plain"];
 
 	handleDrag(
@@ -21,6 +22,7 @@ export class ObjectExplorerDragAndDropController
 	): void {
 		const item = source[0]; // Handle only the first item for simplicity
 		let objectString = "";
+
 		if (item.metadata) {
 			switch (item.metadata.metadataTypeName) {
 				case "Table":
@@ -28,11 +30,15 @@ export class ObjectExplorerDragAndDropController
 				case "View":
 				case "UserDefinedFunction":
 					objectString = `[${item.metadata.schema}].[${item.metadata.name}]`;
+
 					break;
+
 				default:
 					objectString = `[${item.metadata.name}]`;
+
 					break;
 			}
+
 			dataTransfer.set(
 				"text/plain",
 				new vscode.DataTransferItem(objectString),

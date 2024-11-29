@@ -7,7 +7,9 @@ import VscodeWrapper from "../controllers/vscodeWrapper";
 
 abstract class Prompt {
 	protected _question: any;
+
 	protected _ignoreFocusOut?: boolean;
+
 	protected _vscodeWrapper: VscodeWrapper;
 
 	constructor(
@@ -16,7 +18,9 @@ abstract class Prompt {
 		ignoreFocusOut?: boolean,
 	) {
 		this._question = question;
+
 		this._ignoreFocusOut = ignoreFocusOut ? ignoreFocusOut : false;
+
 		this._vscodeWrapper = vscodeWrapper;
 	}
 

@@ -20,6 +20,7 @@ export class EmptyHistoryNode extends vscode.TreeItem {
 			LocalizedConstants.msgNoQueriesAvailable,
 			vscode.TreeItemCollapsibleState.None,
 		);
+
 		this.contextValue = EmptyHistoryNode.contextValue;
 	}
 }
@@ -29,19 +30,27 @@ export class EmptyHistoryNode extends vscode.TreeItem {
  */
 export class QueryHistoryNode extends vscode.TreeItem {
 	private static readonly contextValue = "queryHistoryNode";
+
 	private readonly iconsPath: string = path.join(__dirname, "icons");
+
 	private readonly successIcon: string = path.join(
 		this.iconsPath,
 		"status_success.svg",
 	);
+
 	private readonly failureIcon: string = path.join(
 		this.iconsPath,
 		"status_error.svg",
 	);
+
 	private _ownerUri: string;
+
 	private _timeStamp: Date;
+
 	private _isSuccess: boolean;
+
 	private _queryString: string;
+
 	private _connectionLabel: string;
 
 	constructor(
@@ -54,17 +63,25 @@ export class QueryHistoryNode extends vscode.TreeItem {
 		isSuccess: boolean,
 	) {
 		super(label, vscode.TreeItemCollapsibleState.None);
+
 		this._queryString = queryString;
+
 		this._ownerUri = ownerUri;
+
 		this._timeStamp = timeStamp;
+
 		this._isSuccess = isSuccess;
+
 		this._connectionLabel = connectionLabel;
+
 		this.iconPath = this._isSuccess ? this.successIcon : this.failureIcon;
 
 		const queryStatusLabel = this._isSuccess
 			? LocalizedConstants.querySuccess
 			: LocalizedConstants.queryFailed;
+
 		this.tooltip = `${tooltip}${os.EOL}${os.EOL}${queryStatusLabel}`;
+
 		this.contextValue = QueryHistoryNode.contextValue;
 	}
 

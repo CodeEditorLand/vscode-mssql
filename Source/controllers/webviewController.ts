@@ -32,10 +32,15 @@ function createMessageProtocol(webview: vscode.Webview): IMessageProtocol {
 
 export class WebviewPanelController implements vscode.Disposable {
 	public readonly proxy: IWebviewProxy;
+
 	private _panel: vscode.WebviewPanel;
+
 	private _disposables: vscode.Disposable[] = [];
+
 	private _isDisposed: boolean = false;
+
 	private _isActive: boolean;
+
 	private _rendered: boolean = false;
 
 	constructor(
@@ -55,6 +60,7 @@ export class WebviewPanelController implements vscode.Disposable {
 			config[Constants.configPersistQueryResultTabs];
 
 		const column = this.newResultPaneViewColumn(this.uri);
+
 		this._disposables.push(
 			(this._panel = vscode.window.createWebviewPanel(
 				this.uri,
@@ -69,15 +75,19 @@ export class WebviewPanelController implements vscode.Disposable {
 				},
 			)),
 		);
+
 		this._panel.onDidDispose(() => {
 			this.statusView.hideRowCount(this.uri, true);
+
 			this.dispose();
 		});
+
 		this._disposables.push(
 			this._panel.onDidChangeViewState((p) => {
 				// occurs when current tab is back in focus
 				if (p.webviewPanel.active && p.webviewPanel.visible) {
 					this.statusView.showRowCount(this.uri);
+
 					this._isActive = true;
 
 					return;
@@ -85,17 +95,20 @@ export class WebviewPanelController implements vscode.Disposable {
 				// occurs when we switch the current tab
 				if (!p.webviewPanel.active && !p.webviewPanel.visible) {
 					this._isActive = false;
+
 					this.statusView.hideRowCount(this.uri);
 
 					return;
 				}
 			}),
 		);
+
 		this.proxy = createProxy(
 			createMessageProtocol(this._panel.webview),
 			serverProxy,
 			false,
 		);
+
 		this._disposables.push(this.proxy);
 	}
 
@@ -140,6 +153,7 @@ export class WebviewPanelController implements vscode.Disposable {
 					viewColumn = vscode.ViewColumn.Two;
 				}
 		}
+
 		return viewColumn;
 	}
 
@@ -158,16 +172,19 @@ export class WebviewPanelController implements vscode.Disposable {
 			basehref: baseUri,
 			prod: false,
 		});
+
 		this._panel.webview.html = formattedHTML;
 	}
 
 	public dispose(): void {
 		this._disposables.forEach((d) => d.dispose());
+
 		this._isDisposed = true;
 	}
 
 	public revealToForeground(uri: string): void {
 		let column = this.newResultPaneViewColumn(uri);
+
 		this._panel.reveal(column, true);
 	}
 

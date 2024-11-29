@@ -29,30 +29,40 @@ export namespace HandleFirewallRuleRequest {
 
 export interface ICreateFirewallRuleParams {
 	account: IAccount;
+
 	serverName: string;
+
 	startIpAddress: string;
+
 	endIpAddress: string;
+
 	firewallRuleName: string;
+
 	securityTokenMappings: {};
 }
 
 export interface ICreateFirewallRuleResponse {
 	result: boolean;
+
 	errorMessage: string;
 }
 
 export interface IHandleFirewallRuleParams {
 	errorCode: number;
+
 	errorMessage: string;
+
 	connectionTypeId: string;
 }
 
 export interface IHandleFirewallRuleResponse {
 	result: boolean;
+
 	ipAddress: string;
 }
 
 export interface IFirewallIpAddressRange {
 	startIpAddress: string;
+
 	endIpAddress: string;
 }

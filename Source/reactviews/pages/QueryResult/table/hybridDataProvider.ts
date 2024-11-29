@@ -15,6 +15,7 @@ import {
 
 export interface HybridDataProviderOptions {
 	inMemoryDataProcessing: boolean;
+
 	inMemoryDataCountThreshold?: number;
 }
 
@@ -26,7 +27,9 @@ export class HybridDataProvider<T extends Slick.SlickData>
 	implements IDisposableDataProvider<T>
 {
 	private _asyncDataProvider: AsyncDataProvider<T>;
+
 	private _tableDataProvider: TableDataView<T>;
+
 	private _dataCached: boolean = false;
 
 	// private _onFilterStateChange = new vscode.EventEmitter<void>();
@@ -44,6 +47,7 @@ export class HybridDataProvider<T extends Slick.SlickData>
 		sortFn?: TableSortFunc<T>,
 	) {
 		this._asyncDataProvider = new AsyncDataProvider<T>(dataRows);
+
 		this._tableDataProvider = new TableDataView<T>(
 			undefined,
 			undefined,
@@ -109,11 +113,13 @@ export class HybridDataProvider<T extends Slick.SlickData>
 
 	public async filter(columns: FilterableColumn<T>[]) {
 		await this.initializeCacheIfNeeded();
+
 		void this.provider.filter(columns);
 	}
 
 	public async sort(options: Slick.OnSortEventArgs<T>) {
 		await this.initializeCacheIfNeeded();
+
 		void this.provider.sort(options);
 	}
 
@@ -134,12 +140,16 @@ export class HybridDataProvider<T extends Slick.SlickData>
 		if (!this._options.inMemoryDataProcessing) {
 			return;
 		}
+
 		if (this.thresholdReached) {
 			return;
 		}
+
 		if (!this._dataCached) {
 			const data = await this._loadDataFn(0, this.length);
+
 			this._dataCached = true;
+
 			this._tableDataProvider.push(data);
 		}
 	}

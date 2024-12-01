@@ -1,7 +1,7 @@
 # Introducing the Enhanced MSSQL Extension for Visual Studio Code
 
 ## Overview
-The [MSSQL extension for Visual Studio Code](HTTPS://marketplace.visualstudio.com/items?itemName=ms-mssql.mssql) is designed to provide a seamless and powerful experience for developers working with SQL Server and Azure SQL.
+The [MSSQL extension for Visual Studio Code](https://marketplace.visualstudio.com/items?itemName=ms-mssql.mssql) is designed to provide a seamless and powerful experience for developers working with SQL Server and Azure SQL.
 
 With a new rich set of features, this extension enhances the development process by offering tools for connecting to databases, designing tables, exploring database objects, running queries, and visualizing query execution plans.
 
@@ -100,4 +100,4 @@ The right-hand sidebar provides quick access to additional actions:
 
 ## Share Your Feedback
 
-We’d love to hear your thoughts on the new features! If you have any feedback or run into issues, please let us know by creating a GitHub issue at [HTTPS://github.com/microsoft/vscode-mssql/issues](HTTPS://github.com/microsoft/vscode-mssql/issues).
+We’d love to hear your thoughts on the new features! If you have any feedback or run into issues, please let us know by creating a GitHub issue at [HTTPS://github.com/microsoft/vscode-mssql/issues](https://github.com/microsoft/vscode-mssql/issues).

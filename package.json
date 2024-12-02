@@ -1500,7 +1500,6 @@
 		"compile": "gulp ext:compile",
 		"lint-staged": "lint-staged --quiet",
 		"localization": "gulp ext:extract-localization-strings",
-		"prepare": "husky",
 		"smoketest": "gulp ext:smoke",
 		"testWithCoverage": "yarn test && yarn gulp cover"
 	}

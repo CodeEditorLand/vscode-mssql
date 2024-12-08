@@ -4,7 +4,7 @@
  *--------------------------------------------------------------------------------------------*/
 
 import { QueryResultWebviewState } from "../../../sharedInterfaces/queryResult";
-import { ColorThemeKind } from "../../common/vscodeWebviewProvider";
+import * as qr from "../../../sharedInterfaces/queryResult";
 
 export const saveAsCsvIcon = (theme: ColorThemeKind) => {
 	return theme === ColorThemeKind.Light
@@ -30,3 +30,19 @@ export function hasResultsOrMessages(state: QueryResultWebviewState): boolean {
 		state.messages.length > 0
 	);
 }
+
+/**
+ * Splits messages containing newline characters into separate messages while preserving original properties.
+ * @param messages - Array messages to process
+ * @returns Array of messages with newline characters split into separate messages
+ */
+export const splitMessages = (messages: qr.IMessage[]): qr.IMessage[] => {
+    return messages.flatMap((message) => {
+        const lines = message.message.split(/\r?\n/);
+        return lines.map((line) => {
+            let newMessage = { ...message };
+            newMessage.message = line;
+            return newMessage;
+        });
+    });
+};

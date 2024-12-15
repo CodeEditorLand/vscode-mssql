@@ -37,12 +37,12 @@ export function hasResultsOrMessages(state: QueryResultWebviewState): boolean {
  * @returns Array of messages with newline characters split into separate messages
  */
 export const splitMessages = (messages: qr.IMessage[]): qr.IMessage[] => {
-    return messages.flatMap((message) => {
-        const lines = message.message.split(/\r?\n/);
-        return lines.map((line) => {
-            let newMessage = { ...message };
-            newMessage.message = line;
-            return newMessage;
-        });
-    });
+	return messages.flatMap((message) => {
+		const lines = message.message.split(/\r?\n/);
+		return lines.map((line) => {
+			let newMessage = { ...message };
+			newMessage.message = line;
+			return newMessage;
+		});
+	});
 };

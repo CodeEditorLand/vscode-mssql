@@ -44,15 +44,15 @@ export class ConnectionProfile
 
 	public azureAuthType: AzureAuthType;
 
-	public declare azureAccountToken: string | undefined;
+	declare public azureAccountToken: string | undefined;
 
-	public declare expiresOn: number | undefined;
+	declare public expiresOn: number | undefined;
 
 	public accountStore: AccountStore;
 
-	public declare accountId: string;
+	declare public accountId: string;
 
-	public declare tenantId: string;
+	declare public tenantId: string;
 
 	constructor(connectionCredentials?: ConnectionCredentials) {
 		super();

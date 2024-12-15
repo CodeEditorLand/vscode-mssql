@@ -477,7 +477,6 @@ export default class QueryRunner {
 			if (messages !== undefined) {
 				for (
 					let messageId = 0;
-
 					messageId < messages.length;
 					++messageId
 				) {
@@ -490,9 +489,7 @@ export default class QueryRunner {
 
 			for (
 				let resultSetId = 0;
-
 				resultSetId < batchSet.resultSetSummaries.length;
-
 				resultSetId++
 			) {
 				let resultSet = batchSet.resultSetSummaries[resultSetId];

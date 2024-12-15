@@ -1038,16 +1038,12 @@ export class AppComponent implements OnInit, AfterViewChecked {
 
 		for (
 			let row = unifiedSelection.fromRow;
-
 			row <= unifiedSelection.toRow;
-
 			row++
 		) {
 			for (
 				let column = unifiedSelection.fromCell;
-
 				column <= unifiedSelection.toCell;
-
 				column++
 			) {
 				// If some cell in the combined selection isn't actually selected, return the original selections

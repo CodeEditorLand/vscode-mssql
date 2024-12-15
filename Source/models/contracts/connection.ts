@@ -5,9 +5,9 @@
 
 import { NotificationType, RequestType } from "vscode-languageclient";
 import {
-    ConnectionDetails,
-    IServerInfo,
-    DataProtocolServerCapabilities,
+	ConnectionDetails,
+	DataProtocolServerCapabilities,
+	IServerInfo,
 } from "vscode-mssql";
 
 // ------------------------------- < Connect Request > ----------------------------------------------

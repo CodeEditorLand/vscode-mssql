@@ -308,14 +308,12 @@ export const configCopyRemoveNewLine = "copyRemoveNewLine";
 export const configSplitPaneSelection = "splitPaneSelection";
 
 export const configShowBatchTime = "showBatchTime";
-
-export const extConfigResultKeys = [
-	"shortcuts",
-	"messagesDefaultOpen",
-	"resultsFontSize",
-	"resultsFontFamily",
-];
-
+export enum extConfigResultKeys {
+    Shortcuts = "shortcuts",
+    MessagesDefaultOpen = "messagesDefaultOpen",
+    ResultsFontSize = "resultsFontSize",
+    ResultsFontFamily = "resultsFontFamily",
+}
 export const sqlToolsServiceInstallDirConfigKey = "installDir";
 
 export const sqlToolsServiceExecutableFilesConfigKey = "executableFiles";
